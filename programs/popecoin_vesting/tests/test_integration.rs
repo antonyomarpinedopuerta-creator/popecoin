@@ -350,6 +350,177 @@ fn test_deposit_rejects_prefunded_full_vault() {
     println!("Pre-funding total rechazado correctamente");
 }
 
+
+#[test]
+fn test_deposit_rejects_prefunded_excess_vault() {
+    let mut env = VestingTestEnv::new();
+
+    // Creamos el vesting y su Vault.
+    let initialize_accounts = accounts::Initialize {
+        payer: env.payer.pubkey(),
+        authority: env.authority.pubkey(),
+        beneficiary: env.beneficiary.pubkey(),
+        mint: env.mint.pubkey(),
+        vesting: env.vesting,
+        vault: env.vault,
+        token_program: anchor_spl::token::ID,
+        system_program: anchor_lang::system_program::ID,
+        rent: anchor_lang::prelude::rent::ID,
+    };
+
+    let initialize_data = instruction::Initialize {
+        total_amount: env.total_amount,
+        start_time: 1_000,
+        cliff_time: 1_100,
+        end_time: 2_000,
+    };
+
+    let initialize_ix = Instruction {
+        program_id: env.program_id,
+        accounts: initialize_accounts.to_account_metas(None),
+        data: initialize_data.data(),
+    };
+
+    let tx = Transaction::new_signed_with_payer(
+        &[initialize_ix],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &env.authority, &env.beneficiary],
+        env.svm.latest_blockhash(),
+    );
+
+    env.svm.send_transaction(tx).unwrap();
+
+    // Prefinanciamos la Vault con MÁS tokens que el total autorizado.
+    let excess_amount = env.total_amount
+        .checked_add(1)
+        .expect("overflow inesperado");
+
+    // La authority necesita tener suficientes tokens para realizar
+    // la transferencia de prueba.
+    let mint_to =
+        spl_token_interface::instruction::mint_to(
+            &spl_token_interface::ID,
+            &env.mint.pubkey(),
+            &env.authority_token.pubkey(),
+            &env.authority.pubkey(),
+            &[],
+            1,
+        )
+        .unwrap();
+
+    env.svm.expire_blockhash();
+
+    let tx = Transaction::new_signed_with_payer(
+        &[mint_to],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &env.authority],
+        env.svm.latest_blockhash(),
+    );
+
+    env.svm.send_transaction(tx).unwrap();
+
+    let prefund_ix =
+        spl_token_interface::instruction::transfer_checked(
+            &spl_token_interface::ID,
+            &env.authority_token.pubkey(),
+            &env.mint.pubkey(),
+            &env.vault,
+            &env.authority.pubkey(),
+            &[],
+            excess_amount,
+            6,
+        )
+        .unwrap();
+
+    env.svm.expire_blockhash();
+
+    let tx = Transaction::new_signed_with_payer(
+        &[prefund_ix],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &env.authority],
+        env.svm.latest_blockhash(),
+    );
+
+    // Esta transferencia debe fallar porque el helper inicialmente
+    // acuñó total_amount y solo agregamos 1 unidad.
+    //
+    // Por eso primero verificamos que la authority tenga exactamente
+    // total_amount + 1 antes de continuar.
+    let authority_token_before =
+        env.svm.get_account(&env.authority_token.pubkey()).unwrap();
+
+    let authority_token_state =
+        TokenAccount::unpack(&authority_token_before.data).unwrap();
+
+    assert_eq!(
+        authority_token_state.amount,
+        env.total_amount + 1
+    );
+
+    env.svm.send_transaction(tx).unwrap();
+
+    let vault_account =
+        env.svm.get_account(&env.vault).unwrap();
+
+    let vault_state =
+        TokenAccount::unpack(&vault_account.data).unwrap();
+
+    assert_eq!(
+        vault_state.amount,
+        env.total_amount + 1
+    );
+
+    // Intentamos ejecutar Deposit.
+    // El programa debe rechazarlo porque vault_amount > total_amount.
+    let deposit_accounts = accounts::Deposit {
+        vesting: env.vesting,
+        vault: env.vault,
+        authority: env.authority.pubkey(),
+        mint: env.mint.pubkey(),
+        authority_token_account: env.authority_token.pubkey(),
+        token_program: anchor_spl::token::ID,
+    };
+
+    let deposit_data = instruction::Deposit {
+        amount: 1,
+    };
+
+    let deposit_ix = Instruction {
+        program_id: env.program_id,
+        accounts: deposit_accounts.to_account_metas(None),
+        data: deposit_data.data(),
+    };
+
+    env.svm.expire_blockhash();
+
+    let tx = Transaction::new_signed_with_payer(
+        &[deposit_ix],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &env.authority],
+        env.svm.latest_blockhash(),
+    );
+
+    let result = env.svm.send_transaction(tx);
+
+    assert!(
+        result.is_err(),
+        "FALLO: Deposit permitió operar con una Vault sobre-financiada"
+    );
+
+    let vault_after =
+        env.svm.get_account(&env.vault).unwrap();
+
+    let vault_after_state =
+        TokenAccount::unpack(&vault_after.data).unwrap();
+
+    assert_eq!(
+        vault_after_state.amount,
+        env.total_amount + 1
+    );
+
+    println!("Vault sobre-financiada rechazada correctamente");
+}
+
 #[test]
 fn test_popecoin_integration_setup() {
     // Programa POPE Vesting + entorno local de Solana
