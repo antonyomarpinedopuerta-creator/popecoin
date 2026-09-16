@@ -1441,6 +1441,378 @@ fn test_release_at_exact_cliff() {
     println!("Release exactamente en cliff correcto: 10% liberado");
 }
 
+
+#[test]
+fn test_deposit_rejects_unauthorized_authority() {
+    let mut env = VestingTestEnv::new();
+
+    let initialize_accounts = accounts::Initialize {
+        payer: env.payer.pubkey(),
+        authority: env.authority.pubkey(),
+        beneficiary: env.beneficiary.pubkey(),
+        mint: env.mint.pubkey(),
+        vesting: env.vesting,
+        vault: env.vault,
+        token_program: anchor_spl::token::ID,
+        system_program: anchor_lang::system_program::ID,
+        rent: anchor_lang::prelude::rent::ID,
+    };
+
+    let initialize_data = instruction::Initialize {
+        total_amount: env.total_amount,
+        start_time: 1_000,
+        cliff_time: 1_100,
+        end_time: 2_000,
+    };
+
+    let initialize_ix = Instruction {
+        program_id: env.program_id,
+        accounts: initialize_accounts.to_account_metas(None),
+        data: initialize_data.data(),
+    };
+
+    let tx = Transaction::new_signed_with_payer(
+        &[initialize_ix],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &env.authority, &env.beneficiary],
+        env.svm.latest_blockhash(),
+    );
+
+    env.svm.send_transaction(tx).unwrap();
+
+    // Un atacante intenta depositar usando su propia wallet.
+    let attacker = Keypair::new();
+
+    let deposit_accounts = accounts::Deposit {
+        vesting: env.vesting,
+        vault: env.vault,
+        authority: attacker.pubkey(),
+        mint: env.mint.pubkey(),
+        authority_token_account: env.authority_token.pubkey(),
+        token_program: anchor_spl::token::ID,
+    };
+
+    let deposit_data = instruction::Deposit {
+        amount: env.total_amount,
+    };
+
+    let deposit_ix = Instruction {
+        program_id: env.program_id,
+        accounts: deposit_accounts.to_account_metas(None),
+        data: deposit_data.data(),
+    };
+
+    env.svm.expire_blockhash();
+
+    let tx = Transaction::new_signed_with_payer(
+        &[deposit_ix],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &attacker],
+        env.svm.latest_blockhash(),
+    );
+
+    let result = env.svm.send_transaction(tx);
+
+    assert!(
+        result.is_err(),
+        "FALLO DE SEGURIDAD: una authority no autorizada pudo depositar"
+    );
+
+    let vault_after = env.svm.get_account(&env.vault).unwrap();
+    let vault_state = TokenAccount::unpack(&vault_after.data).unwrap();
+
+    assert_eq!(vault_state.amount, 0);
+
+    println!("Deposit de authority no autorizada rechazado correctamente");
+}
+
+
+#[test]
+fn test_deposit_rejects_wrong_authority_token_owner() {
+    let mut env = VestingTestEnv::new();
+
+    let initialize_accounts = accounts::Initialize {
+        payer: env.payer.pubkey(),
+        authority: env.authority.pubkey(),
+        beneficiary: env.beneficiary.pubkey(),
+        mint: env.mint.pubkey(),
+        vesting: env.vesting,
+        vault: env.vault,
+        token_program: anchor_spl::token::ID,
+        system_program: anchor_lang::system_program::ID,
+        rent: anchor_lang::prelude::rent::ID,
+    };
+
+    let initialize_data = instruction::Initialize {
+        total_amount: env.total_amount,
+        start_time: 1_000,
+        cliff_time: 1_100,
+        end_time: 2_000,
+    };
+
+    let initialize_ix = Instruction {
+        program_id: env.program_id,
+        accounts: initialize_accounts.to_account_metas(None),
+        data: initialize_data.data(),
+    };
+
+    let tx = Transaction::new_signed_with_payer(
+        &[initialize_ix],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &env.authority, &env.beneficiary],
+        env.svm.latest_blockhash(),
+    );
+
+    env.svm.send_transaction(tx).unwrap();
+
+    // Creamos una cuenta SPL del mismo mint, pero propiedad de otra wallet.
+    let attacker = Keypair::new();
+    let wrong_token = Keypair::new();
+
+    let create_wrong_token =
+        solana_system_interface::instruction::create_account(
+            &env.payer.pubkey(),
+            &wrong_token.pubkey(),
+            env.svm.minimum_balance_for_rent_exemption(TokenAccount::LEN),
+            TokenAccount::LEN as u64,
+            &spl_token_interface::ID,
+        );
+
+    let initialize_wrong_token =
+        spl_token_interface::instruction::initialize_account3(
+            &spl_token_interface::ID,
+            &wrong_token.pubkey(),
+            &env.mint.pubkey(),
+            &attacker.pubkey(),
+        )
+        .unwrap();
+
+    env.svm.expire_blockhash();
+
+    let tx = Transaction::new_signed_with_payer(
+        &[create_wrong_token, initialize_wrong_token],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &wrong_token],
+        env.svm.latest_blockhash(),
+    );
+
+    env.svm.send_transaction(tx).unwrap();
+
+    // Intentamos depositar usando authority legítima,
+    // pero proporcionando un token account propiedad de otra wallet.
+    let deposit_accounts = accounts::Deposit {
+        vesting: env.vesting,
+        vault: env.vault,
+        authority: env.authority.pubkey(),
+        mint: env.mint.pubkey(),
+        authority_token_account: wrong_token.pubkey(),
+        token_program: anchor_spl::token::ID,
+    };
+
+    let deposit_data = instruction::Deposit {
+        amount: env.total_amount,
+    };
+
+    let deposit_ix = Instruction {
+        program_id: env.program_id,
+        accounts: deposit_accounts.to_account_metas(None),
+        data: deposit_data.data(),
+    };
+
+    env.svm.expire_blockhash();
+
+    let tx = Transaction::new_signed_with_payer(
+        &[deposit_ix],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &env.authority],
+        env.svm.latest_blockhash(),
+    );
+
+    let result = env.svm.send_transaction(tx);
+
+    assert!(
+        result.is_err(),
+        "FALLO DE SEGURIDAD: Deposit aceptó un token account que no pertenece a authority"
+    );
+
+    let vault_after = env.svm.get_account(&env.vault).unwrap();
+    let vault_state = TokenAccount::unpack(&vault_after.data).unwrap();
+
+    assert_eq!(vault_state.amount, 0);
+
+    println!("Deposit con token account de otra wallet rechazado correctamente");
+}
+
+
+#[test]
+fn test_deposit_rejects_wrong_amount() {
+    let mut env = VestingTestEnv::new();
+
+    let initialize_accounts = accounts::Initialize {
+        payer: env.payer.pubkey(),
+        authority: env.authority.pubkey(),
+        beneficiary: env.beneficiary.pubkey(),
+        mint: env.mint.pubkey(),
+        vesting: env.vesting,
+        vault: env.vault,
+        token_program: anchor_spl::token::ID,
+        system_program: anchor_lang::system_program::ID,
+        rent: anchor_lang::prelude::rent::ID,
+    };
+
+    let initialize_data = instruction::Initialize {
+        total_amount: env.total_amount,
+        start_time: 1_000,
+        cliff_time: 1_100,
+        end_time: 2_000,
+    };
+
+    let initialize_ix = Instruction {
+        program_id: env.program_id,
+        accounts: initialize_accounts.to_account_metas(None),
+        data: initialize_data.data(),
+    };
+
+    let tx = Transaction::new_signed_with_payer(
+        &[initialize_ix],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &env.authority, &env.beneficiary],
+        env.svm.latest_blockhash(),
+    );
+
+    env.svm.send_transaction(tx).unwrap();
+
+    // Intentamos depositar menos de lo requerido.
+    let wrong_amount = env.total_amount - 1;
+
+    let deposit_accounts = accounts::Deposit {
+        vesting: env.vesting,
+        vault: env.vault,
+        authority: env.authority.pubkey(),
+        mint: env.mint.pubkey(),
+        authority_token_account: env.authority_token.pubkey(),
+        token_program: anchor_spl::token::ID,
+    };
+
+    let deposit_data = instruction::Deposit {
+        amount: wrong_amount,
+    };
+
+    let deposit_ix = Instruction {
+        program_id: env.program_id,
+        accounts: deposit_accounts.to_account_metas(None),
+        data: deposit_data.data(),
+    };
+
+    env.svm.expire_blockhash();
+
+    let tx = Transaction::new_signed_with_payer(
+        &[deposit_ix],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &env.authority],
+        env.svm.latest_blockhash(),
+    );
+
+    let result = env.svm.send_transaction(tx);
+
+    assert!(
+        result.is_err(),
+        "FALLO: Deposit aceptó una cantidad menor a la requerida"
+    );
+
+    let vault_after = env.svm.get_account(&env.vault).unwrap();
+    let vault_state = TokenAccount::unpack(&vault_after.data).unwrap();
+
+    assert_eq!(vault_state.amount, 0);
+
+    println!("Deposit con cantidad incorrecta rechazado correctamente");
+}
+
+
+#[test]
+fn test_deposit_rejects_excess_amount() {
+    let mut env = VestingTestEnv::new();
+
+    let initialize_accounts = accounts::Initialize {
+        payer: env.payer.pubkey(),
+        authority: env.authority.pubkey(),
+        beneficiary: env.beneficiary.pubkey(),
+        mint: env.mint.pubkey(),
+        vesting: env.vesting,
+        vault: env.vault,
+        token_program: anchor_spl::token::ID,
+        system_program: anchor_lang::system_program::ID,
+        rent: anchor_lang::prelude::rent::ID,
+    };
+
+    let initialize_data = instruction::Initialize {
+        total_amount: env.total_amount,
+        start_time: 1_000,
+        cliff_time: 1_100,
+        end_time: 2_000,
+    };
+
+    let initialize_ix = Instruction {
+        program_id: env.program_id,
+        accounts: initialize_accounts.to_account_metas(None),
+        data: initialize_data.data(),
+    };
+
+    let tx = Transaction::new_signed_with_payer(
+        &[initialize_ix],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &env.authority, &env.beneficiary],
+        env.svm.latest_blockhash(),
+    );
+
+    env.svm.send_transaction(tx).unwrap();
+
+    // Intentamos depositar más que el total autorizado.
+    let excess_amount = env.total_amount + 1;
+
+    let deposit_accounts = accounts::Deposit {
+        vesting: env.vesting,
+        vault: env.vault,
+        authority: env.authority.pubkey(),
+        mint: env.mint.pubkey(),
+        authority_token_account: env.authority_token.pubkey(),
+        token_program: anchor_spl::token::ID,
+    };
+
+    let deposit_data = instruction::Deposit {
+        amount: excess_amount,
+    };
+
+    let deposit_ix = Instruction {
+        program_id: env.program_id,
+        accounts: deposit_accounts.to_account_metas(None),
+        data: deposit_data.data(),
+    };
+
+    env.svm.expire_blockhash();
+
+    let tx = Transaction::new_signed_with_payer(
+        &[deposit_ix],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &env.authority],
+        env.svm.latest_blockhash(),
+    );
+
+    let result = env.svm.send_transaction(tx);
+
+    assert!(
+        result.is_err(),
+        "FALLO: Deposit permitió superar el total autorizado"
+    );
+
+    let vault_after = env.svm.get_account(&env.vault).unwrap();
+    let vault_state = TokenAccount::unpack(&vault_after.data).unwrap();
+
+    assert_eq!(vault_state.amount, 0);
+
+    println!("Deposit excesivo rechazado correctamente");
+}
+
 #[test]
 fn test_popecoin_integration_setup() {
     // Programa POPE Vesting + entorno local de Solana
