@@ -1,0 +1,17 @@
+{
+  "name": "popecoin_vesting",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Antony Pinedo <antonyomarpinedopuerta@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@coral-xyz/anchor": "^0.32.1",
+    "@solana/spl-token": "^0.4.15",
+    "@solana/web3.js": "^1.99.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^7.0.2"
+  }
+}
