@@ -521,6 +521,502 @@ fn test_deposit_rejects_prefunded_excess_vault() {
     println!("Vault sobre-financiada rechazada correctamente");
 }
 
+
+#[test]
+fn test_release_rejects_wrong_destination_owner() {
+    let mut env = VestingTestEnv::new();
+
+    // Inicializamos el vesting.
+    let initialize_accounts = accounts::Initialize {
+        payer: env.payer.pubkey(),
+        authority: env.authority.pubkey(),
+        beneficiary: env.beneficiary.pubkey(),
+        mint: env.mint.pubkey(),
+        vesting: env.vesting,
+        vault: env.vault,
+        token_program: anchor_spl::token::ID,
+        system_program: anchor_lang::system_program::ID,
+        rent: anchor_lang::prelude::rent::ID,
+    };
+
+    let initialize_data = instruction::Initialize {
+        total_amount: env.total_amount,
+        start_time: 1_000,
+        cliff_time: 1_100,
+        end_time: 2_000,
+    };
+
+    let initialize_ix = Instruction {
+        program_id: env.program_id,
+        accounts: initialize_accounts.to_account_metas(None),
+        data: initialize_data.data(),
+    };
+
+    let tx = Transaction::new_signed_with_payer(
+        &[initialize_ix],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &env.authority, &env.beneficiary],
+        env.svm.latest_blockhash(),
+    );
+
+    env.svm.send_transaction(tx).unwrap();
+
+    // Depositamos el total en la Vault.
+    let deposit_accounts = accounts::Deposit {
+        vesting: env.vesting,
+        vault: env.vault,
+        authority: env.authority.pubkey(),
+        mint: env.mint.pubkey(),
+        authority_token_account: env.authority_token.pubkey(),
+        token_program: anchor_spl::token::ID,
+    };
+
+    let deposit_data = instruction::Deposit {
+        amount: env.total_amount,
+    };
+
+    let deposit_ix = Instruction {
+        program_id: env.program_id,
+        accounts: deposit_accounts.to_account_metas(None),
+        data: deposit_data.data(),
+    };
+
+    env.svm.expire_blockhash();
+
+    let tx = Transaction::new_signed_with_payer(
+        &[deposit_ix],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &env.authority],
+        env.svm.latest_blockhash(),
+    );
+
+    env.svm.send_transaction(tx).unwrap();
+
+    // Creamos una wallet distinta.
+    let attacker = Keypair::new();
+
+    // Creamos una cuenta SPL cuyo owner es el atacante.
+    let attacker_token = Keypair::new();
+
+    let create_attacker_token =
+        solana_system_interface::instruction::create_account(
+            &env.payer.pubkey(),
+            &attacker_token.pubkey(),
+            env.svm.minimum_balance_for_rent_exemption(TokenAccount::LEN),
+            TokenAccount::LEN as u64,
+            &spl_token_interface::ID,
+        );
+
+    let initialize_attacker_token =
+        spl_token_interface::instruction::initialize_account3(
+            &spl_token_interface::ID,
+            &attacker_token.pubkey(),
+            &env.mint.pubkey(),
+            &attacker.pubkey(),
+        )
+        .unwrap();
+
+    env.svm.expire_blockhash();
+
+    let tx = Transaction::new_signed_with_payer(
+        &[create_attacker_token, initialize_attacker_token],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &attacker_token],
+        env.svm.latest_blockhash(),
+    );
+
+    env.svm.send_transaction(tx).unwrap();
+
+    // Movemos el reloj hasta después del final.
+    let mut clock = env.svm.get_sysvar::<Clock>();
+    clock.unix_timestamp = 2_000;
+    env.svm.set_sysvar(&clock);
+
+    // Intentamos liberar hacia la cuenta del atacante.
+    // El beneficiario legítimo sí firma, pero la cuenta destino
+    // pertenece a otra wallet.
+    let release_accounts = accounts::Release {
+        vesting: env.vesting,
+        vault: env.vault,
+        beneficiary: env.beneficiary.pubkey(),
+        mint: env.mint.pubkey(),
+        beneficiary_token_account: attacker_token.pubkey(),
+        token_program: anchor_spl::token::ID,
+    };
+
+    let release_data = instruction::Release {};
+
+    let release_ix = Instruction {
+        program_id: env.program_id,
+        accounts: release_accounts.to_account_metas(None),
+        data: release_data.data(),
+    };
+
+    env.svm.expire_blockhash();
+
+    let tx = Transaction::new_signed_with_payer(
+        &[release_ix],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &env.beneficiary],
+        env.svm.latest_blockhash(),
+    );
+
+    let result = env.svm.send_transaction(tx);
+
+    assert!(
+        result.is_err(),
+        "FALLO DE SEGURIDAD: Release permitió enviar POPE a una cuenta de otra wallet"
+    );
+
+    // Confirmamos que la Vault conserva todos los tokens.
+    let vault_after =
+        env.svm.get_account(&env.vault).unwrap();
+
+    let vault_state =
+        TokenAccount::unpack(&vault_after.data).unwrap();
+
+    assert_eq!(vault_state.amount, env.total_amount);
+
+    // La cuenta del atacante tampoco recibió POPE.
+    let attacker_after =
+        env.svm.get_account(&attacker_token.pubkey()).unwrap();
+
+    let attacker_state =
+        TokenAccount::unpack(&attacker_after.data).unwrap();
+
+    assert_eq!(attacker_state.amount, 0);
+
+    println!("Release hacia destino incorrecto rechazado correctamente");
+}
+
+
+#[test]
+fn test_release_rejects_unauthorized_beneficiary() {
+    let mut env = VestingTestEnv::new();
+
+    // Inicializamos el vesting.
+    let initialize_accounts = accounts::Initialize {
+        payer: env.payer.pubkey(),
+        authority: env.authority.pubkey(),
+        beneficiary: env.beneficiary.pubkey(),
+        mint: env.mint.pubkey(),
+        vesting: env.vesting,
+        vault: env.vault,
+        token_program: anchor_spl::token::ID,
+        system_program: anchor_lang::system_program::ID,
+        rent: anchor_lang::prelude::rent::ID,
+    };
+
+    let initialize_data = instruction::Initialize {
+        total_amount: env.total_amount,
+        start_time: 1_000,
+        cliff_time: 1_100,
+        end_time: 2_000,
+    };
+
+    let initialize_ix = Instruction {
+        program_id: env.program_id,
+        accounts: initialize_accounts.to_account_metas(None),
+        data: initialize_data.data(),
+    };
+
+    let tx = Transaction::new_signed_with_payer(
+        &[initialize_ix],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &env.authority, &env.beneficiary],
+        env.svm.latest_blockhash(),
+    );
+
+    env.svm.send_transaction(tx).unwrap();
+
+    // Depositamos todo el vesting.
+    let deposit_accounts = accounts::Deposit {
+        vesting: env.vesting,
+        vault: env.vault,
+        authority: env.authority.pubkey(),
+        mint: env.mint.pubkey(),
+        authority_token_account: env.authority_token.pubkey(),
+        token_program: anchor_spl::token::ID,
+    };
+
+    let deposit_data = instruction::Deposit {
+        amount: env.total_amount,
+    };
+
+    let deposit_ix = Instruction {
+        program_id: env.program_id,
+        accounts: deposit_accounts.to_account_metas(None),
+        data: deposit_data.data(),
+    };
+
+    env.svm.expire_blockhash();
+
+    let tx = Transaction::new_signed_with_payer(
+        &[deposit_ix],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &env.authority],
+        env.svm.latest_blockhash(),
+    );
+
+    env.svm.send_transaction(tx).unwrap();
+
+    // Creamos una wallet atacante.
+    let attacker = Keypair::new();
+
+    // Creamos una cuenta SPL propiedad del atacante.
+    let attacker_token = Keypair::new();
+
+    let create_attacker_token =
+        solana_system_interface::instruction::create_account(
+            &env.payer.pubkey(),
+            &attacker_token.pubkey(),
+            env.svm.minimum_balance_for_rent_exemption(TokenAccount::LEN),
+            TokenAccount::LEN as u64,
+            &spl_token_interface::ID,
+        );
+
+    let initialize_attacker_token =
+        spl_token_interface::instruction::initialize_account3(
+            &spl_token_interface::ID,
+            &attacker_token.pubkey(),
+            &env.mint.pubkey(),
+            &attacker.pubkey(),
+        )
+        .unwrap();
+
+    env.svm.expire_blockhash();
+
+    let tx = Transaction::new_signed_with_payer(
+        &[create_attacker_token, initialize_attacker_token],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &attacker_token],
+        env.svm.latest_blockhash(),
+    );
+
+    env.svm.send_transaction(tx).unwrap();
+
+    // Movemos el reloj hasta el final del vesting.
+    let mut clock = env.svm.get_sysvar::<Clock>();
+    clock.unix_timestamp = 2_000;
+    env.svm.set_sysvar(&clock);
+
+    // El atacante intenta hacerse pasar por beneficiary.
+    let release_accounts = accounts::Release {
+        vesting: env.vesting,
+        vault: env.vault,
+        beneficiary: attacker.pubkey(),
+        mint: env.mint.pubkey(),
+        beneficiary_token_account: attacker_token.pubkey(),
+        token_program: anchor_spl::token::ID,
+    };
+
+    let release_data = instruction::Release {};
+
+    let release_ix = Instruction {
+        program_id: env.program_id,
+        accounts: release_accounts.to_account_metas(None),
+        data: release_data.data(),
+    };
+
+    env.svm.expire_blockhash();
+
+    let tx = Transaction::new_signed_with_payer(
+        &[release_ix],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &attacker],
+        env.svm.latest_blockhash(),
+    );
+
+    let result = env.svm.send_transaction(tx);
+
+    assert!(
+        result.is_err(),
+        "FALLO DE SEGURIDAD: una wallet no autorizada pudo ejecutar Release"
+    );
+
+    // La Vault debe conservar todos los POPE.
+    let vault_after =
+        env.svm.get_account(&env.vault).unwrap();
+
+    let vault_state =
+        TokenAccount::unpack(&vault_after.data).unwrap();
+
+    assert_eq!(vault_state.amount, env.total_amount);
+
+    // El atacante no debe recibir ningún POPE.
+    let attacker_after =
+        env.svm.get_account(&attacker_token.pubkey()).unwrap();
+
+    let attacker_state =
+        TokenAccount::unpack(&attacker_after.data).unwrap();
+
+    assert_eq!(attacker_state.amount, 0);
+
+    println!("Release de beneficiario no autorizado rechazado correctamente");
+}
+
+
+#[test]
+fn test_release_allows_authorized_beneficiary() {
+    let mut env = VestingTestEnv::new();
+
+    // Inicializamos el vesting.
+    let initialize_accounts = accounts::Initialize {
+        payer: env.payer.pubkey(),
+        authority: env.authority.pubkey(),
+        beneficiary: env.beneficiary.pubkey(),
+        mint: env.mint.pubkey(),
+        vesting: env.vesting,
+        vault: env.vault,
+        token_program: anchor_spl::token::ID,
+        system_program: anchor_lang::system_program::ID,
+        rent: anchor_lang::prelude::rent::ID,
+    };
+
+    let initialize_data = instruction::Initialize {
+        total_amount: env.total_amount,
+        start_time: 1_000,
+        cliff_time: 1_100,
+        end_time: 2_000,
+    };
+
+    let initialize_ix = Instruction {
+        program_id: env.program_id,
+        accounts: initialize_accounts.to_account_metas(None),
+        data: initialize_data.data(),
+    };
+
+    let tx = Transaction::new_signed_with_payer(
+        &[initialize_ix],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &env.authority, &env.beneficiary],
+        env.svm.latest_blockhash(),
+    );
+
+    env.svm.send_transaction(tx).unwrap();
+
+    // Depositamos todo el vesting.
+    let deposit_accounts = accounts::Deposit {
+        vesting: env.vesting,
+        vault: env.vault,
+        authority: env.authority.pubkey(),
+        mint: env.mint.pubkey(),
+        authority_token_account: env.authority_token.pubkey(),
+        token_program: anchor_spl::token::ID,
+    };
+
+    let deposit_data = instruction::Deposit {
+        amount: env.total_amount,
+    };
+
+    let deposit_ix = Instruction {
+        program_id: env.program_id,
+        accounts: deposit_accounts.to_account_metas(None),
+        data: deposit_data.data(),
+    };
+
+    env.svm.expire_blockhash();
+
+    let tx = Transaction::new_signed_with_payer(
+        &[deposit_ix],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &env.authority],
+        env.svm.latest_blockhash(),
+    );
+
+    env.svm.send_transaction(tx).unwrap();
+
+    // Creamos la cuenta SPL legítima del beneficiario.
+    let beneficiary_token = Keypair::new();
+
+    let create_beneficiary_token =
+        solana_system_interface::instruction::create_account(
+            &env.payer.pubkey(),
+            &beneficiary_token.pubkey(),
+            env.svm.minimum_balance_for_rent_exemption(TokenAccount::LEN),
+            TokenAccount::LEN as u64,
+            &spl_token_interface::ID,
+        );
+
+    let initialize_beneficiary_token =
+        spl_token_interface::instruction::initialize_account3(
+            &spl_token_interface::ID,
+            &beneficiary_token.pubkey(),
+            &env.mint.pubkey(),
+            &env.beneficiary.pubkey(),
+        )
+        .unwrap();
+
+    env.svm.expire_blockhash();
+
+    let tx = Transaction::new_signed_with_payer(
+        &[create_beneficiary_token, initialize_beneficiary_token],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &beneficiary_token],
+        env.svm.latest_blockhash(),
+    );
+
+    env.svm.send_transaction(tx).unwrap();
+
+    // Colocamos el reloj exactamente al final del vesting.
+    let mut clock = env.svm.get_sysvar::<Clock>();
+    clock.unix_timestamp = 2_000;
+    env.svm.set_sysvar(&clock);
+
+    // El beneficiario legítimo ejecuta Release.
+    let release_accounts = accounts::Release {
+        vesting: env.vesting,
+        vault: env.vault,
+        beneficiary: env.beneficiary.pubkey(),
+        mint: env.mint.pubkey(),
+        beneficiary_token_account: beneficiary_token.pubkey(),
+        token_program: anchor_spl::token::ID,
+    };
+
+    let release_data = instruction::Release {};
+
+    let release_ix = Instruction {
+        program_id: env.program_id,
+        accounts: release_accounts.to_account_metas(None),
+        data: release_data.data(),
+    };
+
+    env.svm.expire_blockhash();
+
+    let tx = Transaction::new_signed_with_payer(
+        &[release_ix],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &env.beneficiary],
+        env.svm.latest_blockhash(),
+    );
+
+    env.svm.send_transaction(tx).unwrap();
+
+    // Al final del vesting debe liberarse todo.
+    let beneficiary_after =
+        env.svm.get_account(&beneficiary_token.pubkey()).unwrap();
+
+    let beneficiary_state =
+        TokenAccount::unpack(&beneficiary_after.data).unwrap();
+
+    assert_eq!(
+        beneficiary_state.amount,
+        env.total_amount
+    );
+
+    // La Vault debe quedar vacía.
+    let vault_after =
+        env.svm.get_account(&env.vault).unwrap();
+
+    let vault_state =
+        TokenAccount::unpack(&vault_after.data).unwrap();
+
+    assert_eq!(vault_state.amount, 0);
+
+    println!("Release del beneficiario autorizado ejecutado correctamente");
+    println!("Beneficiario recibió todo el vesting");
+}
+
 #[test]
 fn test_popecoin_integration_setup() {
     // Programa POPE Vesting + entorno local de Solana
