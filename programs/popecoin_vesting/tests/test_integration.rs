@@ -37,6 +37,319 @@ fn load_popecoin_program() -> (LiteSVM, Pubkey) {
     (svm, program_id)
 }
 
+
+struct VestingTestEnv {
+    svm: LiteSVM,
+    program_id: Pubkey,
+    payer: Keypair,
+    authority: Keypair,
+    beneficiary: Keypair,
+    mint: Keypair,
+    authority_token: Keypair,
+    vesting: Pubkey,
+    vault: Pubkey,
+    total_amount: u64,
+}
+
+impl VestingTestEnv {
+    fn new() -> Self {
+        let (mut svm, program_id) = load_popecoin_program();
+
+        let payer = Keypair::new();
+        let authority = Keypair::new();
+        let beneficiary = Keypair::new();
+        let mint = Keypair::new();
+        let authority_token = Keypair::new();
+
+        svm.airdrop(&payer.pubkey(), 10_000_000_000)
+            .unwrap();
+
+        let mint_len = Mint::LEN;
+
+        let create_mint =
+            solana_system_interface::instruction::create_account(
+                &payer.pubkey(),
+                &mint.pubkey(),
+                svm.minimum_balance_for_rent_exemption(mint_len),
+                mint_len as u64,
+                &spl_token_interface::ID,
+            );
+
+        let initialize_mint =
+            spl_token_interface::instruction::initialize_mint2(
+                &spl_token_interface::ID,
+                &mint.pubkey(),
+                &authority.pubkey(),
+                None,
+                6,
+            )
+            .unwrap();
+
+        let tx = Transaction::new_signed_with_payer(
+            &[create_mint, initialize_mint],
+            Some(&payer.pubkey()),
+            &[&payer, &mint],
+            svm.latest_blockhash(),
+        );
+
+        svm.send_transaction(tx).unwrap();
+
+        let token_account_len = TokenAccount::LEN;
+
+        let create_authority_token =
+            solana_system_interface::instruction::create_account(
+                &payer.pubkey(),
+                &authority_token.pubkey(),
+                svm.minimum_balance_for_rent_exemption(token_account_len),
+                token_account_len as u64,
+                &spl_token_interface::ID,
+            );
+
+        let initialize_authority_token =
+            spl_token_interface::instruction::initialize_account3(
+                &spl_token_interface::ID,
+                &authority_token.pubkey(),
+                &mint.pubkey(),
+                &authority.pubkey(),
+            )
+            .unwrap();
+
+        let tx = Transaction::new_signed_with_payer(
+            &[create_authority_token, initialize_authority_token],
+            Some(&payer.pubkey()),
+            &[&payer, &authority_token],
+            svm.latest_blockhash(),
+        );
+
+        svm.send_transaction(tx).unwrap();
+
+        let total_amount: u64 = 3_000_000_000_000;
+
+        let mint_to =
+            spl_token_interface::instruction::mint_to(
+                &spl_token_interface::ID,
+                &mint.pubkey(),
+                &authority_token.pubkey(),
+                &authority.pubkey(),
+                &[],
+                total_amount,
+            )
+            .unwrap();
+
+        let tx = Transaction::new_signed_with_payer(
+            &[mint_to],
+            Some(&payer.pubkey()),
+            &[&payer, &authority],
+            svm.latest_blockhash(),
+        );
+
+        svm.send_transaction(tx).unwrap();
+
+        let (vesting, _) = Pubkey::find_program_address(
+            &[
+                b"vesting",
+                beneficiary.pubkey().as_ref(),
+                mint.pubkey().as_ref(),
+            ],
+            &program_id,
+        );
+
+        let (vault, _) = Pubkey::find_program_address(
+            &[
+                b"vault",
+                vesting.as_ref(),
+            ],
+            &program_id,
+        );
+
+        Self {
+            svm,
+            program_id,
+            payer,
+            authority,
+            beneficiary,
+            mint,
+            authority_token,
+            vesting,
+            vault,
+            total_amount,
+        }
+    }
+}
+
+
+#[test]
+fn test_vesting_test_env_creates_valid_accounts() {
+    let env = VestingTestEnv::new();
+
+    assert_ne!(env.program_id, Pubkey::default());
+    assert_ne!(env.vesting, Pubkey::default());
+    assert_ne!(env.vault, Pubkey::default());
+
+    let mint_account = env
+        .svm
+        .get_account(&env.mint.pubkey())
+        .expect("Mint no creado");
+
+    let mint_state = Mint::unpack(&mint_account.data).unwrap();
+
+    assert_eq!(mint_state.decimals, 6);
+    assert_eq!(
+        mint_state.mint_authority,
+        Some(env.authority.pubkey()).into()
+    );
+
+    let authority_token_account = env
+        .svm
+        .get_account(&env.authority_token.pubkey())
+        .expect("Token account no creada");
+
+    let authority_token_state =
+        TokenAccount::unpack(&authority_token_account.data).unwrap();
+
+    assert_eq!(
+        authority_token_state.owner,
+        env.authority.pubkey()
+    );
+
+    assert_eq!(
+        authority_token_state.mint,
+        env.mint.pubkey()
+    );
+
+    assert_eq!(
+        authority_token_state.amount,
+        env.total_amount
+    );
+
+    println!("VestingTestEnv creado correctamente");
+}
+
+
+#[test]
+fn test_deposit_rejects_prefunded_full_vault() {
+    let mut env = VestingTestEnv::new();
+
+    // Creamos la Vault mediante Initialize.
+    let initialize_accounts = accounts::Initialize {
+        payer: env.payer.pubkey(),
+        authority: env.authority.pubkey(),
+        beneficiary: env.beneficiary.pubkey(),
+        mint: env.mint.pubkey(),
+        vesting: env.vesting,
+        vault: env.vault,
+        token_program: anchor_spl::token::ID,
+        system_program: anchor_lang::system_program::ID,
+        rent: anchor_lang::prelude::rent::ID,
+    };
+
+    let initialize_data = instruction::Initialize {
+        total_amount: env.total_amount,
+        start_time: 1_000,
+        cliff_time: 1_100,
+        end_time: 2_000,
+    };
+
+    let initialize_ix = Instruction {
+        program_id: env.program_id,
+        accounts: initialize_accounts.to_account_metas(None),
+        data: initialize_data.data(),
+    };
+
+    let tx = Transaction::new_signed_with_payer(
+        &[initialize_ix],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &env.authority, &env.beneficiary],
+        env.svm.latest_blockhash(),
+    );
+
+    env.svm.send_transaction(tx).unwrap();
+
+    // Un tercero/prefunder deposita TODO el saldo directamente en la Vault.
+    let prefund_ix =
+        spl_token_interface::instruction::transfer_checked(
+            &spl_token_interface::ID,
+            &env.authority_token.pubkey(),
+            &env.mint.pubkey(),
+            &env.vault,
+            &env.authority.pubkey(),
+            &[],
+            env.total_amount,
+            6,
+        )
+        .unwrap();
+
+    env.svm.expire_blockhash();
+
+    let tx = Transaction::new_signed_with_payer(
+        &[prefund_ix],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &env.authority],
+        env.svm.latest_blockhash(),
+    );
+
+    env.svm.send_transaction(tx).unwrap();
+
+    let vault_account =
+        env.svm.get_account(&env.vault).unwrap();
+
+    let vault_state =
+        TokenAccount::unpack(&vault_account.data).unwrap();
+
+    assert_eq!(vault_state.amount, env.total_amount);
+
+    // Intentamos ejecutar Deposit.
+    // Como la Vault ya contiene exactamente el total,
+    // no debe mover ningún token adicional.
+    let deposit_accounts = accounts::Deposit {
+        vesting: env.vesting,
+        vault: env.vault,
+        authority: env.authority.pubkey(),
+        mint: env.mint.pubkey(),
+        authority_token_account: env.authority_token.pubkey(),
+        token_program: anchor_spl::token::ID,
+    };
+
+    let deposit_data = instruction::Deposit {
+        amount: env.total_amount,
+    };
+
+    let deposit_ix = Instruction {
+        program_id: env.program_id,
+        accounts: deposit_accounts.to_account_metas(None),
+        data: deposit_data.data(),
+    };
+
+    env.svm.expire_blockhash();
+
+    let tx = Transaction::new_signed_with_payer(
+        &[deposit_ix],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &env.authority],
+        env.svm.latest_blockhash(),
+    );
+
+    let result = env.svm.send_transaction(tx);
+
+    assert!(
+        result.is_err(),
+        "FALLO: Deposit permitió financiar nuevamente una Vault ya llena"
+    );
+
+    let vault_after =
+        env.svm.get_account(&env.vault).unwrap();
+
+    let vault_after_state =
+        TokenAccount::unpack(&vault_after.data).unwrap();
+
+    assert_eq!(
+        vault_after_state.amount,
+        env.total_amount
+    );
+
+    println!("Pre-funding total rechazado correctamente");
+}
+
 #[test]
 fn test_popecoin_integration_setup() {
     // Programa POPE Vesting + entorno local de Solana
