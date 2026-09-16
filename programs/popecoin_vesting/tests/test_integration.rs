@@ -20,6 +20,23 @@ use popecoin_vesting::{
     VestingAccount,
 };
 
+
+fn load_popecoin_program() -> (LiteSVM, Pubkey) {
+    let program_id = Pubkey::from_str_const(
+        "BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc"
+    );
+
+    let mut svm = LiteSVM::new();
+
+    let program = include_bytes!(
+        "../../../target/deploy/popecoin_vesting.so"
+    );
+
+    svm.add_program(program_id, program).unwrap();
+
+    (svm, program_id)
+}
+
 #[test]
 fn test_popecoin_integration_setup() {
     // Programa POPE Vesting
