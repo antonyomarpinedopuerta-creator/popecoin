@@ -1285,6 +1285,162 @@ fn test_release_partial_and_repeated() {
     println!("Release final correcto: 100% liberado");
 }
 
+
+#[test]
+fn test_release_at_exact_cliff() {
+    let mut env = VestingTestEnv::new();
+
+    let initialize_accounts = accounts::Initialize {
+        payer: env.payer.pubkey(),
+        authority: env.authority.pubkey(),
+        beneficiary: env.beneficiary.pubkey(),
+        mint: env.mint.pubkey(),
+        vesting: env.vesting,
+        vault: env.vault,
+        token_program: anchor_spl::token::ID,
+        system_program: anchor_lang::system_program::ID,
+        rent: anchor_lang::prelude::rent::ID,
+    };
+
+    let initialize_data = instruction::Initialize {
+        total_amount: env.total_amount,
+        start_time: 1_000,
+        cliff_time: 1_100,
+        end_time: 2_000,
+    };
+
+    let initialize_ix = Instruction {
+        program_id: env.program_id,
+        accounts: initialize_accounts.to_account_metas(None),
+        data: initialize_data.data(),
+    };
+
+    let tx = Transaction::new_signed_with_payer(
+        &[initialize_ix],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &env.authority, &env.beneficiary],
+        env.svm.latest_blockhash(),
+    );
+
+    env.svm.send_transaction(tx).unwrap();
+
+    let deposit_accounts = accounts::Deposit {
+        vesting: env.vesting,
+        vault: env.vault,
+        authority: env.authority.pubkey(),
+        mint: env.mint.pubkey(),
+        authority_token_account: env.authority_token.pubkey(),
+        token_program: anchor_spl::token::ID,
+    };
+
+    let deposit_data = instruction::Deposit {
+        amount: env.total_amount,
+    };
+
+    let deposit_ix = Instruction {
+        program_id: env.program_id,
+        accounts: deposit_accounts.to_account_metas(None),
+        data: deposit_data.data(),
+    };
+
+    env.svm.expire_blockhash();
+
+    let tx = Transaction::new_signed_with_payer(
+        &[deposit_ix],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &env.authority],
+        env.svm.latest_blockhash(),
+    );
+
+    env.svm.send_transaction(tx).unwrap();
+
+    let beneficiary_token = Keypair::new();
+
+    let create_beneficiary_token =
+        solana_system_interface::instruction::create_account(
+            &env.payer.pubkey(),
+            &beneficiary_token.pubkey(),
+            env.svm.minimum_balance_for_rent_exemption(TokenAccount::LEN),
+            TokenAccount::LEN as u64,
+            &spl_token_interface::ID,
+        );
+
+    let initialize_beneficiary_token =
+        spl_token_interface::instruction::initialize_account3(
+            &spl_token_interface::ID,
+            &beneficiary_token.pubkey(),
+            &env.mint.pubkey(),
+            &env.beneficiary.pubkey(),
+        )
+        .unwrap();
+
+    env.svm.expire_blockhash();
+
+    let tx = Transaction::new_signed_with_payer(
+        &[create_beneficiary_token, initialize_beneficiary_token],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &beneficiary_token],
+        env.svm.latest_blockhash(),
+    );
+
+    env.svm.send_transaction(tx).unwrap();
+
+    // Exactamente en el cliff.
+    let mut clock = env.svm.get_sysvar::<Clock>();
+    clock.unix_timestamp = 1_100;
+    env.svm.set_sysvar(&clock);
+
+    let release_accounts = accounts::Release {
+        vesting: env.vesting,
+        vault: env.vault,
+        beneficiary: env.beneficiary.pubkey(),
+        mint: env.mint.pubkey(),
+        beneficiary_token_account: beneficiary_token.pubkey(),
+        token_program: anchor_spl::token::ID,
+    };
+
+    let release_ix = Instruction {
+        program_id: env.program_id,
+        accounts: release_accounts.to_account_metas(None),
+        data: instruction::Release {}.data(),
+    };
+
+    env.svm.expire_blockhash();
+
+    let tx = Transaction::new_signed_with_payer(
+        &[release_ix],
+        Some(&env.payer.pubkey()),
+        &[&env.payer, &env.beneficiary],
+        env.svm.latest_blockhash(),
+    );
+
+    env.svm.send_transaction(tx).unwrap();
+
+    // 100 / 1000 = 10%.
+    let expected = env.total_amount / 10;
+
+    let beneficiary_after =
+        env.svm.get_account(&beneficiary_token.pubkey()).unwrap();
+
+    let beneficiary_state =
+        TokenAccount::unpack(&beneficiary_after.data).unwrap();
+
+    assert_eq!(beneficiary_state.amount, expected);
+
+    let vault_after =
+        env.svm.get_account(&env.vault).unwrap();
+
+    let vault_state =
+        TokenAccount::unpack(&vault_after.data).unwrap();
+
+    assert_eq!(
+        vault_state.amount,
+        env.total_amount - expected
+    );
+
+    println!("Release exactamente en cliff correcto: 10% liberado");
+}
+
 #[test]
 fn test_popecoin_integration_setup() {
     // Programa POPE Vesting + entorno local de Solana
