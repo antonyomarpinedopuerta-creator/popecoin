@@ -39,20 +39,8 @@ fn load_popecoin_program() -> (LiteSVM, Pubkey) {
 
 #[test]
 fn test_popecoin_integration_setup() {
-    // Programa POPE Vesting
-    let program_id = Pubkey::from_str_const(
-        "BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc"
-    );
-
-    // Entorno local de Solana
-    let mut svm = LiteSVM::new();
-
-    // Cargamos nuestro programa compilado
-    let program = include_bytes!(
-        "../../../target/deploy/popecoin_vesting.so"
-    );
-
-    svm.add_program(program_id, program).unwrap();
+    // Programa POPE Vesting + entorno local de Solana
+    let (mut svm, program_id) = load_popecoin_program();
 
     // Wallets FICTICIAS para la prueba
     let payer = Keypair::new();
