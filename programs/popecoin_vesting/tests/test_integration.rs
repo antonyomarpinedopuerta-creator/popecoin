@@ -248,7 +248,7 @@ fn test_popecoin_integration_setup() {
     let tx = Transaction::new_signed_with_payer(
         &[ix],
         Some(&payer.pubkey()),
-        &[&payer, &authority],
+        &[&payer, &authority, &beneficiary],
         svm.latest_blockhash(),
     );
 
@@ -314,7 +314,7 @@ fn test_popecoin_integration_setup() {
     let tx = Transaction::new_signed_with_payer(
         &[duplicate_initialize_ix],
         Some(&payer.pubkey()),
-        &[&payer, &authority],
+        &[&payer, &authority, &beneficiary],
         svm.latest_blockhash(),
     );
 
@@ -469,7 +469,46 @@ fn test_popecoin_integration_setup() {
     println!("Authority falsa rechazada correctamente");
     println!("Ningún POPE fue movido por la wallet no autorizada");
 
-    // Ejecutamos Deposit: authority -> vault
+    // PRUEBA DE SEGURIDAD: pre-funding del Vault.
+    // Un tercero puede transferir tokens SPL directamente a una cuenta token.
+    // Simulamos que 1 unidad mínima llega al Vault antes del depósito oficial.
+    // Esto no debe bloquear permanentemente el vesting.
+    svm.expire_blockhash();
+
+    let prefund_ix =
+        spl_token_interface::instruction::transfer_checked(
+            &spl_token_interface::ID,
+            &authority_token.pubkey(),
+            &mint.pubkey(),
+            &vault,
+            &authority.pubkey(),
+            &[],
+            1,
+            6,
+        )
+        .unwrap();
+
+    let tx = Transaction::new_signed_with_payer(
+        &[prefund_ix],
+        Some(&payer.pubkey()),
+        &[&payer, &authority],
+        svm.latest_blockhash(),
+    );
+
+    svm.send_transaction(tx).unwrap();
+
+    let vault_prefunded =
+        svm.get_account(&vault).unwrap();
+
+    let vault_prefunded_state =
+        TokenAccount::unpack(&vault_prefunded.data).unwrap();
+
+    assert_eq!(vault_prefunded_state.amount, 1);
+
+    println!("Pre-funding simulado: Vault recibió 1 unidad antes del depósito");
+
+    // El programa debe calcular el saldo faltante y depositar únicamente
+    // total_amount - saldo_actual.
     let deposit_accounts = accounts::Deposit {
         vesting,
         vault,
@@ -480,7 +519,7 @@ fn test_popecoin_integration_setup() {
     };
 
     let deposit_data = instruction::Deposit {
-        amount: total_amount,
+        amount: total_amount - 1,
     };
 
     let deposit_ix = Instruction {
@@ -488,6 +527,8 @@ fn test_popecoin_integration_setup() {
         accounts: deposit_accounts.to_account_metas(None),
         data: deposit_data.data(),
     };
+
+    svm.expire_blockhash();
 
     let tx = Transaction::new_signed_with_payer(
         &[deposit_ix],
@@ -1271,7 +1312,7 @@ fn test_initialize_rejects_zero_amount() {
     let tx = Transaction::new_signed_with_payer(
         &[ix],
         Some(&payer.pubkey()),
-        &[&payer, &authority],
+        &[&payer, &authority, &beneficiary],
         svm.latest_blockhash(),
     );
 
@@ -1388,7 +1429,7 @@ fn test_initialize_rejects_start_after_end() {
     let tx = Transaction::new_signed_with_payer(
         &[ix],
         Some(&payer.pubkey()),
-        &[&payer, &authority],
+        &[&payer, &authority, &beneficiary],
         svm.latest_blockhash(),
     );
 
@@ -1505,7 +1546,7 @@ fn test_initialize_rejects_cliff_before_start() {
     let tx = Transaction::new_signed_with_payer(
         &[ix],
         Some(&payer.pubkey()),
-        &[&payer, &authority],
+        &[&payer, &authority, &beneficiary],
         svm.latest_blockhash(),
     );
 
@@ -1622,7 +1663,7 @@ fn test_initialize_rejects_cliff_after_end() {
     let tx = Transaction::new_signed_with_payer(
         &[ix],
         Some(&payer.pubkey()),
-        &[&payer, &authority],
+        &[&payer, &authority, &beneficiary],
         svm.latest_blockhash(),
     );
 

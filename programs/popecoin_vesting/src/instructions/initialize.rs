@@ -14,8 +14,7 @@ pub struct Initialize<'info> {
 
     pub authority: Signer<'info>,
 
-    /// CHECK: El beneficiario solo se almacena como clave pública.
-    pub beneficiary: UncheckedAccount<'info>,
+    pub beneficiary: Signer<'info>,
 
     pub mint: Account<'info, Mint>,
 
@@ -23,7 +22,11 @@ pub struct Initialize<'info> {
         init,
         payer = payer,
         space = 8 + VestingAccount::INIT_SPACE,
-        seeds = [VESTING_SEED, beneficiary.key().as_ref(), mint.key().as_ref()],
+        seeds = [
+            VESTING_SEED,
+            beneficiary.key().as_ref(),
+            mint.key().as_ref()
+        ],
         bump
     )]
     pub vesting: Account<'info, VestingAccount>,
