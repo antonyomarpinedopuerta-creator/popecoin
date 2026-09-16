@@ -51,13 +51,17 @@ const [vault] = PublicKey.findProgramAddressSync(
   program.programId
 );
 
+// DEVNET ONLY.
+// This script initializes a vesting PDA and therefore changes on-chain state.
+// Do not reuse as a Mainnet deployment script without explicit fixed timestamps
+// and a final verification of beneficiary, mint, amount and authorities.
 async function main() {
   const now = Math.floor(Date.now() / 1000);
 
-  // Prueba: 100 POPE, 6 decimales
+  // Scheduled allocation: 3,000,000 POPE, 6 decimals
   const amount = new anchor.BN(3_000_000_000_000);
 
-  // Margen suficiente para realizar deposit y probar el cliff.
+  // DEVNET schedule generated at execution time: cliff 90 días, duration 730 días.
   const start = new anchor.BN(now);
   const cliff = new anchor.BN(now + 90 * 24 * 60 * 60);
   const end = new anchor.BN(now + 730 * 24 * 60 * 60);
