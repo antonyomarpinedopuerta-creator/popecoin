@@ -9,11 +9,25 @@
 
 ## 1. Scope
 
-The review covers the `initialize`, `deposit`, and `release` instructions.
+The review covers the complete current vesting program, including:
+
+- `initialize`
+- `deposit`
+- `release`
+- vesting state
+- PDA seeds
+- program errors
+- exposed program instructions
 
 The review focuses on authorization, PDA validation, token-account validation,
 vesting schedules, arithmetic safety, unauthorized operations, repeated deposits,
-vault pre-funding and initialization griefing.
+vault pre-funding, initialization griefing and release authorization.
+
+The current program exposes only three instructions: `initialize`, `deposit`
+and `release`.
+
+There is no administrator instruction for arbitrary withdrawal, cancellation,
+beneficiary replacement or recovery of tokens from a vesting vault.
 
 ## 2. Initialization griefing
 
@@ -35,7 +49,9 @@ The beneficiary is now:
 Therefore, creation of the vesting account requires authorization from the
 beneficiary.
 
-**Status: FIXED**
+A regression test verifies the current initialization behavior.
+
+**Status: FIXED AND TESTED**
 
 ## 3. Vault pre-funding griefing
 
@@ -59,53 +75,93 @@ The authorized depositor must deposit exactly the remaining amount.
 
 The program also verifies:
 
-- `vault_amount <= total_amount`
 - `released_amount == 0`
+- `vault_amount <= total_amount`
+- the requested deposit equals the exact remaining amount
 - checked arithmetic is used
 
-A regression test pre-funds the vault with one base unit and verifies that the
-official deposit can still complete the intended vesting balance.
+Partial pre-funding is therefore accounted for instead of requiring an empty vault.
 
-**Status: FIXED FOR PARTIAL PRE-FUNDING**
+**Status: FIXED AND TESTED**
 
 ## 4. Full or excess unsolicited funding
 
-If the vault already contains exactly the complete vesting amount, the current
-deposit instruction rejects another deposit because the remaining amount is zero.
+Explicit regression tests now cover both important boundary conditions.
 
-The scheduled tokens are already present in the program-controlled vault, but
-this scenario should receive an explicit regression test before Mainnet.
+### Vault already funded with exactly the scheduled total
 
-If unsolicited tokens cause the vault balance to exceed the configured vesting
-total, the deposit instruction rejects the operation.
+If the vault already contains exactly `total_amount`, another `deposit` call is
+rejected because the remaining amount is zero.
 
-Tokens transferred to the vault beyond the scheduled amount could potentially
-remain there because the program intentionally has no administrator recovery or
-arbitrary withdrawal instruction.
+The scheduled tokens are already held by the program-controlled vault.
 
-**Status: ADDITIONAL TESTING REQUIRED BEFORE MAINNET**
+### Vault funded beyond the scheduled total
 
-## 5. Authorization and release controls
+If the vault balance exceeds `total_amount`, `deposit` rejects the operation.
 
-Current protections include:
+Because the program intentionally contains no administrator recovery or arbitrary
+withdrawal instruction, unsolicited tokens beyond the scheduled amount can remain
+in the vault.
 
-- authority signature required for deposits;
-- beneficiary signature required for initialization;
-- beneficiary signature required for releases;
-- vesting PDA validation;
-- vault PDA validation;
-- mint validation;
-- source token-account owner and mint validation;
-- destination token-account owner and mint validation;
-- checked arithmetic;
-- tracking of previously released tokens.
+This is a known design consideration rather than an administrator-controlled
+recovery feature.
 
-The release logic has been tested for unauthorized access, release before cliff,
-partial release, final release and attempts to release again after completion.
+**Status: DEPOSIT BEHAVIOR TESTED; EXCESS-TOKEN RECOVERY NOT IMPLEMENTED BY DESIGN**
+
+## 5. Deposit authorization and validation
+
+The deposit path verifies:
+
+- the configured authority signs;
+- the vesting PDA is valid;
+- the vesting mint matches;
+- the vault PDA is valid;
+- the vault belongs to the vesting PDA;
+- the source token account belongs to the authority;
+- the source token account uses the correct mint;
+- no scheduled release has already occurred;
+- the vault does not exceed the configured total;
+- the deposit equals the exact remaining amount.
+
+Explicit tests verify rejection of:
+
+- unauthorized deposit authority;
+- wrong authority-token-account owner;
+- deposit below the required amount;
+- deposit above the required amount;
+- full pre-funded vault;
+- excess pre-funded vault.
 
 **Status: TESTED**
 
-## 6. Vesting schedule validation
+## 6. Release authorization and accounting
+
+The release path verifies:
+
+- the beneficiary signs;
+- the signer matches the stored beneficiary;
+- the vesting PDA is valid;
+- the vault PDA is valid;
+- the mint matches the stored mint;
+- the vault belongs to the vesting PDA;
+- the destination token account belongs to the beneficiary;
+- the destination token account uses the correct mint;
+- previously released tokens are tracked;
+- checked arithmetic is used.
+
+Explicit tests cover:
+
+- unauthorized beneficiary;
+- destination owned by the wrong user;
+- authorized beneficiary;
+- release at the exact cliff;
+- partial release;
+- repeated release at the same timestamp;
+- final release.
+
+**Status: TESTED**
+
+## 7. Vesting schedule validation
 
 Initialization rejects invalid schedules including:
 
@@ -118,28 +174,38 @@ Current vesting semantics:
 
 - accrual begins at `start_time`;
 - nothing is claimable before `cliff_time`;
-- at the cliff, the amount accrued since `start_time` becomes claimable;
-- vesting continues linearly until `end_time`.
+- at exactly `cliff_time`, the amount accrued since `start_time` becomes claimable;
+- vesting continues linearly until `end_time`;
+- at or after `end_time`, the full scheduled amount is vested.
+
+The exact-cliff behavior has an explicit regression test.
 
 **Status: TESTED**
 
-## 7. Automated tests
+## 8. Automated tests
 
-After the security changes, the current automated test suite completed with:
+The current complete local Rust test suite completed successfully with:
 
-- Integration tests: 5 passed
+- Integration tests: 17 passed
 - Program-load tests: 1 passed
 - Vesting-math tests: 5 passed
-- Total: 11 passed
+- Total: 23 passed
 - Failures: 0
 
-The project also successfully passed:
+The latest complete run also passed:
+
+- `cargo test`
+- `git diff --check`
+
+Previous development checks have also successfully passed:
 
 - `anchor build`
-- `cargo test`
 - `npx tsc --noEmit`
 
-## 8. Devnet deployment
+The successful test suite materially increases confidence in the tested behavior,
+but it does not prove the absence of all vulnerabilities.
+
+## 9. Devnet deployment
 
 The hardened version was deployed as an upgrade to the existing Devnet program.
 
@@ -157,29 +223,56 @@ The hardened version was deployed as an upgrade to the existing Devnet program.
 
 The upgrade authority remains active during development.
 
-It must not be revoked until final testing, review and authority-management
-decisions are complete.
+It must not be revoked until final testing, independent review and
+authority-management decisions are complete.
 
-## 9. Mainnet blockers
+## 10. Known design limitations
+
+The current design intentionally has several properties that should remain
+documented:
+
+1. There is one vesting PDA per beneficiary and mint because the PDA seeds are
+   beneficiary + mint. Multiple independent vesting tranches for the same
+   beneficiary and mint would require a schedule identifier or a different PDA
+   design.
+
+2. The cliff does not reset linear accrual. Accrual starts at `start_time`, and
+   the amount accumulated since the start becomes claimable when the cliff is
+   reached.
+
+3. Standard SPL token accounts can receive unsolicited tokens.
+
+4. Tokens sent to a vault beyond its scheduled vesting total do not have an
+   administrator recovery path in the current design.
+
+5. The program currently remains upgradeable while development and review are
+   ongoing.
+
+These behaviors should be considered when defining the final Mainnet architecture.
+
+## 11. Mainnet blockers
 
 This internal review does NOT declare POPECOIN ready for Mainnet.
 
-Before Mainnet:
+Before significant real economic value is placed under the program:
 
-1. Test full unsolicited vault funding.
-2. Test behavior when the vault exceeds the scheduled amount.
-3. Run the complete test suite after final changes.
-4. Use secure production wallet/key management.
-5. Review multisig and authority architecture.
-6. Decide the final program upgrade-authority policy.
-7. Decide the final mint-authority policy.
-8. Move metadata to durable/content-addressed storage.
-9. Verify final token distribution and vesting timestamps.
-10. Review liquidity-launch procedures.
-11. Obtain an independent security review before significant real funds are used.
-12. Review applicable legal, tax and disclosure requirements.
+1. Run final `anchor build`, Rust tests and TypeScript checks from the exact
+   release candidate.
+2. Verify that the deployed binary corresponds to the reviewed source/release.
+3. Use secure production wallet/key management rather than development JSON
+   keypairs.
+4. Review multisig and authority architecture.
+5. Decide the final program upgrade-authority policy.
+6. Decide the final mint-authority policy.
+7. Move metadata and image assets to durable/content-addressed storage.
+8. Verify final token distribution and explicit production vesting timestamps.
+9. Review liquidity-launch procedures.
+10. Obtain an independent security review before significant real funds are used.
+11. Review applicable legal, tax and disclosure requirements.
+12. Re-run the complete security checklist immediately before irreversible
+    authority changes.
 
-## 10. Security principles
+## 12. Security principles
 
 The project should continue to follow these principles:
 
@@ -196,13 +289,19 @@ The project should continue to follow these principles:
 
 ## Conclusion
 
-Two important griefing risks were identified during the internal review:
+Two important griefing risks were identified during development:
 
 1. unauthorized initialization of a beneficiary vesting PDA;
 2. denial of the legitimate deposit through partial vault pre-funding.
 
-Both have been mitigated in the current Devnet implementation.
+Both were mitigated in the current implementation.
 
-The hardened implementation passes the current automated test suite, but
-additional adversarial testing and an independent review remain recommended
-before a Mainnet launch involving real economic value.
+Additional adversarial tests now cover authorization failures, invalid deposit
+amounts, full and excess vault pre-funding, destination ownership, exact-cliff
+behavior, partial release, repeated release and final release.
+
+The current local suite passes 23 tests with zero failures.
+
+This is an internal engineering security review, not proof that the program is
+free of vulnerabilities and not a substitute for an independent professional
+audit before significant Mainnet funds are placed under the program.
