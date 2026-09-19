@@ -1,10 +1,10 @@
-# POPECOIN Vesting — Security Review
+# PAPA Vesting — Security Review
 
-**Project:** POPECOIN ($POPE)  
+**Project:** PAPA ($PAPA)  
 **Network reviewed:** Solana Devnet  
 **Program ID:** `BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc`
 
-> This document records an internal security review of the POPECOIN vesting program.
+> This document records an internal security review of the PAPA vesting program.
 > It is not an independent professional security audit.
 
 ## 1. Scope
@@ -252,7 +252,7 @@ These behaviors should be considered when defining the final Mainnet architectur
 
 ## 11. Mainnet blockers
 
-This internal review does NOT declare POPECOIN ready for Mainnet.
+This internal review does NOT declare PAPA ready for Mainnet.
 
 Before significant real economic value is placed under the program:
 

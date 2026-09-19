@@ -1,6 +1,6 @@
-# POPECOIN ($POPE) — Mainnet Security Checklist
+# PAPA ($PAPA) — Mainnet Security Checklist
 
-This document defines the checks that must be completed before POPECOIN is considered ready for a Mainnet launch.
+This document defines the checks that must be completed before PAPA is considered ready for a Mainnet launch.
 
 ## 1. Contract
 - [ ] Final vesting program code reviewed
@@ -21,19 +21,19 @@ This document defines the checks that must be completed before POPECOIN is consi
 - [ ] Consider hardware wallet or multisig for important authorities
 
 ## 3. Mainnet Token
-- [ ] Create new Mainnet POPE mint
+- [ ] Create new Mainnet PAPA mint
 - [ ] Decimals = 6
-- [ ] Mint exactly 10,000,000 POPE
+- [ ] Mint exactly 10,000,000 PAPA
 - [ ] Verify total supply on-chain
 - [ ] Freeze authority absent
 
 ## 4. Distribution
-- [ ] Liquidity: 4,000,000 POPE
-- [ ] Reserve: 3,000,000 POPE
-- [ ] Community / Airdrops: 1,500,000 POPE
-- [ ] Founder: 1,000,000 POPE
-- [ ] Development / Operations: 500,000 POPE
-- [ ] Verify that all allocations total exactly 10,000,000 POPE
+- [ ] Liquidity: 4,000,000 PAPA
+- [ ] Reserve: 3,000,000 PAPA
+- [ ] Community / Airdrops: 1,500,000 PAPA
+- [ ] Founder: 1,000,000 PAPA
+- [ ] Development / Operations: 500,000 PAPA
+- [ ] Verify that all allocations total exactly 10,000,000 PAPA
 
 ## 5. Vesting
 - [ ] Reserve: 730-day schedule with 90-day cliff
@@ -62,8 +62,8 @@ Mint authority revocation is irreversible.
 Program immutability is an important and potentially irreversible security decision.
 
 ## 8. Metadata
-- [ ] Final name: POPECOIN
-- [ ] Final symbol: POPE
+- [ ] Final name: PAPA
+- [ ] Final symbol: PAPA
 - [ ] Final logo reviewed
 - [ ] Final disclaimer reviewed
 - [ ] Move production metadata to durable/immutable hosting
@@ -91,6 +91,6 @@ Program immutability is an important and potentially irreversible security decis
 
 ## Important
 
-The current POPECOIN mint, wallets and tokens used during development are Devnet test assets.
+The current PAPA mint, wallets and tokens used during development are Devnet test assets.
 
 They must not be treated as production wallets or reused as the final Mainnet deployment.
