@@ -3,7 +3,7 @@
 This document defines the checks that must be completed before PAPA is considered ready for a Mainnet launch.
 
 ## 1. Contract
-- [ ] Final vesting program code reviewed
+- [x] Final vesting program code reviewed
 - [x] All automated tests pass
 - [x] Reserve vesting behavior verified
 - [x] Founder vesting behavior verified
