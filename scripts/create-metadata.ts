@@ -32,7 +32,7 @@ async function main() {
   const signer = createSignerFromKeypair(umi, keypair);
   umi.use(signerIdentity(signer));
 
-  console.log("Creating POPECOIN metadata on Devnet...");
+  console.log("Creating PAPA metadata on Devnet...");
   console.log("Mint:", MINT.toString());
 
   const result = await createV1(umi, {
@@ -40,8 +40,8 @@ async function main() {
     authority: signer,
     payer: signer,
     updateAuthority: signer,
-    name: "POPECOIN",
-    symbol: "POPE",
+    name: "PAPA",
+    symbol: "PAPA",
     uri: URI,
     sellerFeeBasisPoints: percentAmount(0),
     tokenStandard: TokenStandard.Fungible,

@@ -89,7 +89,7 @@ pub fn handle_deposit(ctx: Context<Deposit>, amount: u64) -> Result<()> {
     )?;
 
     msg!(
-        "Deposited {} POPE base units; vault total is now {}",
+        "Deposited {} PAPA base units; vault total is now {}",
         amount,
         total_amount
     );

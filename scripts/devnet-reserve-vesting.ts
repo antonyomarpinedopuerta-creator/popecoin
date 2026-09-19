@@ -58,7 +58,7 @@ const [vault] = PublicKey.findProgramAddressSync(
 async function main() {
   const now = Math.floor(Date.now() / 1000);
 
-  // Scheduled allocation: 3,000,000 POPE, 6 decimals
+  // Scheduled allocation: 3,000,000 PAPA, 6 decimals
   const amount = new anchor.BN(3_000_000_000_000);
 
   // DEVNET schedule generated at execution time: cliff 90 días, duration 730 días.
@@ -69,7 +69,7 @@ async function main() {
   console.log("Beneficiary:", reserve.publicKey.toBase58());
   console.log("Vesting:", vesting.toBase58());
   console.log("Vault:", vault.toBase58());
-  console.log("Amount: 3,000,000 POPE");
+  console.log("Amount: 3,000,000 PAPA");
   console.log("Start:", start.toString());
   console.log("Cliff:", cliff.toString());
   console.log("End:", end.toString());

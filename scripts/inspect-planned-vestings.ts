@@ -52,5 +52,5 @@ function inspect(label: string, beneficiary: PublicKey) {
 console.log("Program:", program.programId.toBase58());
 console.log("Mint:", mint.toBase58());
 
-inspect("RESERVE — 3,000,000 POPE", reserve);
-inspect("FOUNDER — 1,000,000 POPE", founder);
+inspect("RESERVE — 3,000,000 PAPA", reserve);
+inspect("FOUNDER — 1,000,000 PAPA", founder);

@@ -67,7 +67,7 @@ async function main() {
   console.log("Development ATA:", developmentAta.toBase58());
   console.log("Vesting:", vesting.toBase58());
   console.log("Vault:", vault.toBase58());
-  console.log("Depositing: 100 POPE");
+  console.log("Depositing: 100 PAPA");
 
   const signature = await program.methods
     .deposit(amount)

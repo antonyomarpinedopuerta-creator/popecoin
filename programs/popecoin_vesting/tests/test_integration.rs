@@ -665,7 +665,7 @@ fn test_release_rejects_wrong_destination_owner() {
 
     assert!(
         result.is_err(),
-        "FALLO DE SEGURIDAD: Release permitió enviar POPE a una cuenta de otra wallet"
+        "FALLO DE SEGURIDAD: Release permitió enviar PAPA a una cuenta de otra wallet"
     );
 
     // Confirmamos que la Vault conserva todos los tokens.
@@ -677,7 +677,7 @@ fn test_release_rejects_wrong_destination_owner() {
 
     assert_eq!(vault_state.amount, env.total_amount);
 
-    // La cuenta del atacante tampoco recibió POPE.
+    // La cuenta del atacante tampoco recibió PAPA.
     let attacker_after =
         env.svm.get_account(&attacker_token.pubkey()).unwrap();
 
@@ -834,7 +834,7 @@ fn test_release_rejects_unauthorized_beneficiary() {
         "FALLO DE SEGURIDAD: una wallet no autorizada pudo ejecutar Release"
     );
 
-    // La Vault debe conservar todos los POPE.
+    // La Vault debe conservar todos los PAPA.
     let vault_after =
         env.svm.get_account(&env.vault).unwrap();
 
@@ -843,7 +843,7 @@ fn test_release_rejects_unauthorized_beneficiary() {
 
     assert_eq!(vault_state.amount, env.total_amount);
 
-    // El atacante no debe recibir ningún POPE.
+    // El atacante no debe recibir ningún PAPA.
     let attacker_after =
         env.svm.get_account(&attacker_token.pubkey()).unwrap();
 
@@ -1815,7 +1815,7 @@ fn test_deposit_rejects_excess_amount() {
 
 #[test]
 fn test_popecoin_integration_setup() {
-    // Programa POPE Vesting + entorno local de Solana
+    // Programa PAPA Vesting + entorno local de Solana
     let (mut svm, program_id) = load_popecoin_program();
 
     // Wallets FICTICIAS para la prueba
@@ -1827,7 +1827,7 @@ fn test_popecoin_integration_setup() {
     svm.airdrop(&payer.pubkey(), 10_000_000_000)
         .unwrap();
 
-    // Mint SPL ficticio de POPE
+    // Mint SPL ficticio de PAPA
     let mint = Keypair::new();
     let mint_len = Mint::LEN;
 
@@ -1873,7 +1873,7 @@ fn test_popecoin_integration_setup() {
     );
 
 
-    println!("Mint POPE ficticio creado correctamente");
+    println!("Mint PAPA ficticio creado correctamente");
 
     // Cuenta SPL ficticia propiedad de authority
     let authority_token = Keypair::new();
@@ -1906,7 +1906,7 @@ fn test_popecoin_integration_setup() {
 
     svm.send_transaction(tx).unwrap();
 
-    // Acuñamos exactamente 3,000,000 POPE ficticios
+    // Acuñamos exactamente 3,000,000 PAPA ficticios
     let simulated_reserve: u64 = 3_000_000_000_000;
 
     let mint_to =
@@ -1940,7 +1940,7 @@ fn test_popecoin_integration_setup() {
     assert_eq!(token_state.owner, authority.pubkey());
     assert_eq!(token_state.amount, simulated_reserve);
 
-    println!("3,000,000 POPE ficticios acuñados correctamente");
+    println!("3,000,000 PAPA ficticios acuñados correctamente");
 
     // PDA del vesting:
     // ["vesting", beneficiary, mint]
@@ -1964,7 +1964,7 @@ fn test_popecoin_integration_setup() {
             &program_id,
         );
 
-    // 3,000,000 POPE con 6 decimales
+    // 3,000,000 PAPA con 6 decimales
     let total_amount: u64 = 3_000_000_000_000;
 
     assert_eq!(
@@ -2189,8 +2189,8 @@ fn test_popecoin_integration_setup() {
     );
 
     println!("Depósito con cantidad incorrecta rechazado correctamente");
-    println!("Authority conserva 3,000,000 POPE");
-    println!("Vault conserva 0 POPE");
+    println!("Authority conserva 3,000,000 PAPA");
+    println!("Vault conserva 0 PAPA");
 
     // PRUEBA DE SEGURIDAD:
     // una wallet distinta intenta hacerse pasar por authority.
@@ -2248,7 +2248,7 @@ fn test_popecoin_integration_setup() {
     assert_eq!(vault_state_after_fake.amount, 0);
 
     println!("Authority falsa rechazada correctamente");
-    println!("Ningún POPE fue movido por la wallet no autorizada");
+    println!("Ningún PAPA fue movido por la wallet no autorizada");
 
     // PRUEBA DE SEGURIDAD: pre-funding del Vault.
     // Un tercero puede transferir tokens SPL directamente a una cuenta token.
@@ -2337,16 +2337,16 @@ fn test_popecoin_integration_setup() {
     assert_eq!(vault_state_after.amount, total_amount);
 
     println!("Deposit ejecutado correctamente");
-    println!("Authority: 0 POPE");
+    println!("Authority: 0 PAPA");
 
 
-    println!("Vault: 3,000,000 POPE ficticios");
+    println!("Vault: 3,000,000 PAPA ficticios");
 
     // PRUEBA DE SEGURIDAD:
     // intentamos realizar un segundo depósito mientras
     // la Vault ya contiene el total del vesting.
 
-    // Damos nuevamente POPE ficticios a authority para
+    // Damos nuevamente PAPA ficticios a authority para
     // que el rechazo no se deba a falta de saldo.
     let remint_second_deposit_ix =
         spl_token_interface::instruction::mint_to(
@@ -2431,11 +2431,11 @@ fn test_popecoin_integration_setup() {
     );
 
     println!("Segundo depósito rechazado correctamente");
-    println!("Authority conserva 3,000,000 POPE de prueba");
-    println!("Vault permanece en 3,000,000 POPE");
+    println!("Authority conserva 3,000,000 PAPA de prueba");
+    println!("Vault permanece en 3,000,000 PAPA");
 
     // Creamos la cuenta SPL del beneficiario.
-    // Debe comenzar con 0 POPE.
+    // Debe comenzar con 0 PAPA.
     let beneficiary_token = Keypair::new();
 
     let create_beneficiary_token =
@@ -2477,7 +2477,7 @@ fn test_popecoin_integration_setup() {
 
     println!("Cuenta SPL del beneficiario creada correctamente");
 
-    println!("Beneficiario: 0 POPE");
+    println!("Beneficiario: 0 PAPA");
 
     // Colocamos el reloj antes del cliff.
     // start = 1000, cliff = 1100, ahora = 1050.
@@ -2493,7 +2493,7 @@ fn test_popecoin_integration_setup() {
     println!("Estamos antes del cliff 1100");
 
     // Intentamos Release ANTES del cliff.
-    // Debe fallar porque todavía no hay POPE disponibles.
+    // Debe fallar porque todavía no hay PAPA disponibles.
     let release_accounts = accounts::Release {
         vesting,
         vault,
@@ -2542,10 +2542,10 @@ fn test_popecoin_integration_setup() {
     assert_eq!(beneficiary_state_before_cliff.amount, 0);
 
     println!("Release antes del cliff rechazado correctamente");
-    println!("Vault conserva 3,000,000 POPE");
+    println!("Vault conserva 3,000,000 PAPA");
 
 
-    println!("Beneficiario conserva 0 POPE");
+    println!("Beneficiario conserva 0 PAPA");
 
     // PRUEBA DE SEGURIDAD:
     // una wallet distinta intenta hacerse pasar por el beneficiario.
@@ -2584,7 +2584,7 @@ fn test_popecoin_integration_setup() {
         "FALLO DE SEGURIDAD: una wallet no autorizada pudo ejecutar Release"
     );
 
-    // Confirmamos que el ataque no movió ningún POPE.
+    // Confirmamos que el ataque no movió ningún PAPA.
     let vault_after_attack =
         svm.get_account(&vault).unwrap();
 
@@ -2601,12 +2601,12 @@ fn test_popecoin_integration_setup() {
     assert_eq!(beneficiary_state_after_attack.amount, 0);
 
     println!("Ataque con wallet no autorizada rechazado correctamente");
-    println!("Ningún POPE fue robado");
+    println!("Ningún PAPA fue robado");
 
     // Avanzamos el reloj hasta 1500.
     // Vesting esperado:
     // 3,000,000 * (1500-1000)/(2000-1000)
-    // = 1,500,000 POPE.
+    // = 1,500,000 PAPA.
     let mut clock = svm.get_sysvar::<Clock>();
     clock.unix_timestamp = 1_500;
     svm.set_sysvar(&clock);
@@ -2683,7 +2683,7 @@ fn test_popecoin_integration_setup() {
         "FALLO DE SEGURIDAD: Release permitió una cuenta SPL de otra wallet"
     );
 
-    // Comprobamos que el intento fallido no movió POPE.
+    // Comprobamos que el intento fallido no movió PAPA.
     let vault_after_wrong_destination =
         svm.get_account(&vault).unwrap();
 
@@ -2700,7 +2700,7 @@ fn test_popecoin_integration_setup() {
     assert_eq!(wrong_destination_state.amount, 0);
 
     println!("Cuenta SPL de otra wallet rechazada correctamente");
-    println!("Vault conserva 3,000,000 POPE y destino incorrecto conserva 0");
+    println!("Vault conserva 3,000,000 PAPA y destino incorrecto conserva 0");
 
     svm.expire_blockhash();
 
@@ -2759,11 +2759,11 @@ fn test_popecoin_integration_setup() {
 
     assert_eq!(vesting_state_at_1500.released_amount, half);
 
-    println!("Estado interno released_amount = 1,500,000 POPE correcto");
+    println!("Estado interno released_amount = 1,500,000 PAPA correcto");
     println!("Release en 1500 ejecutado correctamente");
-    println!("Beneficiario recibió 1,500,000 POPE");
+    println!("Beneficiario recibió 1,500,000 PAPA");
 
-    println!("Vault conserva 1,500,000 POPE");
+    println!("Vault conserva 1,500,000 PAPA");
 
     // Avanzamos hasta el final del vesting: 2000.
     let mut clock = svm.get_sysvar::<Clock>();
@@ -2828,11 +2828,11 @@ fn test_popecoin_integration_setup() {
 
     assert_eq!(vesting_state_final.released_amount, total_amount);
 
-    println!("Estado interno released_amount = 3,000,000 POPE correcto");
+    println!("Estado interno released_amount = 3,000,000 PAPA correcto");
     println!("Release final en 2000 ejecutado correctamente");
-    println!("Beneficiario acumuló 3,000,000 POPE");
+    println!("Beneficiario acumuló 3,000,000 PAPA");
 
-    println!("Vault terminó con 0 POPE");
+    println!("Vault terminó con 0 PAPA");
 
     // PRUEBA DE SEGURIDAD:
     // intentamos ejecutar Release otra vez después
@@ -2894,8 +2894,8 @@ fn test_popecoin_integration_setup() {
     );
 
     println!("Doble retiro rechazado correctamente");
-    println!("Beneficiario sigue con 3,000,000 POPE");
-    println!("Vault sigue con 0 POPE");
+    println!("Beneficiario sigue con 3,000,000 PAPA");
+    println!("Vault sigue con 0 PAPA");
 
     // PRUEBA DE SEGURIDAD:
     // intentamos volver a financiar el mismo vesting después
@@ -2905,7 +2905,7 @@ fn test_popecoin_integration_setup() {
     // para asegurarnos de que el rechazo venga del contrato
     // y no de una falta de saldo.
 
-    // Authority ya conserva 3,000,000 POPE de la prueba
+    // Authority ya conserva 3,000,000 PAPA de la prueba
     // de segundo depósito. No necesitamos acuñar otros 3M.
     let authority_refunded =
         svm.get_account(&authority_token.pubkey()).unwrap();
@@ -2915,7 +2915,7 @@ fn test_popecoin_integration_setup() {
 
     assert_eq!(authority_refunded_state.amount, total_amount);
 
-    // Intentamos redepositar los 3,000,000 POPE.
+    // Intentamos redepositar los 3,000,000 PAPA.
     let redeposit_accounts = accounts::Deposit {
         vesting,
         vault,
@@ -2976,10 +2976,10 @@ fn test_popecoin_integration_setup() {
     assert_eq!(vault_state_after_redeposit.amount, 0);
 
     println!("Redepósito después del vesting rechazado correctamente");
-    println!("Authority conserva los 3,000,000 POPE de prueba");
-    println!("Vault continúa con 0 POPE");
+    println!("Authority conserva los 3,000,000 PAPA de prueba");
+    println!("Vault continúa con 0 PAPA");
 
-    println!("POPE integration setup OK");
+    println!("PAPA integration setup OK");
     println!(
         "Total ficticio: {} unidades base",
         total_amount

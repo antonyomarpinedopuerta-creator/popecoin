@@ -112,7 +112,7 @@ pub fn handle_release(ctx: Context<Release>) -> Result<()> {
         .checked_add(releasable)
         .ok_or(ErrorCode::ArithmeticOverflow)?;
 
-    msg!("Released {} POPE base units", releasable);
+    msg!("Released {} PAPA base units", releasable);
 
     Ok(())
 }

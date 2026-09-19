@@ -54,7 +54,7 @@ const [vault] = PublicKey.findProgramAddressSync(
 async function main() {
   const now = Math.floor(Date.now() / 1000);
 
-  // Prueba: 100 POPE, 6 decimales
+  // Prueba: 100 PAPA, 6 decimales
   const amount = new anchor.BN(100_000_000);
 
   // Margen suficiente para realizar deposit y probar el cliff.
@@ -65,7 +65,7 @@ async function main() {
   console.log("Beneficiary:", development.publicKey.toBase58());
   console.log("Vesting:", vesting.toBase58());
   console.log("Vault:", vault.toBase58());
-  console.log("Amount: 100 POPE");
+  console.log("Amount: 100 PAPA");
   console.log("Start:", start.toString());
   console.log("Cliff:", cliff.toString());
   console.log("End:", end.toString());

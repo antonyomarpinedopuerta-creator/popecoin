@@ -77,7 +77,7 @@ pub fn handle_initialize(
     vesting.end_time = end_time;
     vesting.bump = ctx.bumps.vesting;
 
-    msg!("POPE vesting initialized");
+    msg!("PAPA vesting initialized");
     msg!("Total amount: {}", total_amount);
 
     Ok(())
