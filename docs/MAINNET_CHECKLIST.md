@@ -4,13 +4,13 @@ This document defines the checks that must be completed before PAPA is considere
 
 ## 1. Contract
 - [ ] Final vesting program code reviewed
-- [ ] All automated tests pass
-- [ ] Reserve vesting behavior verified
-- [ ] Founder vesting behavior verified
-- [ ] Unauthorized release attempts rejected
-- [ ] Double release rejected
-- [ ] Invalid schedules rejected
-- [ ] No unintended withdrawal or recovery mechanism
+- [x] All automated tests pass
+- [x] Reserve vesting behavior verified
+- [x] Founder vesting behavior verified
+- [x] Unauthorized release attempts rejected
+- [x] Double release rejected
+- [x] Invalid schedules rejected
+- [x] No unintended withdrawal or recovery mechanism
 - [ ] Independent security review completed before meaningful real value is locked
 - [ ] Verify the deployment Program ID and program keypair before any deployment
 - [ ] Do NOT use a normal `anchor deploy` blindly: the current generated `target/deploy/popecoin_vesting-keypair.json` resolves to `Ei7LusW1YjHJdR2vPEWdaTobrEwQCJQ8Tff9XGnXBWSF`, while the existing Devnet vesting program is `BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc`
