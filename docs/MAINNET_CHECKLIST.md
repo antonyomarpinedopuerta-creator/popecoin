@@ -12,7 +12,7 @@ This document defines the checks that must be completed before PAPA is considere
 - [x] Invalid schedules rejected
 - [x] No unintended withdrawal or recovery mechanism
 - [ ] Independent security review completed before meaningful real value is locked
-- [ ] Verify the deployment Program ID and program keypair before any deployment
+- [x] Verify the deployment Program ID and program keypair before any deployment
 - [ ] Do NOT use a normal `anchor deploy` blindly: the current generated `target/deploy/popecoin_vesting-keypair.json` resolves to `Ei7LusW1YjHJdR2vPEWdaTobrEwQCJQ8Tff9XGnXBWSF`, while the existing Devnet vesting program is `BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc`
 - [ ] Use the reviewed deployment/upgrade procedure that explicitly targets the intended Program ID
 
