@@ -6,3 +6,9 @@ node_modules
 test-ledger
 .yarn
 .surfpool
+
+# Sensitive Solana wallet/keypair files
+**/*-keypair.json
+**/id.json
+**/wallet*.json
+**/*-wallet.json
