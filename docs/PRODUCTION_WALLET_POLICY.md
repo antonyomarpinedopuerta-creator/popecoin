@@ -84,3 +84,11 @@ No production keypair should be generated until this map is reviewed and accepte
 The proposed production wallet map has been reviewed and accepted as the current design.
 
 This approval does not authorize Mainnet wallet generation, token deployment, minting, liquidity funding, or spending real SOL.
+
+## Custody Separation Decision
+
+The current production design keeps all nine wallet roles separate.
+
+No critical authority, beneficiary wallet, or operational wallet will share the same production key unless a later security review explicitly approves that consolidation.
+
+This separation is intended to reduce the impact of a single compromised key and to keep operational funds isolated from critical authorities.
