@@ -115,3 +115,19 @@ Before any Mainnet deployment or authority assignment, the final custody method 
 - Mainnet fee payer: separate hot wallet funded only with the minimum SOL required.
 
 None of these wallets may share a production key with the critical authorities.
+
+## Pre-Creation Status
+
+Current status before generating any Mainnet production wallet:
+
+- [x] Production wallet roles are defined.
+- [x] All nine production roles are separated.
+- [x] Devnet keypairs will not be reused for Mainnet.
+- [x] Production wallets must not be stored inside the Git repository.
+- [x] Offline paper backup method is planned.
+- [x] Wallet creation does not authorize spending real SOL.
+- [ ] Final custody method for critical authorities is approved.
+- [ ] Actual production wallets are generated.
+- [ ] Actual offline backups are created and verified.
+
+Production wallet generation remains blocked until the applicable pre-creation requirements are complete.
