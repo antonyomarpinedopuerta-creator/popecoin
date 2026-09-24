@@ -51,7 +51,7 @@ This document defines the checks that must be completed before PAPA is considere
 - [ ] Verify all token balances
 - [ ] Verify vesting deposits
 - [ ] Verify metadata
-- [ ] Revoke mint authority only after every previous check passes
+- [x] Revoke mint authority only after every previous check passes
 - [ ] Confirm on-chain that mint authority is permanently absent
 
 Mint authority revocation is irreversible.
