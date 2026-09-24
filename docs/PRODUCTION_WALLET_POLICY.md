@@ -43,6 +43,10 @@ Critical authorities must not share the same hot wallet unless that choice is ex
 
 - Production seed phrases and private keys must never be stored in GitHub, cloud notes, chat messages, email, or screenshots.
 - At least one offline backup must exist for each critical production wallet.
+- When a recovery phrase is generated, the current planned backup method is to write it by hand on paper while offline.
+- The handwritten recovery phrase must never be photographed, scanned, uploaded, typed into chat, or copied into a digital note.
+- The paper backup must be stored in a private, secure location protected from unauthorized access, loss, fire, and water where practical.
+- For critical wallets, a second physically separate offline backup should be considered before meaningful real value is stored.
 - Backups should be stored in physically separate secure locations.
 - Never paste a seed phrase or private key into terminal history, documentation, scripts, or source code.
 - Hardware wallets should be initialized and backed up offline following the manufacturer security procedure.
