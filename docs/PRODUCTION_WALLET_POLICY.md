@@ -95,11 +95,11 @@ This separation is intended to reduce the impact of a single compromised key and
 
 ## Critical Authority Custody Decision
 
-The Program upgrade authority, Token mint authority, and Metadata update authority will use hardware-wallet custody for Mainnet production.
+Hardware-wallet custody is not currently available. Before Mainnet production, the Program upgrade authority, Token mint authority, and Metadata update authority must receive a final custody review. Hardware-wallet or multisig custody remains the preferred option for critical authorities when practical.
 
 These critical authorities must not use development JSON keypairs stored in WSL.
 
-Hardware-wallet initialization, backup, and signing setup must be completed before any Mainnet deployment or authority assignment.
+Before any Mainnet deployment or authority assignment, the final custody method must be approved and secure offline backups must be prepared. Recovery phrases or private keys must never be stored in GitHub, cloud notes, screenshots, chat, or source files.
 
 ## Non-Critical Wallet Custody Decision
 
