@@ -94,11 +94,24 @@ The project passed the safe local validation workflow:
 - Total: 23/23 tests passed.
 - TypeScript type checking passed.
 
-## Important Limitation
+## Deployed Binary Correspondence
 
-Exact byte-for-byte correspondence between the current locally built program binary/source and the currently deployed Devnet binary has NOT been established.
+The executable program deployed on Devnet has been matched to the historical reviewed source at Git commit `990cd9ed0126c81e178a7156ce1bf416c412d28b`.
 
-Therefore this checkpoint must not be represented as proof that the current source tree exactly reproduces the deployed on-chain binary.
+A direct `cargo build-sbf` reconstruction of that commit produced:
+
+- Executable size: 233,096 bytes.
+- SHA-256: `d0b317c25e76a31f323dc772358ba8ba0e5a6511bd9fdec22148b2cc6bbed47d`.
+
+The program dumped from Devnet has a total account data length of 243,296 bytes. Byte comparison established that:
+
+- its first 233,096 bytes are identical byte-for-byte to the reconstructed executable;
+- the remaining 10,200 bytes are zero padding;
+- hashing the first 233,096 bytes of the Devnet dump produces the same SHA-256: `d0b317c25e76a31f323dc772358ba8ba0e5a6511bd9fdec22148b2cc6bbed47d`.
+
+Both binaries also contain the historical `POPE` log strings. Later `POPE` to `PAPA` log-string changes were not deployed.
+
+This establishes correspondence between the executable deployed on Devnet and the reconstructed executable from commit `990cd9e`. It does not mean the current source tree is byte-identical to the deployed version because subsequent branding-only source changes exist.
 
 No deployment should be performed merely to change branding/log strings.
 
