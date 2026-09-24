@@ -57,9 +57,9 @@ This document defines the checks that must be completed before PAPA is considere
 Mint authority revocation is irreversible.
 
 ## 7. Program Upgrade Authority
-- [ ] Decide final upgrade policy
+- [x] Decide final upgrade policy
 - [ ] Consider multisig/governance for upgrade authority
-- [ ] Do not revoke upgrade authority during development
+- [x] Do not revoke upgrade authority during development
 - [ ] If making the program immutable, do so only after final review
 
 Program immutability is an important and potentially irreversible security decision.
