@@ -126,7 +126,7 @@ Current status before generating any Mainnet production wallet:
 - [x] Production wallets must not be stored inside the Git repository.
 - [x] Offline paper backup method is planned.
 - [x] Wallet creation does not authorize spending real SOL.
-- [ ] Final custody method for critical authorities is approved.
+- [x] Temporary custody method for critical authorities is approved; migration to stronger custody remains required before significant value is held.
 - [ ] Actual production wallets are generated.
 - [ ] Actual offline backups are created and verified.
 
