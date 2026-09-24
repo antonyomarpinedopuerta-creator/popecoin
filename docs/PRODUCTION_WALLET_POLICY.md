@@ -62,3 +62,19 @@ Before any production wallet is created, confirm:
 - Critical authority design has been reviewed for hardware-wallet or multisig use.
 
 Only after these checks are complete should a production wallet be generated.
+
+## Proposed Production Wallet Map
+
+This is the proposed production wallet separation before any Mainnet keys are generated.
+
+1. Program upgrade authority — hardware wallet or multisig.
+2. Token mint authority — hardware wallet or multisig until minting/distribution are complete.
+3. Metadata update authority — dedicated signer or multisig.
+4. Reserve beneficiary — dedicated cold-storage wallet.
+5. Founder beneficiary — dedicated cold-storage wallet.
+6. Community/Airdrops operations — separate limited-funds operational wallet.
+7. Development/Operations — separate limited-funds operational wallet.
+8. Liquidity operations — dedicated liquidity wallet.
+9. Mainnet fee payer — separate operational wallet funded only as required.
+
+No production keypair should be generated until this map is reviewed and accepted.
