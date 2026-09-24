@@ -65,10 +65,10 @@ Mint authority revocation is irreversible.
 Program immutability is an important and potentially irreversible security decision.
 
 ## 8. Metadata
-- [ ] Final name: PAPA
-- [ ] Final symbol: PAPA
-- [ ] Final logo reviewed
-- [ ] Final disclaimer reviewed
+- [x] Final name: PAPA
+- [x] Final symbol: PAPA
+- [x] Final logo reviewed
+- [x] Final disclaimer reviewed
 - [ ] Move production metadata to durable/immutable hosting
 - [ ] Pin both metadata JSON and image
 - [ ] Verify metadata on-chain
