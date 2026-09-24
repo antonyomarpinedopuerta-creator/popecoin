@@ -71,9 +71,9 @@ Only after these checks are complete should a production wallet be generated.
 
 This is the proposed production wallet separation before any Mainnet keys are generated.
 
-1. Program upgrade authority — hardware wallet or multisig.
-2. Token mint authority — hardware wallet or multisig until minting/distribution are complete.
-3. Metadata update authority — dedicated signer or multisig.
+1. Program upgrade authority — separate critical-authority wallet; final custody method pending security review.
+2. Token mint authority — separate critical-authority wallet; final custody method pending security review.
+3. Metadata update authority — separate critical-authority wallet; final custody method pending security review.
 4. Reserve beneficiary — dedicated cold-storage wallet.
 5. Founder beneficiary — dedicated cold-storage wallet.
 6. Community/Airdrops operations — separate limited-funds operational wallet.
