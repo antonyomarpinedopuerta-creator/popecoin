@@ -21,7 +21,7 @@ This document defines the checks that must be completed before PAPA is considere
 - [ ] Do NOT reuse Devnet keypairs
 - [ ] Secure backups created offline
 - [ ] No seed phrase or private key stored in GitHub
-- [ ] Consider hardware wallet or multisig for important authorities
+- [x] Consider hardware wallet or multisig for important authorities
 
 ## 3. Mainnet Token
 - [ ] Create new Mainnet PAPA mint
