@@ -92,3 +92,11 @@ The current production design keeps all nine wallet roles separate.
 No critical authority, beneficiary wallet, or operational wallet will share the same production key unless a later security review explicitly approves that consolidation.
 
 This separation is intended to reduce the impact of a single compromised key and to keep operational funds isolated from critical authorities.
+
+## Critical Authority Custody Decision
+
+The Program upgrade authority, Token mint authority, and Metadata update authority will use hardware-wallet custody for Mainnet production.
+
+These critical authorities must not use development JSON keypairs stored in WSL.
+
+Hardware-wallet initialization, backup, and signing setup must be completed before any Mainnet deployment or authority assignment.
