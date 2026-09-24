@@ -100,3 +100,14 @@ The Program upgrade authority, Token mint authority, and Metadata update authori
 These critical authorities must not use development JSON keypairs stored in WSL.
 
 Hardware-wallet initialization, backup, and signing setup must be completed before any Mainnet deployment or authority assignment.
+
+## Non-Critical Wallet Custody Decision
+
+- Reserve beneficiary: dedicated cold-storage wallet.
+- Founder beneficiary: dedicated cold-storage wallet.
+- Community/Airdrops: separate limited-funds operational hot wallet.
+- Development/Operations: separate limited-funds operational hot wallet.
+- Liquidity: dedicated wallet used only for liquidity operations.
+- Mainnet fee payer: separate hot wallet funded only with the minimum SOL required.
+
+None of these wallets may share a production key with the critical authorities.
