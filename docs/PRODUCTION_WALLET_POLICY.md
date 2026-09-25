@@ -118,7 +118,7 @@ None of these wallets may share a production key with the critical authorities.
 
 ## Pre-Creation Status
 
-Current status before generating any Mainnet production wallet:
+Current production wallet status:
 
 - [x] Production wallet roles are defined.
 - [x] All nine production roles are separated.
@@ -127,7 +127,39 @@ Current status before generating any Mainnet production wallet:
 - [x] Offline paper backup method is planned.
 - [x] Wallet creation does not authorize spending real SOL.
 - [x] Temporary custody method for critical authorities is approved; migration to stronger custody remains required before significant value is held.
-- [ ] Actual production wallets are generated.
-- [ ] Actual offline backups are created and verified.
+- [x] Actual production wallets are generated.
+- [x] Actual offline backups are created and verified.
 
-Production wallet generation remains blocked until the applicable pre-creation requirements are complete.
+Production wallet generation is complete. The nine production roles have separate keypairs with verified offline recovery backups. This does not authorize Mainnet deployment, authority assignment, token minting, liquidity funding, or spending real SOL.
+
+## Production Wallet Generation Record
+
+All nine production wallet roles have now been generated as separate Solana keypairs.
+
+Each recovery phrase was independently verified by recovering the corresponding keypair and confirming that the recovered public key matched the original public key.
+
+No recovery phrase or private key is recorded in this repository.
+
+### Production Public Keys
+
+- **Program Upgrade Authority:** `EDkvG9pZ7Y3V3bXJqNn3PZRYf3NjuVzsE7Yp5ZNFqPnt`
+- **Token Mint Authority:** `5P3UEH9CSEuSXq1EJnUnxYaTvjGCLymStiZTEeKP7CL4`
+- **Metadata Update Authority:** `ERbzfNUkT2CGHjNuBNyvZJfjgeU3ivLmdVyD6ZHcCEEy`
+- **Reserve Beneficiary/Custody:** `5gzMSXq6c397QErTYoPhUFQc15ZSjtUokQ1gGND2hC1Z`
+- **Founder Beneficiary/Custody:** `7qJ4uvLJtXU3inXRZxCxMswdCXn9TJJoZCaKo7y8aAZm`
+- **Community/Airdrops Operations:** `56RNeYQVb8SvYg34jQVr8pBvQqhcLodhyTC2KyLrkw36`
+- **Development/Operations:** `9xLgRbisSmpgmvFNP89w8Qu9KTwFjy787EtAVFtqjF6g`
+- **Liquidity Operations:** `oX29y2AGB1UuYyUR6kV8J4bpwC574XQZFJM1AmRo8z3`
+- **Mainnet Fee Payer:** `2JURYWgdRosKmhHa6ZzF1se75pgxPQ5PHiVoCPFikDeu`
+
+### Verification Status
+
+- [x] All nine production roles use separate keypairs.
+- [x] All nine recovery phrases were backed up offline.
+- [x] Recovery was tested for every production keypair.
+- [x] Every recovered public key matched its corresponding original public key.
+- [x] Production keypairs are stored outside the Git repository.
+- [x] Recovery phrases and private keys are not recorded in repository documentation.
+- [x] No Mainnet deployment, minting, liquidity funding, or real-SOL spending was authorized by wallet generation.
+
+These wallets must not receive significant production value until the remaining security, deployment, authority, and launch checks are completed.
