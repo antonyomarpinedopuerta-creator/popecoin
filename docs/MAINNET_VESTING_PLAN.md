@@ -56,9 +56,9 @@ Production timestamps:
 
 Before Mainnet initialization, record and review:
 
-- Reserve beneficiary address
-- Founder beneficiary address
-- Mainnet PAPA mint address
+- Reserve beneficiary address: `5gzMSXq6c397QErTYoPhUFQc15ZSjtUokQ1gGND2hC1Z` (verified)
+- Founder beneficiary address: `7qJ4uvLJtXU3inXRZxCxMswdCXn9TJJoZCaKo7y8aAZm` (verified)
+- Mainnet PAPA mint address: PENDING
 - Approved start date and time
 - Reserve start, cliff, and end Unix timestamps
 - Founder start, cliff, and end Unix timestamps
