@@ -17,11 +17,11 @@ This document defines the checks that must be completed before PAPA is considere
 - [x] Use the reviewed deployment/upgrade procedure that explicitly targets the intended Program ID
 
 ## 2. Production Wallets
-- [ ] Create new Mainnet wallets
-- [ ] Do NOT reuse Devnet keypairs
-- [ ] Secure backups created offline
-- [ ] No seed phrase or private key stored in GitHub
-- [ ] Consider hardware wallet or multisig for important authorities
+- [x] Create new Mainnet wallets
+- [x] Do NOT reuse Devnet keypairs
+- [x] Secure backups created offline and recovery verified
+- [x] No seed phrase or private key stored in GitHub
+- [ ] Complete final hardware-wallet or multisig custody review for critical authorities before significant value is held
 
 ## 3. Mainnet Token
 - [ ] Create new Mainnet PAPA mint
