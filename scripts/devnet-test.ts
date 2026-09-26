@@ -1,16 +1,9 @@
-import { Connection, PublicKey } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 
-const RPC_URL = "https://api.devnet.solana.com";
+import { DEVNET_PROGRAM_ID as PROGRAM_ID, DEVNET_MINT as PAPA_MINT } from "./devnet-config";
+import { createDevnetConnection } from "./vesting-reader";
 
-const PROGRAM_ID = new PublicKey(
-  "BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc"
-);
-
-const PAPA_MINT = new PublicKey(
-  "ANNSmx2Jww4HUukAvxBRSZeTqzcuqPQTiewSjxx7tgnw"
-);
-
-const connection = new Connection(RPC_URL, "confirmed");
+const connection = createDevnetConnection();
 
 async function main() {
   const version = await connection.getVersion();

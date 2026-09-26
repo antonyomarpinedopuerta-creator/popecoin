@@ -300,7 +300,7 @@ Additional adversarial tests now cover authorization failures, invalid deposit
 amounts, full and excess vault pre-funding, destination ownership, exact-cliff
 behavior, partial release, repeated release and final release.
 
-The current local suite passes 23 tests with zero failures.
+That historical local suite passed 23 tests; current evidence is in the handoff.
 
 This is an internal engineering security review, not proof that the program is
 free of vulnerabilities and not a substitute for an independent professional
@@ -357,5 +357,27 @@ cap mint supply, and cannot prevent a mint freeze authority from freezing a vaul
 Production mint/supply/freeze checks remain an operational launch requirement.
 A partially funded vesting can release if the vault covers the accrued claim;
 after such a release, deposit is disabled, though direct SPL transfers can still
-fund the vault. Underfunding is not a cancellation mechanism. No frontend or
-production signing workflow is implemented in `app/`.
+fund the vault. Underfunding is not a cancellation mechanism. A local read-only Devnet frontend exists in `app/`; production signing is not implemented.
+
+
+## 15. Continuation from f46fde9 — 2026-09-26
+
+No on-chain ABI, seeds, account layout or program authority powers changed in this
+continuation. Four new SBF tests cover backwards clock rollback/recovery, frozen
+SPL accounts and recovery, partial direct funding followed by deposit rejection
+and direct completion, and rejection of funded-account reinitialization. Failed
+operations assert expected errors and unchanged state/token balances.
+
+The initial safe check failed with DeclaredProgramIdMismatch: Devnet and release
+shared build caches. Builds now use explicit manifest/output paths and separate
+Devnet caches. Both identity suites pass; release verification checks a local
+build record and identity bytes as an additional stale-artifact guard.
+
+The frontend reader rejects malformed SPL layouts, executable data accounts,
+uninitialized mints, invalid token states and unexpected vault delegates/close
+powers. Its coverage indicator is not a transaction-executability claim.
+Malformed HTTP request targets return controlled errors. No signing UI was added.
+
+See DEPENDENCY_REVIEW.md for the native bigint-buffer mitigation and outstanding
+upstream advisories. ProgramData read-only verification on 2026-09-26 matches the
+historical executable hash, not this local candidate. No deployment was performed.

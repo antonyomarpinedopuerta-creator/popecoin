@@ -19,7 +19,12 @@ export function createHandler(reader: typeof readVesting = readVesting) {
       res.writeHead(status, { "Content-Type": "application/json" }); res.end(JSON.stringify(value));
     };
     if (req.method !== "GET") { res.setHeader("Allow", "GET"); json(405, { error: "Read-only application" }); return; }
-    const url = new URL(req.url ?? "/", "http://127.0.0.1");
+    let url: URL;
+    try {
+      const target = req.url ?? "/";
+      if (!target.startsWith("/") || target.startsWith("//")) throw new Error("Invalid target");
+      url = new URL(target, "http://127.0.0.1");
+    } catch { json(400, { error: "Invalid request URL" }); return; }
     if (url.pathname === "/api/vesting") {
       const role = url.searchParams.get("role");
       if (role !== "reserve" && role !== "founder") { json(400, { error: "Choose reserve or founder" }); return; }
@@ -30,10 +35,13 @@ export function createHandler(reader: typeof readVesting = readVesting) {
       finally { pending--; }
       return;
     }
-    const asset = assets[url.pathname];
+    const asset = Object.prototype.hasOwnProperty.call(assets, url.pathname) ? assets[url.pathname] : undefined;
     if (!asset) { json(404, { error: "Not found" }); return; }
-    res.writeHead(200, { "Content-Type": asset[1] });
-    res.end(fs.readFileSync(path.join(__dirname, "public", asset[0])));
+    try {
+      const body = fs.readFileSync(path.join(__dirname, "public", asset[0]));
+      res.writeHead(200, { "Content-Type": asset[1] });
+      res.end(body);
+    } catch { json(500, { error: "Asset unavailable" }); }
   };
 }
 if (require.main === module) {

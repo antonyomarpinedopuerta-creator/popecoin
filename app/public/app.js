@@ -26,13 +26,13 @@ button.addEventListener("click", async () => {
     const data = await response.json();
     if (!response.ok) throw new Error(data.error || "Consulta fallida");
     const cards = document.querySelector("#amounts"); cards.replaceChildren();
-    for (const [label, key] of [["Asignado", "total"], ["Liberado", "released"], ["Devengado", "vested"], ["Reclamable por calendario", "claimable"], ["Saldo del vault", "vaultBalance"], ["Financiación pendiente", "shortfall"]]) {
+    for (const [label, key] of [["Asignado", "total"], ["Liberado", "released"], ["Acumulado desde el inicio", "accrued"], ["Reclamable por calendario", "claimable"], ["Saldo del vault", "vaultBalance"], ["Financiación pendiente", "shortfall"]]) {
       const article = document.createElement("article"), title = document.createElement("h2"), value = document.createElement("p");
       title.textContent = label; value.textContent = amount(data[key]); article.append(title, value); cards.append(article);
     }
     list("#schedule", [["Inicio", date(data.start)], ["Cliff", date(data.cliff)], ["Fin", date(data.end)], ["Reloj de la red", date(data.chainTime)]]);
     list("#identity", [["Programa", data.program], ["Mint", data.mint], ["Beneficiario", data.beneficiary], ["Vesting", data.vesting], ["Vault", data.vault], ["Slot confirmado", String(data.slot)], ["Vault congelado", data.frozen ? "Sí" : "No"], ["Autoridad de emisión activa", data.mintAuthorityActive ? "Sí" : "No"], ["Autoridad de congelación activa", data.freezeAuthorityActive ? "Sí" : "No"]]);
-    status.textContent = `Estado consultado: ${new Date(data.observedAt).toLocaleString("es-ES")}. ${data.executableClaim ? "El saldo cubre el importe reclamable." : "No hay una liberación ejecutable con este estado."} Actualiza para obtener una nueva lectura.`;
+    status.textContent = `Estado consultado: ${new Date(data.observedAt).toLocaleString("es-ES")}. ${data.claimCoveredByVault ? "El saldo cubre el importe reclamable." : "No hay un importe reclamable cubierto por un vault descongelado."} Actualiza para obtener una nueva lectura.`;
     result.hidden = false;
   } catch (error) { status.textContent = error.name === "TimeoutError" ? "Devnet tardó demasiado. Reintenta la consulta." : error.message; }
   finally { button.disabled = false; role.disabled = false; }

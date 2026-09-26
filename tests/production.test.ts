@@ -15,5 +15,6 @@ test("production plan rejects pending parameters, implicit timezone and invalid 
   for (const startUtc of ["2027-01-01", "2027-02-30T00:00:00Z", "2027-01-01T00:00:00+01:00"]) assert.throws(() => preparePlan({ ...input, startUtc }));
   assert.throws(() => durableUri("https://example.com/mutable.json"));
   assert.throws(() => durableUri(`${input.imageUri}/../secret`));
+  assert.throws(() => durableUri(`${input.imageUri}/${"a".repeat(200)}`));
   assert.equal(verifyLocalMetadata().name, "PAPA");
 });

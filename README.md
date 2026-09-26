@@ -7,12 +7,12 @@ Programa Solana/Anchor para vesting lineal de tokens SPL clásicos. Requiere fir
 Herramientas verificadas: Rust/Cargo 1.89.0, Solana CLI 3.1.10, Anchor CLI 1.1.2, Node 24.10.0, npm 11.6.1, Yarn 1.22.22. `Cargo.lock` resuelve Anchor Rust 1.2.0 y LiteSVM 0.10.0; el cliente usa Anchor TS 0.32.1. Las pruebas de cliente comprueban la construcción de las tres instrucciones con el IDL generado.
 
 ```sh
-yarn install --frozen-lockfile
+yarn install --frozen-lockfile --ignore-scripts
 npm run check
 npm run verify:release
 ```
 
-`check` compila SBF con `--ignore-keys`, ejecuta Rust/LiteSVM, verifica TypeScript y ejecuta las pruebas de cliente offline. No despliega ni utiliza wallets. Se debe compilar antes de los tests Rust porque incluyen el binario de `target/deploy`; `npm run test:rust` hace ambas cosas. `target/` es generado y no se versiona. Los tests LiteSVM usan signers efímeros y tokens ficticios en memoria.
+`check` compila SBF con manifiesto y salida explícitos (`cargo build-sbf --locked`), genera el IDL con `anchor idl build`, ejecuta Rust/LiteSVM, verifica TypeScript y ejecuta las pruebas de cliente offline. No despliega ni utiliza wallets. Se debe compilar antes de los tests Rust porque incluyen el binario de `target/deploy`; `npm run test:rust` hace ambas cosas. `target/` es generado y no se versiona. Los tests LiteSVM usan signers efímeros y tokens ficticios en memoria.
 
 ## Identidades
 
@@ -31,4 +31,42 @@ Los scripts de depósito consultan el vault y calculan la diferencia exacta. Un 
 
 ## Estado y revisión final
 
-Ver [PAPA_WORK_HANDOFF.md](PAPA_WORK_HANDOFF.md) para resultados actuales y pendientes. `app/` está vacío: este repositorio ofrece contrato y scripts, no una interfaz de usuario. Los registros Devnet de `docs/` son históricos y no afirman el estado actual de la red. Quedan pendientes auditoría independiente, custodia final, metadata duradera, mint y fechas finales de producción. No hay autorización de lanzamiento implícita.
+Ver [PAPA_WORK_HANDOFF.md](PAPA_WORK_HANDOFF.md) para resultados actuales y pendientes. `app/` contiene una interfaz local de consulta Devnet, sin firmas ni conexión de wallet. Los registros Devnet de `docs/` son históricos y no afirman el estado actual de la red. Quedan pendientes auditoría independiente, custodia final, metadata duradera, mint y fechas finales de producción. No hay autorización de lanzamiento implícita.
+
+
+## App de consulta
+
+`npm run app` sirve http://127.0.0.1:3000 (solo loopback; `PORT` configurable).
+Permite consultar Reserva y Founder, muestra cantidades exactas, calendario UTC,
+slot confirmado, financiación pendiente y estado de congelación. Acumulado desde
+el inicio incluye tokens aún bloqueados por el cliff; reclamable aplica el cliff
+y descuenta liberaciones. Cobertura del vault no garantiza que una transacción
+pueda ejecutarse: no valida destino, firma ni simulación. No ofrece envío.
+
+## Builds aislados y evidencias
+
+- `npm run build:devnet`: copia fuentes públicas, cambia la identidad solo en la
+  copia, compila y ejecuta los tests en `target/devnet-workspace`. Su caché host/SBF
+  está separada de release. No despliega ni modifica source/IDL de release.
+- `npm run verify:release`: además de identidades, contrasta hashes de entradas,
+  binario e IDL con `target/release-build-record.json`. El registro se genera en
+  cada `build:safe`; no es una atestación independiente ni prueba remota.
+- `npm run devnet:snapshot`: consulta vestings con estado, vault, mint y reloj en
+  un mismo contexto por posición. Guarda montos como strings de unidades base.
+- `npm run devnet:program`: valida loader/ProgramData y compara el ejecutable con
+  el hash histórico. No afirma correspondencia del código actual con Devnet.
+- `npm run plan:production`: valida parámetros explícitos de
+  `config/production-plan.json`, reconcilia distribución y calcula PDAs/fechas
+  offline. Falla intencionalmente mientras sus campos sigan pendientes. La sintaxis
+  de URI no prueba pinning, disponibilidad o contenido de metadata.
+
+El fallo `DeclaredProgramIdMismatch` observado al retomar `f46fde9` se corrigió
+separando cachés y haciendo explícito el build SBF. No confiar en que un comando
+Anchor que termina correctamente haya sustituido un artefacto previo: usar
+`npm run check` y el registro de build.
+
+CI está definida en `.github/workflows/ci.yml`, sin despliegues, wallets ni secrets.
+Su primera ejecución remota queda pendiente; los comandos se verifican localmente.
+Revisar [dependencias](docs/DEPENDENCY_REVIEW.md), incluida la implementación
+JavaScript de bigint-buffer vendorizada. Instalar con Yarn: npm no respeta estas
+resolutions. Los avisos de auditoría pendientes no se silencian.

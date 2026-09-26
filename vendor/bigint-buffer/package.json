@@ -1,0 +1,9 @@
+{
+  "name": "bigint-buffer",
+  "version": "1.1.5",
+  "description": "PAPA vendored upstream pure-JavaScript build; no native binding",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "license": "Apache-2.0",
+  "private": true
+}

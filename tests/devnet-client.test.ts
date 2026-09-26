@@ -56,3 +56,28 @@ test("deposit top-up handles donations and large exact amounts", () => {
   assert.throws(() => remainingDepositAmount(100n, 100n), /fully funded/);
   assert.throws(() => remainingDepositAmount(100n, 101n), /overfunded/);
 });
+
+test("SPL layouts use the vendored pure-JS bigint converter with exact u64 values", () => {
+  const fs = require("node:fs");
+  const path = require("node:path");
+  const { createHash } = require("node:crypto");
+  const layoutUtilsPath = require.resolve("@solana/buffer-layout-utils");
+  const bigintPath = require.resolve("bigint-buffer", { paths: [path.dirname(layoutUtilsPath)] });
+  const bytes = fs.readFileSync(bigintPath);
+  assert.equal(createHash("sha256").update(bytes).digest("hex"),
+    createHash("sha256").update(fs.readFileSync("vendor/bigint-buffer/index.js")).digest("hex"));
+  assert.doesNotMatch(bytes.toString(), /require\(['"]bindings['"]\)/);
+  const converter = require(bigintPath);
+  const { u64, u128, u256 } = require("@solana/buffer-layout-utils");
+  for (const [factory, width] of [[u64, 8], [u128, 16], [u256, 32]] as const) {
+    const max = (1n << BigInt(width * 8)) - 1n;
+    for (const n of [0n, 1n, max - 1n, max]) {
+      const data = Buffer.alloc(width);
+      factory().encode(n, data, 0);
+      assert.equal(factory().decode(data, 0), n);
+      assert.equal(converter.toBigIntBE(converter.toBufferBE(n, width)), n);
+    }
+  }
+  // Native vulnerability affected large buffers; pure JS must safely handle this.
+  assert.equal(converter.toBigIntLE(Buffer.alloc(4096)), 0n);
+});

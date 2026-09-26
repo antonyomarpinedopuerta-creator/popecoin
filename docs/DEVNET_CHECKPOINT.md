@@ -134,3 +134,23 @@ Mainnet preparation still requires, among other items:
 - final review before irreversible authority changes.
 
 Devnet wallets, keys, tokens and mint must not be reused as production assets.
+
+
+## Read-only revalidation — 2026-09-26
+
+At 13:25 UTC, Reserve (slot 504422140) and Founder (slot 504422149) still had their
+full scheduled balances (3,000,000 and 1,000,000 PAPA), zero released and zero
+claimable before their cliffs. Neither vault was frozen. The mint authority was
+active and freeze authority absent. Each position used a single RPC context for
+state, vault, mint and clock; the two positions were observed at different slots.
+This does not re-reconcile the other distribution token accounts.
+
+At 13:41:55 UTC, program inspection at slot 504426540 confirmed ProgramData linkage,
+deployed slot 499370833, active upgrade authority and 243296 allocated executable
+bytes. The first 233096 bytes match the historical SHA-256 above and the remaining
+bytes are zero padding. SHA-256 including padding:
+`f4359e67e6dc8f84dd716a9c766cbec411eddfef5e339abe807a632f5e2d2b4d`.
+
+Reproduce using `npm run devnet:snapshot` and `npm run devnet:program`. These are
+network reads only. No current local changes were deployed; this record does not
+certify production readiness or the current holder of any signing key.

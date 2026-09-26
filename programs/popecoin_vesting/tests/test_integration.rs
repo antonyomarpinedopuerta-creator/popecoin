@@ -3752,3 +3752,124 @@ fn test_release_rejects_destination_with_wrong_mint() {
     assert_eq!(env.balance(destination), 0);
     assert_eq!(env.balance(env.vault), env.total_amount);
 }
+
+#[test]
+fn test_clock_regression_preserves_state_and_catches_up() {
+    let mut env = VestingTestEnv::new();
+    env.initialize_schedule(100, 100, 200);
+    env.fund();
+    let destination = env.destination();
+    let tx = env.release_tx(destination, 150);
+    env.svm.send_transaction(tx).unwrap();
+    let before = env.svm.get_account(&env.vesting).unwrap().data;
+    let tx = env.release_tx(destination, 140);
+    let error = env.svm.send_transaction(tx).unwrap_err();
+    assert!(error.meta.logs.iter().any(|l| l.contains("ArithmeticOverflow")), "{error:?}");
+    assert_eq!(env.svm.get_account(&env.vesting).unwrap().data, before);
+    assert_eq!(env.balance(destination), env.total_amount / 2);
+    assert_eq!(env.balance(env.vault), env.total_amount / 2);
+    let tx = env.release_tx(destination, 200);
+    env.svm.send_transaction(tx).unwrap();
+    assert_eq!(env.balance(destination), env.total_amount);
+}
+
+#[test]
+fn test_frozen_token_cpi_rolls_back_then_recovers() {
+    // Frozen source, vault or destination must not advance vesting accounting.
+    for kind in ["source", "vault", "destination"] {
+        let mut env = VestingTestEnv::new();
+        env.initialize_schedule(100, 100, 200);
+        let destination = env.destination();
+        if kind != "source" { env.fund(); }
+        let address = match kind {
+            "source" => env.authority_token.pubkey(),
+            "vault" => env.vault,
+            _ => destination,
+        };
+        // A freeze authority can produce this state; no production freeze power is added.
+        let original = env.svm.get_account(&address).unwrap();
+        let mut frozen = original.clone();
+        let mut token = TokenAccount::unpack(&frozen.data).unwrap();
+        token.state = spl_token_interface::state::AccountState::Frozen;
+        TokenAccount::pack(token, &mut frozen.data).unwrap();
+        env.svm.set_account(address, frozen).unwrap();
+        let before = env.svm.get_account(&env.vesting).unwrap().data;
+        let vault_before = env.balance(env.vault);
+        let source_before = env.balance(env.authority_token.pubkey());
+        let tx = if kind == "source" {
+            Transaction::new_signed_with_payer(
+                &[Instruction { program_id: env.program_id,
+                    accounts: accounts::Deposit { vesting: env.vesting, vault: env.vault,
+                        authority: env.authority.pubkey(), mint: env.mint.pubkey(),
+                        authority_token_account: env.authority_token.pubkey(), token_program: anchor_spl::token::ID,
+                    }.to_account_metas(None),
+                    data: instruction::Deposit { amount: env.total_amount }.data(),
+                }], Some(&env.payer.pubkey()), &[&env.payer, &env.authority], env.svm.latest_blockhash(),
+            )
+        } else { env.release_tx(destination, 200) };
+        let error = env.svm.send_transaction(tx).unwrap_err();
+        assert!(error.meta.logs.iter().any(|l| l.to_lowercase().contains("frozen")), "{kind}: {error:?}");
+        assert_eq!(env.svm.get_account(&env.vesting).unwrap().data, before);
+        assert_eq!(env.balance(env.vault), vault_before);
+        assert_eq!(env.balance(env.authority_token.pubkey()), source_before);
+        assert_eq!(env.balance(destination), 0);
+        env.svm.set_account(address, original).unwrap();
+        env.svm.expire_blockhash();
+        if kind == "source" { env.fund(); }
+        let tx = env.release_tx(destination, 200);
+        env.svm.send_transaction(tx).unwrap();
+        assert_eq!(env.balance(destination), env.total_amount);
+    }
+}
+
+#[test]
+fn test_partial_funding_release_blocks_deposit_but_direct_funding_can_finish() {
+    let mut env = VestingTestEnv::new();
+    env.initialize_schedule(100, 100, 200);
+    let destination = env.destination();
+    let transfer = spl_token_interface::instruction::transfer_checked(
+        &spl_token_interface::ID, &env.authority_token.pubkey(), &env.mint.pubkey(),
+        &env.vault, &env.authority.pubkey(), &[], env.total_amount / 2, 6,
+    ).unwrap();
+    let tx = Transaction::new_signed_with_payer(&[transfer.clone()], Some(&env.payer.pubkey()),
+        &[&env.payer, &env.authority], env.svm.latest_blockhash());
+    env.svm.send_transaction(tx).unwrap();
+    let tx = env.release_tx(destination, 150);
+    env.svm.send_transaction(tx).unwrap();
+    let before = env.svm.get_account(&env.vesting).unwrap().data;
+    let ix = Instruction { program_id: env.program_id,
+        accounts: accounts::Deposit { vesting: env.vesting, vault: env.vault,
+            authority: env.authority.pubkey(), mint: env.mint.pubkey(),
+            authority_token_account: env.authority_token.pubkey(), token_program: anchor_spl::token::ID,
+        }.to_account_metas(None), data: instruction::Deposit { amount: env.total_amount }.data(),
+    };
+    let tx = Transaction::new_signed_with_payer(&[ix], Some(&env.payer.pubkey()),
+        &[&env.payer, &env.authority], env.svm.latest_blockhash());
+    let error = env.svm.send_transaction(tx).unwrap_err();
+    assert!(error.meta.logs.iter().any(|l| l.contains("InvalidDeposit")), "{error:?}");
+    assert_eq!(env.svm.get_account(&env.vesting).unwrap().data, before);
+    assert_eq!(env.balance(env.vault), 0);
+    assert_eq!(env.balance(env.authority_token.pubkey()), env.total_amount / 2);
+    env.svm.expire_blockhash();
+    let tx = Transaction::new_signed_with_payer(&[transfer], Some(&env.payer.pubkey()),
+        &[&env.payer, &env.authority], env.svm.latest_blockhash());
+    env.svm.send_transaction(tx).unwrap();
+    let tx = env.release_tx(destination, 200);
+    env.svm.send_transaction(tx).unwrap();
+    assert_eq!(env.balance(destination), env.total_amount);
+    assert_eq!(env.balance(env.vault), 0);
+}
+
+#[test]
+fn test_reinitialize_cannot_replace_funded_schedule() {
+    let mut env = VestingTestEnv::new();
+    env.initialize_schedule(100, 150, 200);
+    env.fund();
+    let before = env.svm.get_account(&env.vesting).unwrap().data;
+    let tx = Transaction::new_signed_with_payer(&[env.initialize_ix(0, 0, 1)], Some(&env.payer.pubkey()),
+        &[&env.payer, &env.authority, &env.beneficiary], env.svm.latest_blockhash());
+    let error = env.svm.send_transaction(tx).unwrap_err();
+    assert!(error.meta.logs.iter().any(|l| l.contains("already in use")), "{error:?}");
+    assert_eq!(env.svm.get_account(&env.vesting).unwrap().data, before);
+    assert_eq!(env.balance(env.vault), env.total_amount);
+}

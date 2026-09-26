@@ -32,7 +32,7 @@ async function fixture() {
 test("reader verifies accounts from one slot and chain time", async () => {
   const f = await fixture(); const result = await readVesting(f.beneficiary, f.connection);
   assert.equal(result.slot, 123); assert.equal(result.vested, "50"); assert.equal(result.claimable, "40");
-  assert.equal(result.shortfall, "0"); assert.equal(result.executableClaim, true);
+  assert.equal(result.shortfall, "0"); assert.equal(result.claimCoveredByVault, true);
 });
 test("reader rejects owner, discriminator, size, token mint and clock tampering", async () => {
   for (const attack of ["owner", "discriminator", "size", "mint", "clock"]) {
@@ -48,17 +48,35 @@ test("reader rejects owner, discriminator, size, token mint and clock tampering"
 test("reader reports underfunding and freezing without claiming release is executable", async () => {
   const f = await fixture(); f.values[1].data.writeBigUInt64LE(1n, 64);
   let result = await readVesting(f.beneficiary, f.connection);
-  assert.equal(result.shortfall, "89"); assert.equal(result.executableClaim, false);
+  assert.equal(result.shortfall, "89"); assert.equal(result.claimCoveredByVault, false);
   f.values[1].data.writeBigUInt64LE(90n, 64); f.values[1].data[108] = 2;
   result = await readVesting(f.beneficiary, f.connection);
-  assert.equal(result.frozen, true); assert.equal(result.executableClaim, false);
+  assert.equal(result.frozen, true); assert.equal(result.claimCoveredByVault, false);
 });
 test("client math covers cliff, end, rounding, backwards clock and u64 extremes", () => {
   assert.equal(accrual(100n, 0n, 0n, 50n, 100n, 49n).claimable, 0n);
+  assert.equal(accrual(100n, 0n, 0n, 50n, 100n, 49n).accrued, 49n);
   assert.equal(accrual(100n, 0n, 0n, 50n, 100n, 50n).claimable, 50n);
   assert.equal(accrual(1n, 0n, 0n, 0n, 3n, 2n).claimable, 0n);
   assert.equal(accrual(100n, 50n, 0n, 0n, 100n, 40n).claimable, 0n);
   assert.equal(accrual(100n, 50n, 0n, 0n, 100n, 101n).claimable, 50n);
   assert.equal(accrual(2n**64n-1n, 0n, -(2n**63n), -(2n**63n), 2n**63n-1n, 0n).vested, 2n**63n);
   assert.throws(() => accrual(1n, 2n, 0n, 0n, 1n, 0n), /Invalid/);
+});
+
+test("reader rejects malformed classic SPL and unexpected vault powers", async () => {
+  for (const attack of ["uninitialized mint", "uninitialized vault", "invalid state", "extended vault", "extended mint", "delegate", "close authority", "native", "executable", "bump"]) {
+    const f = await fixture();
+    if (attack === "uninitialized mint") f.values[2].data[45] = 0;
+    if (attack === "uninitialized vault") f.values[1].data[108] = 0;
+    if (attack === "invalid state") f.values[1].data[108] = 3;
+    if (attack === "extended vault") f.values[1].data = Buffer.concat([f.values[1].data, Buffer.alloc(10)]);
+    if (attack === "extended mint") f.values[2].data = Buffer.concat([f.values[2].data, Buffer.alloc(100)]);
+    if (attack === "delegate") f.values[1].data.writeUInt32LE(1, 72);
+    if (attack === "close authority") f.values[1].data.writeUInt32LE(1, 129);
+    if (attack === "native") f.values[1].data.writeUInt32LE(1, 109);
+    if (attack === "executable") f.values[0].executable = true;
+    if (attack === "bump") f.values[0].data[144] ^= 1;
+    await assert.rejects(readVesting(f.beneficiary, f.connection), /./, attack);
+  }
 });

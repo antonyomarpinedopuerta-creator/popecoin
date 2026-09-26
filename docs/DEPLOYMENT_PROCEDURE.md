@@ -52,7 +52,7 @@ Run `yarn run check`.
 
 The safe build, Rust tests and TypeScript checks must all pass before any deployment or upgrade is considered.
 
-## 4. Confirm Program Identity (historical Devnet build only)
+## 4. Confirm Program Identity (historical procedure; superseded below)
 
 Verify that `Anchor.toml`, `programs/popecoin_vesting/src/lib.rs` and `target/idl/popecoin_vesting.json` all reference:
 
@@ -136,3 +136,20 @@ The dedicated production program keypair has been generated outside the Git repo
 This Program ID is planned for Mainnet but has not yet been deployed on-chain.
 
 Do not publish it as the deployed PAPA vesting program address until the Mainnet deployment succeeds and the deployed program is independently verified on-chain.
+
+
+## Current isolated build workflow (supersedes step 4 build paths)
+
+Run `npm run check`, then `npm run build:devnet`, then `npm run verify:release`.
+The release root source/IDL retain the release identity. The isolated Devnet
+source is `target/devnet-workspace/programs/popecoin_vesting/src/lib.rs`, and its
+candidate is `target/devnet-workspace/target/deploy/popecoin_vesting.so`.
+`target/devnet-workspace/build-record.json` records source hashes and candidate
+hash after successful SBF tests. No root IDL mutation is required; clients bind
+explicitly to the Devnet identity. Never reuse the root release binary for a
+Devnet upgrade. Step 7's historical command is not applicable to that binary.
+
+The scripts access only public build inputs/artifacts; do not inspect generated
+keypair files as part of these checks. Historical custody claims in this document
+were not revalidated in this session. Deployment and production custody review
+remain separate, explicitly authorized operator tasks.

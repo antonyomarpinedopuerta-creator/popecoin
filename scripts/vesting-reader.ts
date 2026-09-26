@@ -1,6 +1,6 @@
 import { Program, Idl } from "@coral-xyz/anchor";
 import { Connection, PublicKey, SYSVAR_CLOCK_PUBKEY } from "@solana/web3.js";
-import { unpackAccount, unpackMint } from "@solana/spl-token";
+import { AccountLayout, MintLayout, unpackAccount, unpackMint } from "@solana/spl-token";
 import { DEVNET_MINT, DEVNET_PROGRAM_ID, DEVNET_RPC, devnetIdl } from "./devnet-config";
 
 export const BENEFICIARIES = {
@@ -12,8 +12,9 @@ export function accrual(total: bigint, released: bigint, start: bigint, cliff: b
   if (total <= 0n || released < 0n || released > total || start >= end || cliff < start || cliff > end) {
     throw new Error("Invalid vesting state");
   }
-  const vested = now < cliff ? 0n : now >= end ? total : total * (now - start) / (end - start);
-  return { vested, claimable: vested > released ? vested - released : 0n };
+  const accrued = now <= start ? 0n : now >= end ? total : total * (now - start) / (end - start);
+  const vested = now < cliff ? 0n : accrued;
+  return { accrued, vested, claimable: vested > released ? vested - released : 0n };
 }
 
 export function createDevnetConnection() {
@@ -36,33 +37,39 @@ export async function readVesting(beneficiary: PublicKey, connection = createDev
   );
   const [stateInfo, vaultInfo, mintInfo, clockInfo] = value;
   if (!stateInfo) throw new Error("Vesting not found on Devnet");
-  if (!stateInfo.owner.equals(DEVNET_PROGRAM_ID) || stateInfo.data.length !== 145) {
+  if (stateInfo.executable || !stateInfo.owner.equals(DEVNET_PROGRAM_ID) || stateInfo.data.length !== 145) {
     throw new Error("Invalid vesting owner or size");
   }
   const state = program.coder.accounts.decode("vestingAccount", stateInfo.data);
   if (!state.beneficiary.equals(beneficiary) || !state.mint.equals(DEVNET_MINT) || state.bump !== bump) {
     throw new Error("Vesting identity mismatch");
   }
+  if (!vaultInfo || !mintInfo || vaultInfo.executable || mintInfo.executable ||
+      vaultInfo.data.length !== AccountLayout.span || mintInfo.data.length !== MintLayout.span ||
+      ![1, 2].includes(vaultInfo.data[108])) throw new Error("Invalid classic SPL account");
   const token = unpackAccount(vault, vaultInfo);
   const mint = unpackMint(DEVNET_MINT, mintInfo);
-  if (!token.owner.equals(vesting) || !token.mint.equals(DEVNET_MINT) || !token.isInitialized || mint.decimals !== 6) {
+  if (!token.owner.equals(vesting) || !token.mint.equals(DEVNET_MINT) || !token.isInitialized ||
+      !mint.isInitialized || mint.decimals !== 6 || token.isNative || token.delegate !== null ||
+      token.closeAuthority !== null || token.delegatedAmount !== 0n) {
     throw new Error("Invalid vault or mint");
   }
-  if (!clockInfo || clockInfo.data.length !== 40 || !clockInfo.owner.equals(new PublicKey("Sysvar1111111111111111111111111111111111111"))) {
+  if (!clockInfo || clockInfo.executable || clockInfo.data.length !== 40 || !clockInfo.owner.equals(new PublicKey("Sysvar1111111111111111111111111111111111111"))) {
     throw new Error("Invalid chain clock");
   }
   const now = clockInfo.data.readBigInt64LE(32);
   const total = BigInt(state.totalAmount.toString()), released = BigInt(state.releasedAmount.toString());
   const start = BigInt(state.startTime.toString()), cliff = BigInt(state.cliffTime.toString()), end = BigInt(state.endTime.toString());
-  const { vested, claimable } = accrual(total, released, start, cliff, end, now);
+  const { accrued, vested, claimable } = accrual(total, released, start, cliff, end, now);
   return {
     cluster: "devnet", slot: context.slot, observedAt: new Date().toISOString(),
     program: DEVNET_PROGRAM_ID.toBase58(), mint: DEVNET_MINT.toBase58(), beneficiary: beneficiary.toBase58(),
     authority: state.authority.toBase58(), vesting: vesting.toBase58(), vault: vault.toBase58(),
-    total: total.toString(), released: released.toString(), vested: vested.toString(), claimable: claimable.toString(),
+    total: total.toString(), released: released.toString(), accrued: accrued.toString(), vested: vested.toString(), claimable: claimable.toString(),
     vaultBalance: token.amount.toString(), shortfall: (total - released > token.amount ? total - released - token.amount : 0n).toString(),
     start: start.toString(), cliff: cliff.toString(), end: end.toString(), chainTime: now.toString(),
-    frozen: token.isFrozen, mintAuthorityActive: mint.mintAuthority !== null, freezeAuthorityActive: mint.freezeAuthority !== null,
-    executableClaim: claimable > 0n && token.amount >= claimable && !token.isFrozen,
+    frozen: token.isFrozen, mintSupply: mint.supply.toString(), mintAuthorityActive: mint.mintAuthority !== null, freezeAuthorityActive: mint.freezeAuthority !== null,
+    // Funding/clock checks alone cannot validate the destination, signature or deployed code.
+    claimCoveredByVault: claimable > 0n && token.amount >= claimable && !token.isFrozen,
   };
 }
