@@ -18,8 +18,19 @@
     "typescript": "5.9.3"
   },
   "scripts": {
-    "build:safe": "anchor build --ignore-keys",
-    "test:rust": "cargo test",
-    "check": "anchor build --ignore-keys && cargo test && tsc --noEmit"
+    "build:safe": "NO_DNA=1 anchor build --ignore-keys",
+    "test:rust": "npm run build:safe && cargo test --locked",
+    "check": "NO_DNA=1 anchor build --ignore-keys && cargo test --locked && tsc --noEmit && npm run test:client",
+    "test:client": "node --require ts-node/register tests/run.ts",
+    "verify:release": "ts-node scripts/verify-mainnet-release.ts",
+    "app": "ts-node app/server.ts"
+  },
+  "private": true,
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "resolutions": {
+    "uuid": "11.1.1",
+    "toml": "4.2.0"
   }
 }

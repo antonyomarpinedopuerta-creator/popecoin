@@ -1,3 +1,4 @@
+import { devnetIdl } from "./devnet-config";
 import * as anchor from "@coral-xyz/anchor";
 import { PublicKey } from "@solana/web3.js";
 import { getAccount } from "@solana/spl-token";
@@ -15,7 +16,7 @@ const provider = new anchor.AnchorProvider(
   { commitment: "confirmed" }
 );
 
-const program = new anchor.Program(idl, provider);
+const program = new anchor.Program(devnetIdl(idl), provider);
 
 const mint = new PublicKey(
   "ANNSmx2Jww4HUukAvxBRSZeTqzcuqPQTiewSjxx7tgnw"
@@ -49,7 +50,14 @@ async function inspect(label: string, beneficiary: PublicKey) {
   console.log("Vesting PDA:", vesting.toBase58());
   console.log("Vault PDA:", vault.toBase58());
 
-  const account = await (program.account as any).vestingAccount.fetch(vesting);
+  const info = await connection.getAccountInfo(vesting);
+  if (!info || !info.owner.equals(program.programId)) {
+    throw new Error("Vesting missing or owned by an unexpected program");
+  }
+  const account = program.coder.accounts.decode("vestingAccount", info.data);
+  if (!account.beneficiary.equals(beneficiary) || !account.mint.equals(mint)) {
+    throw new Error("Unexpected vesting beneficiary or mint");
+  }
 
   console.log("Authority:", account.authority.toBase58());
   console.log("On-chain beneficiary:", account.beneficiary.toBase58());
@@ -62,6 +70,9 @@ async function inspect(label: string, beneficiary: PublicKey) {
   console.log("Bump:", account.bump);
 
   const vaultAccount = await getAccount(connection, vault);
+  if (!vaultAccount.owner.equals(vesting) || !vaultAccount.mint.equals(mint)) {
+    throw new Error("Unexpected vault authority or mint");
+  }
   console.log("Vault balance (raw):", vaultAccount.amount.toString());
   console.log("Vault balance (PAPA):", Number(vaultAccount.amount) / 1_000_000);
 }

@@ -1,3 +1,4 @@
+import { loadDevnetKeypair } from "./devnet-config";
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import {
   createSignerFromKeypair,
@@ -9,7 +10,6 @@ import {
   updateV1,
   fetchMetadataFromSeeds,
 } from "@metaplex-foundation/mpl-token-metadata";
-import fs from "fs";
 
 const RPC = "https://api.devnet.solana.com";
 
@@ -23,12 +23,8 @@ const URI =
 async function main() {
   const umi = createUmi(RPC).use(mplTokenMetadata());
 
-  const secret = JSON.parse(
-    fs.readFileSync("/home/antony/.config/solana/id.json", "utf8")
-  );
-
   const keypair = umi.eddsa.createKeypairFromSecretKey(
-    new Uint8Array(secret)
+    loadDevnetKeypair("PAYER").secretKey
   );
 
   const signer = createSignerFromKeypair(umi, keypair);

@@ -12,3 +12,9 @@ test-ledger
 **/id.json
 **/wallet*.json
 **/*-wallet.json
+
+# Local environment and credential material
+.env
+.env.*
+!.env.example
+*.pem

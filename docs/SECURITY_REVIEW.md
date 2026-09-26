@@ -182,7 +182,7 @@ The exact-cliff behavior has an explicit regression test.
 
 **Status: TESTED**
 
-## 8. Automated tests
+## 8. Historical automated tests (superseded by section 14)
 
 The current complete local Rust test suite completed successfully with:
 
@@ -328,3 +328,34 @@ Results:
 - TypeScript static check completed successfully with `tsc --noEmit`.
 
 This verification does not constitute an independent security audit and does not authorize Mainnet deployment or the use of significant real economic value.
+
+## 14. Local source review — 2026-09-26
+
+The historical counts and Devnet deployment above do not describe the new local
+candidate. See `PAPA_WORK_HANDOFF.md` for current validation and remaining gates.
+No deployed state was queried or changed during this review.
+
+Fixed: valid schedules spanning more than i64::MAX seconds previously initialized
+successfully but failed mid-schedule release with ArithmeticOverflow. Timestamp
+subtraction now widens to i128 before subtraction; elapsed and duration fit u64,
+and multiplication by the u64 total fits u128. The stored account layout, PDA seeds,
+instruction ABI, rounding direction and ordinary schedule semantics are unchanged.
+The production calculation is shared with math tests instead of duplicating it.
+
+Added SBF regressions for a full i64 schedule, missing beneficiary signer, equal
+start/end rejection, and failed token CPI rollback followed by successful funding
+and release. Added math boundary/monotonicity tests and offline TypeScript tests
+for the generated IDL, Devnet PDAs, required signer and exact deposit top-ups.
+
+Devnet scripts previously trusted the production address in the generated IDL.
+They now bind explicitly to the historical Devnet address. Signer paths must be
+explicit Devnet-role environment variables; no default CLI wallet is loaded.
+The local release verifier no longer reads a production keypair.
+
+Additional limitations: the program accepts any classic SPL mint, does not itself
+cap mint supply, and cannot prevent a mint freeze authority from freezing a vault.
+Production mint/supply/freeze checks remain an operational launch requirement.
+A partially funded vesting can release if the vault covers the accrued claim;
+after such a release, deposit is disabled, though direct SPL transfers can still
+fund the vault. Underfunding is not a cancellation mechanism. No frontend or
+production signing workflow is implemented in `app/`.

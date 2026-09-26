@@ -1,0 +1,7 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>PAPA · Vesting Devnet</title><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head>
+<body><main><header><span class="badge">SOLANA DEVNET · TOKENS DE PRUEBA</span><h1>PAPA <span>/ Vesting</span></h1><p>Consulta las asignaciones bloqueadas y su liberación lineal.</p></header>
+<section class="toolbar" aria-label="Consulta"><label for="role">Asignación</label><select id="role"><option value="reserve">Reserva · 3.000.000 PAPA</option><option value="founder">Fundador · 1.000.000 PAPA</option></select><button id="refresh">Consultar Devnet</button></section>
+<p id="status" role="status" aria-live="polite">Selecciona una asignación para consultar su estado actual.</p>
+<section id="result" hidden><div class="grid" id="amounts"></div><section class="panel"><h2>Calendario</h2><dl id="schedule"></dl><p>Los tokens se acumulan desde el inicio. Solo se pueden reclamar a partir del cliff.</p></section><section class="panel"><h2>Verificación</h2><dl id="identity"></dl></section></section>
+<footer>Consulta de solo lectura, sin conexión de wallet. Los resultados corresponden a Devnet y no representan activos de producción. PAPA es un proyecto satírico independiente, sin afiliación con el Vaticano, la Santa Sede ni ningún Papa real.</footer></main></body></html>

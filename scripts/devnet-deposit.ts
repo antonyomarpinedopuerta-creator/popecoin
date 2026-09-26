@@ -1,28 +1,17 @@
+import { devnetIdl, loadDevnetKeypair, remainingDepositAmount } from "./devnet-config";
 import * as anchor from "@coral-xyz/anchor";
-import { Keypair, PublicKey } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import {
   getAssociatedTokenAddress,
+  getAccount,
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
-import fs from "fs";
 
 const idl = require("../target/idl/popecoin_vesting.json");
 
-const payer = Keypair.fromSecretKey(
-  Uint8Array.from(
-    JSON.parse(
-      fs.readFileSync(process.env.HOME + "/.config/solana/id.json", "utf8")
-    )
-  )
-);
+const payer = loadDevnetKeypair("PAYER");
 
-const development = Keypair.fromSecretKey(
-  Uint8Array.from(
-    JSON.parse(
-      fs.readFileSync(process.env.HOME + "/pope-development.json", "utf8")
-    )
-  )
-);
+const development = loadDevnetKeypair("DEVELOPMENT");
 
 const connection = new anchor.web3.Connection(
   "https://api.devnet.solana.com",
@@ -35,7 +24,7 @@ const provider = new anchor.AnchorProvider(
   { commitment: "confirmed" }
 );
 
-const program = new anchor.Program(idl, provider);
+const program = new anchor.Program(devnetIdl(idl), provider);
 
 const mint = new PublicKey(
   "ANNSmx2Jww4HUukAvxBRSZeTqzcuqPQTiewSjxx7tgnw"
@@ -61,13 +50,18 @@ async function main() {
     development.publicKey
   );
 
-  const amount = new anchor.BN(100_000_000);
+  const vaultState = await getAccount(connection, vault);
+  if (!vaultState.mint.equals(mint) || !vaultState.owner.equals(vesting)) {
+    throw new Error("Unexpected vault mint or authority");
+  }
+  const amount = new anchor.BN(remainingDepositAmount(100000000n, vaultState.amount).toString());
+  console.log("Actual deposit (base units):", amount.toString());
 
   console.log("Development:", development.publicKey.toBase58());
   console.log("Development ATA:", developmentAta.toBase58());
   console.log("Vesting:", vesting.toBase58());
   console.log("Vault:", vault.toBase58());
-  console.log("Depositing: 100 PAPA");
+  console.log("Scheduled total: 100 PAPA");
 
   const signature = await program.methods
     .deposit(amount)

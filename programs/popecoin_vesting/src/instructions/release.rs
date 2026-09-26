@@ -1,11 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Mint, Token, TokenAccount, TransferChecked};
 
-use crate::{
-    constants::*,
-    error::ErrorCode,
-    state::VestingAccount,
-};
+use crate::{constants::*, error::ErrorCode, state::VestingAccount};
 
 #[derive(Accounts)]
 pub struct Release<'info> {
@@ -50,28 +46,7 @@ pub fn handle_release(ctx: Context<Release>) -> Result<()> {
     let now = Clock::get()?.unix_timestamp;
     let vesting = &mut ctx.accounts.vesting;
 
-    let vested_amount = if now < vesting.cliff_time {
-        0
-    } else if now >= vesting.end_time {
-        vesting.total_amount
-    } else {
-        let elapsed = now
-            .checked_sub(vesting.start_time)
-            .ok_or(ErrorCode::ArithmeticOverflow)?;
-
-        let duration = vesting
-            .end_time
-            .checked_sub(vesting.start_time)
-            .ok_or(ErrorCode::ArithmeticOverflow)?;
-
-        let vested = (vesting.total_amount as u128)
-            .checked_mul(elapsed as u128)
-            .ok_or(ErrorCode::ArithmeticOverflow)?
-            .checked_div(duration as u128)
-            .ok_or(ErrorCode::ArithmeticOverflow)?;
-
-        vested as u64
-    };
+    let vested_amount = vesting.vested_amount(now);
 
     let releasable = vested_amount
         .checked_sub(vesting.released_amount)
@@ -95,17 +70,10 @@ pub fn handle_release(ctx: Context<Release>) -> Result<()> {
         authority: vesting.to_account_info(),
     };
 
-    let cpi_ctx = CpiContext::new_with_signer(
-        ctx.accounts.token_program.key(),
-        cpi_accounts,
-        signer_seeds,
-    );
+    let cpi_ctx =
+        CpiContext::new_with_signer(ctx.accounts.token_program.key(), cpi_accounts, signer_seeds);
 
-    token::transfer_checked(
-        cpi_ctx,
-        releasable,
-        ctx.accounts.mint.decimals,
-    )?;
+    token::transfer_checked(cpi_ctx, releasable, ctx.accounts.mint.decimals)?;
 
     vesting.released_amount = vesting
         .released_amount

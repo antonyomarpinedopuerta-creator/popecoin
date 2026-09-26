@@ -1,10 +1,11 @@
+import { devnetIdl, loadDevnetKeypair, remainingDepositAmount } from "./devnet-config";
 import * as anchor from "@coral-xyz/anchor";
-import { Keypair, PublicKey } from "@solana/web3.js";
+import { PublicKey } from "@solana/web3.js";
 import {
   getAssociatedTokenAddress,
+  getAccount,
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
-import fs from "fs";
 
 const idl = require("../target/idl/popecoin_vesting.json");
 
@@ -12,21 +13,9 @@ const idl = require("../target/idl/popecoin_vesting.json");
 // This script moves tokens into a vesting vault.
 // Verify network, mint, authority, beneficiary, amount and PDA before execution.
 
-const payer = Keypair.fromSecretKey(
-  Uint8Array.from(
-    JSON.parse(
-      fs.readFileSync(process.env.HOME + "/.config/solana/id.json", "utf8")
-    )
-  )
-);
+const payer = loadDevnetKeypair("PAYER");
 
-const beneficiary = Keypair.fromSecretKey(
-  Uint8Array.from(
-    JSON.parse(
-      fs.readFileSync(process.env.HOME + "/pope-founder.json", "utf8")
-    )
-  )
-);
+const beneficiary = loadDevnetKeypair("FOUNDER");
 
 const connection = new anchor.web3.Connection(
   "https://api.devnet.solana.com",
@@ -39,7 +28,7 @@ const provider = new anchor.AnchorProvider(
   { commitment: "confirmed" }
 );
 
-const program = new anchor.Program(idl, provider);
+const program = new anchor.Program(devnetIdl(idl), provider);
 
 const mint = new PublicKey(
   "ANNSmx2Jww4HUukAvxBRSZeTqzcuqPQTiewSjxx7tgnw"
@@ -65,7 +54,12 @@ async function main() {
     beneficiary.publicKey
   );
 
-  const amount = new anchor.BN(1_000_000_000_000);
+  const vaultState = await getAccount(connection, vault);
+  if (!vaultState.mint.equals(mint) || !vaultState.owner.equals(vesting)) {
+    throw new Error("Unexpected vault mint or authority");
+  }
+  const amount = new anchor.BN(remainingDepositAmount(1000000000000n, vaultState.amount).toString());
+  console.log("Actual deposit (base units):", amount.toString());
 
   console.log("=== FOUNDER DEVNET DEPOSIT ===");
   console.log("Program:", program.programId.toBase58());
@@ -74,7 +68,7 @@ async function main() {
   console.log("Authority ATA:", authorityTokenAccount.toBase58());
   console.log("Vesting:", vesting.toBase58());
   console.log("Vault:", vault.toBase58());
-  console.log("Amount: 1,000,000 PAPA");
+  console.log("Scheduled total: 1,000,000 PAPA");
 
   const signature = await program.methods
     .deposit(amount)

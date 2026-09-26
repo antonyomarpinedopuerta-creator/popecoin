@@ -1,14 +1,4 @@
-import * as anchor from "@coral-xyz/anchor";
-import {
-  Connection,
-  Keypair,
-  PublicKey,
-} from "@solana/web3.js";
-import {
-  getAssociatedTokenAddress,
-  TOKEN_PROGRAM_ID,
-} from "@solana/spl-token";
-import fs from "fs";
+import { Connection, PublicKey } from "@solana/web3.js";
 
 const RPC_URL = "https://api.devnet.solana.com";
 
@@ -31,7 +21,7 @@ async function main() {
   console.log("PAPA mint:", PAPA_MINT.toBase58());
 }
 
-main().catch(console.error);
+main().catch((error) => { console.error(error); process.exitCode = 1; });
 
 // PDA de prueba usando Development como beneficiario
 const DEVELOPMENT = new PublicKey(

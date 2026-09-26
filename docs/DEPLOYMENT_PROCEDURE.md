@@ -4,6 +4,22 @@ This document defines the reviewed manual procedure for future Solana program de
 
 It is intentionally manual. Do not convert this into an automatic deployment script without a separate review.
 
+## Current source identity (2026-09-26)
+
+The current source and generated release IDL declare
+`AYsgq7YWePj8zSHMznEQwtexDMAFqfXkPjDK6diHkHEn`.
+The Devnet provider in Anchor.toml does not change the ID embedded in the binary.
+The procedure below describes the historical Devnet target and must not be applied
+to the current production-identity binary. A Devnet upgrade requires a separately
+reviewed source/build with the Devnet declare_id, followed by a fresh build, all
+checks, identity verification and a new binary hash. No deployment was performed
+in the 2026-09-26 local review.
+
+`npm run verify:release` checks source/config/IDL consistency offline and records
+the local binary hash. It does not open production keypairs, contact Mainnet, or
+prove deployed binary correspondence. Production signer verification remains a
+separate operator responsibility before any future authorized deployment.
+
 ## Critical Rule
 
 Do NOT run a normal `anchor deploy` blindly.
@@ -36,7 +52,7 @@ Run `yarn run check`.
 
 The safe build, Rust tests and TypeScript checks must all pass before any deployment or upgrade is considered.
 
-## 4. Confirm Program Identity
+## 4. Confirm Program Identity (historical Devnet build only)
 
 Verify that `Anchor.toml`, `programs/popecoin_vesting/src/lib.rs` and `target/idl/popecoin_vesting.json` all reference:
 
@@ -55,7 +71,7 @@ Before deployment, record the exact binary being considered:
 `ls -lh target/deploy/popecoin_vesting.so`
 `sha256sum target/deploy/popecoin_vesting.so`
 
-The current verified local SHA-256 is:
+The historical local SHA-256 recorded before subsequent source changes was:
 
 `96e35568d7da089c130f43fa28b389bfd33ebd35667558aed890cc07b6e2464d`
 
@@ -65,7 +81,7 @@ Do not rebuild after recording the hash unless validation and hash recording are
 
 Run:
 
-`solana program show BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc`
+`solana --url https://api.devnet.solana.com program show BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc`
 
 Verify the Program ID, ProgramData address and upgrade authority.
 
@@ -79,7 +95,7 @@ Do not continue if the authority does not match the expected signer.
 
 For an upgrade to the existing Devnet program, explicitly target the intended Program ID:
 
-`solana program deploy --program-id BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc --upgrade-authority ~/.config/solana/id.json target/deploy/popecoin_vesting.so`
+`solana --url https://api.devnet.solana.com program deploy --program-id BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc --upgrade-authority ~/.config/solana/id.json target/deploy/popecoin_vesting.so`
 
 This command is documentation only.
 
@@ -93,7 +109,7 @@ Do NOT revoke the upgrade authority as part of a routine deployment.
 
 After any explicitly approved deployment or upgrade, run:
 
-`solana program show BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc`
+`solana --url https://api.devnet.solana.com program show BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc`
 
 Record the Program ID, ProgramData address, upgrade authority, deployed slot, data length and transaction signature.
 
