@@ -9,6 +9,9 @@ skip-lint = false
 [programs.devnet]
 popecoin_vesting = "BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc"
 
+[programs.mainnet]
+popecoin_vesting = "AYsgq7YWePj8zSHMznEQwtexDMAFqfXkPjDK6diHkHEn"
+
 [provider]
 cluster = "devnet"
 wallet = "~/.config/solana/id.json"
