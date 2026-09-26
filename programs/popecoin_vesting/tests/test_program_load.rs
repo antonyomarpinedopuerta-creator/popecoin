@@ -1,11 +1,8 @@
 use litesvm::LiteSVM;
-use anchor_lang::prelude::Pubkey;
 
 #[test]
 fn test_program_loads() {
-    let program_id = Pubkey::from_str_const(
-        "BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc",
-    );
+    let program_id = popecoin_vesting::ID;
 
     let mut svm = LiteSVM::new();
 

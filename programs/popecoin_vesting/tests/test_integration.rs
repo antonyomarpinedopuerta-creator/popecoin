@@ -22,9 +22,7 @@ use popecoin_vesting::{
 
 
 fn load_popecoin_program() -> (LiteSVM, Pubkey) {
-    let program_id = Pubkey::from_str_const(
-        "BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc"
-    );
+    let program_id = popecoin_vesting::ID;
 
     let mut svm = LiteSVM::new();
 
@@ -2997,9 +2995,7 @@ fn test_popecoin_integration_setup() {
 
 #[test]
 fn test_initialize_rejects_zero_amount() {
-    let program_id = Pubkey::from_str_const(
-        "BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc"
-    );
+    let program_id = popecoin_vesting::ID;
 
     let mut svm = LiteSVM::new();
 
@@ -3114,9 +3110,7 @@ fn test_initialize_rejects_zero_amount() {
 
 #[test]
 fn test_initialize_rejects_start_after_end() {
-    let program_id = Pubkey::from_str_const(
-        "BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc"
-    );
+    let program_id = popecoin_vesting::ID;
 
     let mut svm = LiteSVM::new();
 
@@ -3231,9 +3225,7 @@ fn test_initialize_rejects_start_after_end() {
 
 #[test]
 fn test_initialize_rejects_cliff_before_start() {
-    let program_id = Pubkey::from_str_const(
-        "BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc"
-    );
+    let program_id = popecoin_vesting::ID;
 
     let mut svm = LiteSVM::new();
 
@@ -3348,9 +3340,7 @@ fn test_initialize_rejects_cliff_before_start() {
 
 #[test]
 fn test_initialize_rejects_cliff_after_end() {
-    let program_id = Pubkey::from_str_const(
-        "BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc"
-    );
+    let program_id = popecoin_vesting::ID;
 
     let mut svm = LiteSVM::new();
 

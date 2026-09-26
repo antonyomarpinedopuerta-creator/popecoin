@@ -9,7 +9,7 @@ pub use constants::*;
 pub use instructions::*;
 pub use state::*;
 
-declare_id!("BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc");
+declare_id!("AYsgq7YWePj8zSHMznEQwtexDMAFqfXkPjDK6diHkHEn");
 
 #[program]
 pub mod popecoin_vesting {
