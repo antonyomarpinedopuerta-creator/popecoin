@@ -305,3 +305,26 @@ The current local suite passes 23 tests with zero failures.
 This is an internal engineering security review, not proof that the program is
 free of vulnerabilities and not a substitute for an independent professional
 audit before significant Mainnet funds are placed under the program.
+
+## 13. Release Candidate Verification Record
+
+A local release-candidate verification was completed on 2026-09-25 against Git commit:
+
+`a5f4474af4a9012124be421cd5bb1f46498a9e66`
+
+The repository was clean before and after verification.
+
+The following command completed successfully:
+
+`npm run check`
+
+Results:
+
+- Anchor release build completed successfully with `anchor build --ignore-keys`.
+- Rust integration tests: 17 passed, 0 failed.
+- Program-load test: 1 passed, 0 failed.
+- Vesting tests: 5 passed, 0 failed.
+- Total functional Rust tests: 23 passed, 0 failed.
+- TypeScript static check completed successfully with `tsc --noEmit`.
+
+This verification does not constitute an independent security audit and does not authorize Mainnet deployment or the use of significant real economic value.
