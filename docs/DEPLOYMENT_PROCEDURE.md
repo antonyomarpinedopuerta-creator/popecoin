@@ -106,3 +106,17 @@ This document does not authorize a Mainnet deployment.
 Mainnet requires a separate production review including secure production key management, exact release-candidate verification, independent security review, final authority policy, durable metadata, explicit production vesting timestamps, liquidity review, legal/compliance review, and explicit approval before spending real SOL.
 
 Devnet wallets and development JSON keypairs must not be reused as production keys.
+
+## Mainnet Program Identity
+
+The dedicated production program keypair has been generated outside the Git repository and its offline recovery backup has been verified.
+
+- Planned Mainnet Program ID: `AYsgq7YWePj8zSHMznEQwtexDMAFqfXkPjDK6diHkHEn`
+- Production program keypair: stored outside the repository
+- File permissions verified: `600`
+- Recovery from the 24-word offline backup was tested successfully
+- The recovered public key matched the original production Program ID
+
+This Program ID is planned for Mainnet but has not yet been deployed on-chain.
+
+Do not publish it as the deployed PAPA vesting program address until the Mainnet deployment succeeds and the deployed program is independently verified on-chain.
