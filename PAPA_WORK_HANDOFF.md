@@ -1,5 +1,45 @@
 # PAPA — handoff técnico
 
+## Estado recuperado y validado — 2026-09-26
+
+Al iniciar esta recuperación el working tree estaba **limpio**, en `bc319b1`
+(un commit por delante de origin/master). Los cambios del apagado ya estaban
+conservados en `f46fde9` y `bc319b1`; no se descartó ningún archivo.
+Las secciones históricas inferiores describen la primera revisión, no el estado actual.
+
+- App local de solo lectura en `app/`, CI en `.github/workflows/ci.yml`,
+  planificación offline de metadata/distribución y builds separados ya implementados.
+- `vendor/bigint-buffer` usa la implementación JS upstream con licencia y hash;
+  persisten las advertencias documentadas en `docs/DEPENDENCY_REVIEW.md`.
+- Recuperación: `npm run check`, build/test aislado Devnet y Clippy pasan.
+  Son **41 pruebas Rust por identidad** (31 integración, 1 carga, 9 cálculo).
+- Verificador de release endurecido: exige el conjunto completo de inputs/outputs,
+  detecta nuevos fuentes Rust, hashes inválidos, omisiones y rutas adicionales.
+  **22 pruebas cliente** pasan; TypeScript y `git diff --check` pasan.
+- Lectura Devnet de reserva/fundador realizada correctamente; no se firmó ni envió
+  ninguna transacción. Reporte temporal: `/tmp/papa-devnet-snapshot-current.json`.
+- Inspección de 76 archivos versionados sin coincidencias de nombres sensibles,
+  claves privadas PEM, tokens GitHub/AWS ni arrays JSON completos de keypair.
+  Es una comprobación heurística, no prueba universal de ausencia de secretos.
+  No se abrieron wallets, archivos de claves ni configuración personal.
+- Hash release: `1c3b71a2b792fa986b2a9264861d2bc58654e85370f2bb348cea4dcccaff8492`.
+- Hash Devnet local: `e2afff5bdf90e1879ef08d8fd5bec4a84b14891b23e12617eb86e4e53b7b93fb`.
+
+### Continuación
+
+Seguir revisando preparación RC y regresiones de validación. La identidad Devnet
+local está compilada/probada pero no desplegada; no confundirla con el ejecutable
+histórico remoto. Ejecutar `npm run check` y `npm run build:devnet` para reproducir.
+La verificación de identidad de release es offline pese al nombre histórico del script.
+
+Bloqueos externos vigentes: auditoría independiente, custodia, mint definitivo,
+fecha UTC aprobada, publicación duradera de metadata/logo, liquidez y revisión legal.
+No hay autorización para Mainnet, despliegues, fondos reales ni cambios de autoridades.
+
+---
+
+## Registro histórico de la revisión inicial
+
 Actualizado: 2026-09-26. Revisión local desde `d5c2998` (árbol inicialmente limpio).
 
 ## Estado actual

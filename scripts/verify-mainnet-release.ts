@@ -2,6 +2,7 @@ import { createHash } from "crypto";
 import fs from "fs";
 import path from "path";
 import { PublicKey } from "@solana/web3.js";
+import { verifyBuildRecord } from "./build-record";
 
 const EXPECTED_MAINNET_PROGRAM_ID =
   "AYsgq7YWePj8zSHMznEQwtexDMAFqfXkPjDK6diHkHEn";
@@ -67,18 +68,8 @@ if (!binary.includes(new PublicKey(EXPECTED_MAINNET_PROGRAM_ID).toBuffer())) {
 const recordPath = "target/release-build-record.json";
 if (!fs.existsSync(recordPath)) fail("Missing build record; run npm run build:safe");
 const record = JSON.parse(fs.readFileSync(recordPath, "utf8"));
-for (const group of [record.sourceHashes, record.outputHashes]) {
-  if (!group || typeof group !== "object" || Object.keys(group).length === 0) fail("Invalid build record");
-  for (const [filename, expected] of Object.entries(group)) {
-    // The generated record may only reference public build inputs and outputs.
-    if (!/^(programs\/popecoin_vesting\/(src\/[\w/]+\.rs|Cargo\.toml)|Cargo\.(toml|lock)|Anchor\.toml|rust-toolchain\.toml|scripts\/build-release\.py|target\/(deploy\/popecoin_vesting\.so|idl\/popecoin_vesting\.json|types\/popecoin_vesting\.ts))$/.test(filename)) {
-      fail("Unexpected path in build record");
-    }
-    if (!fs.existsSync(filename) || createHash("sha256").update(fs.readFileSync(filename)).digest("hex") !== expected) {
-      fail(`Stale build input/output: ${filename}; run npm run build:safe`);
-    }
-  }
-}
+try { verifyBuildRecord(record); }
+catch (error) { fail((error as Error).message); }
 console.log("Binary SHA-256:", createHash("sha256").update(binary).digest("hex"));
 console.log("PASS: local identities and build-record hashes match. No RPC or keypair was accessed.");
 console.log("A local build record is not an independent reproducible-build attestation or deployment verification.");

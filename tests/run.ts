@@ -6,3 +6,5 @@ import "./app.test";
 
 import "./production.test";
 import "./devnet-program.test";
+
+import "./build-record.test";
