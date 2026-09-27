@@ -99,3 +99,42 @@ fn test_monotonic_bounded_accrual() {
         }
     }
 }
+
+#[test]
+fn test_wide_deterministic_schedules_preserve_floor_bounds_and_monotonicity() {
+    let mut seed = 0x50415041_u64;
+    let mut next = || {
+        seed ^= seed << 13;
+        seed ^= seed >> 7;
+        seed ^= seed << 17;
+        seed
+    };
+    for _ in 0..2048 {
+        let a = next() as i64;
+        let b = next() as i64;
+        if a == b { continue; }
+        let start = a.min(b);
+        let end = a.max(b);
+        let duration = (i128::from(end) - i128::from(start)) as u128;
+        let cliff = (i128::from(start) + (u128::from(next()) % (duration + 1)) as i128) as i64;
+        let total = next().max(1);
+        let midpoint = (i128::from(start) + (duration / 2) as i128) as i64;
+        let mut times = [i64::MIN, start, cliff.saturating_sub(1), cliff, midpoint, end.saturating_sub(1), end, i64::MAX];
+        times.sort();
+        let mut previous = 0;
+        for now in times {
+            let vested = vested_amount(total, start, cliff, end, now);
+            assert!(vested >= previous && vested <= total);
+            if now < cliff { assert_eq!(vested, 0); }
+            else if now >= end { assert_eq!(vested, total); }
+            else {
+                let elapsed = (i128::from(now) - i128::from(start)) as u128;
+                let numerator = u128::from(total) * elapsed;
+                assert!(u128::from(vested) * duration <= numerator);
+                assert!((u128::from(vested) + 1) * duration > numerator);
+            }
+            previous = vested;
+        }
+        assert_eq!(previous, total);
+    }
+}

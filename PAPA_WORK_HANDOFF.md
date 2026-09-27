@@ -40,7 +40,7 @@ npm run package:rc
 
 - check:rc: tests Python, build SBF y Anchor IDL, Rust, TypeScript/clientes,
   Clippy sobre todos los targets, build/tests Devnet aislado y verificación final de release.
-- **45 tests Rust por identidad**: 35 integración SBF, 1 carga y 9 cálculo.
+- **47 tests Rust por identidad**: 36 integración SBF, 1 carga y 10 cálculo.
 - **26 tests TypeScript**: cliente, lector, servidor, planificación, ProgramData,
   vendor y registro de build. **17 tests Python**: RC, reproducción y paquete.
 - Fallos/interrupciones en cada gate, SIGTERM real con cierre del hijo, SIGKILL

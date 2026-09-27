@@ -3991,3 +3991,23 @@ fn test_duplicate_release_in_one_transaction_rolls_back_first_release() {
     env.svm.send_transaction(tx).unwrap();
     assert_eq!(env.balance(destination), env.total_amount);
 }
+
+#[test]
+fn test_initialize_rejects_substituted_pdas_before_creating_accounts() {
+    for replace_vault in [false, true] {
+        let mut env = VestingTestEnv::new();
+        let mut ix = env.initialize_ix(100, 150, 200);
+        let expected = if replace_vault { env.vault } else { env.vesting };
+        let substituted = Keypair::new().pubkey();
+        ix.accounts.iter_mut().find(|a| a.pubkey == expected).unwrap().pubkey = substituted;
+        let before = env.balance(env.authority_token.pubkey());
+        let tx = Transaction::new_signed_with_payer(&[ix], Some(&env.payer.pubkey()),
+            &[&env.payer, &env.authority, &env.beneficiary], env.svm.latest_blockhash());
+        let error = env.svm.send_transaction(tx).unwrap_err();
+        assert!(error.meta.logs.iter().any(|line| line.contains("ConstraintSeeds")), "{error:?}");
+        for address in [env.vesting, env.vault, substituted] {
+            assert!(env.svm.get_account(&address).is_none());
+        }
+        assert_eq!(env.balance(env.authority_token.pubkey()), before);
+    }
+}

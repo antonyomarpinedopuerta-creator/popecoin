@@ -419,3 +419,22 @@ still deliberately unset. No production readiness or independent audit is claime
 Clippy now covers all targets, including test code, with warnings denied. Two
 preexisting unnecessary instruction clones in tests were replaced by borrowed
 slices; no program behavior changed.
+
+## 18. Complete source re-review — 2026-09-27
+
+Re-read all three instruction handlers, account constraints, state arithmetic,
+errors and entrypoints. No new unauthorized-withdrawal path was identified. This
+is an internal review of the current source, not a proof of absence of defects.
+
+| Area | Verification and remaining limits |
+| --- | --- |
+| Authorization | Initialize requires payer/authority/beneficiary; deposit uses has_one and signer; release checks beneficiary signer. Tests remove signer flags and substitute authorities. |
+| PDA/account substitution | Both PDA seed domains, stored mint, vault owner/mint, classic token program and account owners are constrained. Added initialize substitutions assert expected ConstraintSeeds and complete account-creation rollback. |
+| Arithmetic/time | Initialized schedules guarantee start < end and start <= cliff <= end. Differences widen before subtraction; u64 products fit u128. Added 2,048 deterministic wide schedules checking floor bounds, endpoints, cliff and monotonicity. Chain Clock is authoritative; backwards time fails without advancing releases. |
+| Accounting/atomicity | Exact top-up only before first release; overfunding/incorrect amount rejected. u64 maximum conservation, failed CPIs and two releases in one transaction are covered. Transaction rollback protects accounting after CPI errors. |
+| Impossible state | External callers cannot rewrite program-owned VestingAccount. Invalid schedules are rejected at initialization. An authorized malicious program upgrade is outside this immutable-source model and remains a custody/governance concern. |
+| Fund blocking | Future cliffs, partial funding, mint freezing and irrecoverable donations remain explicit design limitations. No cancellation, arbitrary recovery or new authority power was introduced. |
+
+The suite now has 47 Rust tests per identity: 36 integration, one load and ten math.
+No program logic, ABI, seeds or layout changed in this continuation. JS dependency
+regressions additionally cover actual Anchor TOML/Jayson UUID consumers and UTF-8.
