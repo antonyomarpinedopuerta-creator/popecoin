@@ -17,7 +17,7 @@ class RcPackageTests(unittest.TestCase):
         temporary = tempfile.TemporaryDirectory(prefix='papa-package-test-')
         self.addCleanup(temporary.cleanup)
         self.root = Path(temporary.name)
-        for name in ['Cargo.toml', 'Cargo.lock', 'Anchor.toml', 'rust-toolchain.toml', 'scripts/build-release.py', 'scripts/reproduce-release.py', *package.rc.ARTIFACTS]:
+        for name in [*package.rc.ROOT_INPUTS, 'scripts/build-release.py', 'scripts/reproduce-release.py', *package.rc.ARTIFACTS]:
             file = self.root / name
             file.parent.mkdir(parents=True, exist_ok=True)
             file.write_text('synthetic public content')
@@ -28,7 +28,8 @@ class RcPackageTests(unittest.TestCase):
                        'toolVersions': {name: 'test tool version' for name in ['rustc', 'cargo', 'sbf', 'solana', 'anchor', 'node', 'yarn', 'python']}}
         self.save()
         (self.root / 'target/reproducibility.json').write_text(json.dumps({'status': 'passed',
-            'sourceHashes': self.report['sourceHashes'],
+            'sourceHashes': {name: value for name, value in self.report['sourceHashes'].items() if name in
+                ['Cargo.toml', 'Cargo.lock', 'Anchor.toml', 'rust-toolchain.toml', 'scripts/build-release.py', 'scripts/reproduce-release.py']},
             'outputHashes': {name: self.report['artifacts'][name] for name in package.reproduction.OUTPUTS}}))
         mock = patch.object(package.subprocess, 'check_output', side_effect=lambda *args, **kwargs: 'a' * 40 if kwargs.get('text') else b'')
         mock.start()

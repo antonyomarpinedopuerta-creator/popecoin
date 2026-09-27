@@ -17,7 +17,8 @@ class RcEvidenceTests(unittest.TestCase):
         self.directory = tempfile.TemporaryDirectory(prefix='papa-rc-test-')
         self.addCleanup(self.directory.cleanup)
         self.root = Path(self.directory.name)
-        (self.root / 'Cargo.toml').write_text('public source')
+        for name in rc.ROOT_INPUTS:
+            (self.root / name).write_text('public source')
         for name in rc.ARTIFACTS:
             artifact = self.root / name
             artifact.parent.mkdir(parents=True, exist_ok=True)
@@ -67,7 +68,7 @@ class RcEvidenceTests(unittest.TestCase):
         self.assertEqual(report['status'], 'passed')
         self.assertEqual(len(self.calls), len(rc.COMMANDS))
         self.assertEqual(set(report['artifacts']), set(rc.ARTIFACTS))
-        self.assertEqual(set(report['sourceHashes']), {'Cargo.toml'})
+        self.assertEqual(set(report['sourceHashes']), set(rc.ROOT_INPUTS))
 
     def test_missing_tool_or_git_failure_invalidates_old_success(self):
         with patch.object(rc.subprocess, 'check_output', side_effect=FileNotFoundError()):
@@ -169,3 +170,14 @@ with patch.object(rc.subprocess, 'check_output', side_effect=lambda *a, **k: 'fi
 
     def test_real_sigkill_cannot_leave_success(self):
         self.exercise_real_signal(abrupt=True)
+
+    def test_missing_required_root_files_fail_before_any_gate(self):
+        for name in rc.ROOT_INPUTS:
+            file = self.root / name
+            original = file.read_bytes()
+            file.unlink()
+            with self.assertRaisesRegex(ValueError, 'Missing required public input'):
+                rc.run_checks(self.root, execute=self.execute)
+            self.assertEqual(self.result()['status'], 'failed')
+            self.assertEqual(self.calls, [])
+            file.write_bytes(original)

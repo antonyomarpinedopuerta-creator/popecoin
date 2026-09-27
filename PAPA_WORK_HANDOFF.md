@@ -42,7 +42,7 @@ npm run package:rc
   Clippy sobre todos los targets, build/tests Devnet aislado y verificación final de release.
 - **45 tests Rust por identidad**: 35 integración SBF, 1 carga y 9 cálculo.
 - **23 tests TypeScript**: cliente, lector, servidor, planificación, ProgramData,
-  vendor y registro de build. **16 tests Python**: RC, reproducción y paquete.
+  vendor y registro de build. **17 tests Python**: RC, reproducción y paquete.
 - Fallos/interrupciones en cada gate, SIGTERM real con cierre del hijo, SIGKILL
   real dejando evidencia incompleta, concurrencia, fuentes cambiadas, symlinks,
   artefactos ausentes, informes incompletos y paquete determinista cubiertos.
@@ -52,6 +52,8 @@ npm run package:rc
   SBF/IDL/tipos, compara bytes exactos y ejecuta Rust allí. Pasó con los mismos
   hashes de release. Es reproducibilidad en la misma máquina/herramientas,
   **no atestación independiente ni compilador hermético verificado**.
+- El inventario exige todos los archivos raíz, incluidos ambos lockfiles; una
+  ausencia invalida el RC antes de ejecutar gates.
 - package:rc exige HEAD y árbol limpios, todas las pruebas exitosas, fuentes y
   artefactos actuales y reproducción coincidente. Solo incluye entradas públicas
   explícitas y su manifiesto. Nunca copia target/deploy en bloque.

@@ -398,7 +398,7 @@ be reported as a completed run. This evidence remains local and is not an audit.
 ## 17. Reproducible candidate and additional adversarial cases
 
 Current totals supersede previous counts: 45 Rust tests per identity (35 SBF
-integration, one program load, nine arithmetic), 23 client tests, and 16 Python
+integration, one program load, nine arithmetic), 23 client tests, and 17 Python
 fault/reproduction/package tests. New SBF cases reject absent initialize authority
 and rent-payer signatures, substituted deposit accounts, and duplicate releases
 in a single transaction with full rollback. A u64::MAX mint across the entire i64

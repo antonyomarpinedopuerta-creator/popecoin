@@ -9,6 +9,10 @@ import signal
 import subprocess
 import sys
 
+ROOT_INPUTS = ['Cargo.toml', 'Cargo.lock', 'Anchor.toml', 'rust-toolchain.toml',
+               'package.json', 'yarn.lock', 'tsconfig.json', '.gitignore',
+               'README.md', 'PAPA_WORK_HANDOFF.md']
+
 COMMANDS = [
     ['python3', '-m', 'unittest', 'discover', '-s', 'tests', '-p', 'test_*.py'],
     ['npm', 'run', 'check'],
@@ -27,9 +31,10 @@ ARTIFACTS = [
 
 def source_hashes(root):
     # Public project inputs only; do not walk .git, node_modules, target or home.
-    files = [root / name for name in ['Cargo.toml', 'Cargo.lock', 'Anchor.toml',
-             'rust-toolchain.toml', 'package.json', 'yarn.lock', 'tsconfig.json', '.gitignore',
-             'README.md', 'PAPA_WORK_HANDOFF.md']]
+    files = [root / name for name in ROOT_INPUTS]
+    for file in files:
+        if file.is_symlink() or not file.is_file():
+            raise ValueError('Missing required public input or unexpected symlink')
     for directory in ['programs', 'scripts', 'tests', 'app', 'vendor', 'metadata', 'config', '.github', 'docs']:
         base = root / directory
         if base.is_symlink():
