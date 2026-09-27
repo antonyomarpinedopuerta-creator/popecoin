@@ -394,3 +394,28 @@ inspection, rejects concurrent runs and changed public inputs, and stops its chi
 process group on SIGTERM/SIGINT. Real SIGTERM behavior is tested with a synthetic
 child; no wallets or network transactions are involved. Abrupt power loss cannot
 be reported as a completed run. This evidence remains local and is not an audit.
+
+## 17. Reproducible candidate and additional adversarial cases
+
+Current totals supersede previous counts: 45 Rust tests per identity (35 SBF
+integration, one program load, nine arithmetic), 23 client tests, and 16 Python
+fault/reproduction/package tests. New SBF cases reject absent initialize authority
+and rent-payer signatures, substituted deposit accounts, and duplicate releases
+in a single transaction with full rollback. A u64::MAX mint across the entire i64
+timestamp interval conserves every token unit through intermediate/final claims.
+No program instruction, layout, authority power or ABI changed in this continuation.
+
+A fresh workspace with independent build caches reproduces identical SBF, IDL and
+TypeScript artifacts and passes the Rust suite. Local package validation rejects
+dirty or changed HEADs, missing checks, stale sources/artifacts and incomplete
+reproduction evidence. Synthetic adjacent keypair-named marker files are not
+included in archives. Actual SIGKILL leaves an incomplete report; unlike SIGTERM,
+it cannot reap child processes. This remains internal engineering evidence.
+
+Browser checks exercised reserve/founder reads, mobile layout, and simulated RPC
+failure recovery. Production mint, UTC start and durable metadata/image URIs are
+still deliberately unset. No production readiness or independent audit is claimed.
+
+Clippy now covers all targets, including test code, with warnings denied. Two
+preexisting unnecessary instruction clones in tests were replaced by borrowed
+slices; no program behavior changed.

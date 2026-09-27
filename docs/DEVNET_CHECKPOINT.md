@@ -160,3 +160,15 @@ certify production readiness or the current holder of any signing key.
 Read-only snapshot at 2026-09-26T14:07:24.439Z: reserve and founder were observed at slot 504433172, with full scheduled balances, zero released, zero shortfall and neither vault frozen. This covers these two positions only.
 
 Program inspection at 2026-09-26T14:15:56.981Z (slot 504435395) still matches the historical executable plus zero padding. The local candidate remains undeployed. No transactions were sent.
+
+## RC continuation read-only checkpoint — 2026-09-27 UTC
+
+At 04:03:13 UTC, both positions were read at slot 504650429. Reserve held
+3000000000000 base units and founder 1000000000000; released and claimable were
+zero and neither vault was frozen. ProgramData at the same slot still matches
+the historical executable; deployed slot 499370833 and active upgrade authority
+are unchanged. The local candidate was not deployed.
+
+Metadata was independently read: name/symbol PAPA, mutable, with the historical
+GitHub raw metadata URI. This confirms Devnet metadata only; that mutable hosting
+is still unsuitable as the final durable production publication decision.

@@ -112,7 +112,7 @@ class RcEvidenceTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'symlink'):
             rc.run_checks(self.root, execute=self.execute)
 
-    def test_real_sigterm_stops_child_and_records_interruption(self):
+    def exercise_real_signal(self, abrupt=False):
         import os
         import signal
         import subprocess
@@ -142,18 +142,30 @@ with patch.object(rc.subprocess, 'check_output', side_effect=lambda *a, **k: 'fi
                 time.sleep(0.02)
             self.assertTrue(marker.exists(), 'RC child did not start')
             pid = int(marker.read_text())
-            process.send_signal(signal.SIGTERM)
+            process.send_signal(signal.SIGKILL if abrupt else signal.SIGTERM)
+            if abrupt:
+                process.wait(timeout=10)
+                self.assertEqual(self.result()['status'], 'incomplete')
+                # SIGKILL cannot run cleanup; reap the synthetic child explicitly.
+                os.killpg(pid, signal.SIGKILL)
             output, error = process.communicate(timeout=10)
-            self.assertEqual(process.returncode, 130, error.decode())
-            self.assertEqual(self.result()['status'], 'interrupted')
-            with self.assertRaises(ProcessLookupError):
-                os.kill(pid, 0)
+            self.assertEqual(process.returncode, -signal.SIGKILL if abrupt else 130, error.decode())
+            self.assertEqual(self.result()['status'], 'incomplete' if abrupt else 'interrupted')
+            if not abrupt:
+                with self.assertRaises(ProcessLookupError):
+                    os.kill(pid, 0)
         finally:
             if process.poll() is None:
                 process.kill()
-                process.communicate()
             if marker.exists():
                 try:
                     os.killpg(int(marker.read_text()), signal.SIGKILL)
                 except ProcessLookupError:
                     pass
+            process.communicate(timeout=10)
+
+    def test_real_sigterm_stops_child_and_records_interruption(self):
+        self.exercise_real_signal()
+
+    def test_real_sigkill_cannot_leave_success(self):
+        self.exercise_real_signal(abrupt=True)

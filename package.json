@@ -28,7 +28,10 @@
     "devnet:snapshot": "ts-node scripts/devnet-snapshot.ts",
     "plan:production": "ts-node scripts/production-plan.ts",
     "devnet:program": "ts-node scripts/devnet-program.ts",
-    "check:rc": "python3 scripts/check-rc.py"
+    "check:rc": "python3 scripts/check-rc.py",
+    "verify:reproducible": "python3 scripts/reproduce-release.py",
+    "verify:rc": "python3 scripts/package-rc.py --verify-only",
+    "package:rc": "python3 scripts/package-rc.py"
   },
   "private": true,
   "engines": {

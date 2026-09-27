@@ -12,7 +12,7 @@ import sys
 COMMANDS = [
     ['python3', '-m', 'unittest', 'discover', '-s', 'tests', '-p', 'test_*.py'],
     ['npm', 'run', 'check'],
-    ['cargo', 'clippy', '--locked', '--lib', '--', '-D', 'warnings'],
+    ['cargo', 'clippy', '--locked', '--all-targets', '--', '-D', 'warnings'],
     ['npm', 'run', 'build:devnet'],
     ['npm', 'run', 'verify:release'],
     ['git', 'diff', '--check'],
@@ -28,8 +28,9 @@ ARTIFACTS = [
 def source_hashes(root):
     # Public project inputs only; do not walk .git, node_modules, target or home.
     files = [root / name for name in ['Cargo.toml', 'Cargo.lock', 'Anchor.toml',
-             'rust-toolchain.toml', 'package.json', 'yarn.lock', 'tsconfig.json', '.gitignore']]
-    for directory in ['programs', 'scripts', 'tests', 'app', 'vendor', 'metadata', 'config', '.github']:
+             'rust-toolchain.toml', 'package.json', 'yarn.lock', 'tsconfig.json', '.gitignore',
+             'README.md', 'PAPA_WORK_HANDOFF.md']]
+    for directory in ['programs', 'scripts', 'tests', 'app', 'vendor', 'metadata', 'config', '.github', 'docs']:
         base = root / directory
         if base.is_symlink():
             raise ValueError('Unexpected symlink in public input tree')

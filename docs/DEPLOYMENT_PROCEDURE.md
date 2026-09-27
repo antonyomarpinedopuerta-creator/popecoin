@@ -166,3 +166,18 @@ concurrently. Never archive target/deploy wholesale; it may contain keypairs.
 The runner hashes only explicitly named public artifacts. No command here deploys,
 changes authorities or authorizes production. Registry audits remain a separate
 review, including the documented outstanding JavaScript advisories.
+
+## Freeze and package the public candidate
+
+1. Complete `npm run check:rc` and `npm run verify:reproducible`.
+2. Commit reviewed changes locally, then rerun `npm run check:rc` on the clean HEAD.
+3. Run `npm run verify:rc` and `npm run package:rc`.
+4. Inspect the public archive, its SHA-256 and embedded rc-manifest.json. Reproduce
+   from a separate machine for independent evidence before any deployment decision.
+
+The verifier rejects a dirty/different revision, incomplete checks, source/artifact
+changes or reproduction mismatches. Packaging explicitly selects public inputs;
+it never recursively archives deployment directories. Reports with failed,
+interrupted or incomplete status are unusable. Source changes require new checks;
+changes to Rust/build inputs also require fresh reproduction. Review unresolved
+production parameters and dependency advisories even when all local gates pass.

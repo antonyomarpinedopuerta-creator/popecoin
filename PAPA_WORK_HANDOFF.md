@@ -1,187 +1,129 @@
-# PAPA — handoff técnico
+# PAPA — handoff técnico actual
 
-## Estado recuperado y validado — 2026-09-26
+Actualizado en la continuación del 26 de septiembre de 2026 (últimas lecturas
+remotas del 27 de septiembre UTC). Este documento describe el árbol actual;
+los registros históricos anteriores permanecen en Git.
 
-Al iniciar esta recuperación el working tree estaba **limpio**, en `bc319b1`
-(un commit por delante de origin/master). Los cambios del apagado ya estaban
-conservados en `f46fde9` y `bc319b1`; no se descartó ningún archivo.
-Las secciones históricas inferiores describen la primera revisión, no el estado actual.
+## Recuperación y commits
 
-- App local de solo lectura en `app/`, CI en `.github/workflows/ci.yml`,
-  planificación offline de metadata/distribución y builds separados ya implementados.
-- `vendor/bigint-buffer` usa la implementación JS upstream con licencia y hash;
-  persisten las advertencias documentadas en `docs/DEPENDENCY_REVIEW.md`.
-- Recuperación: `npm run check`, build/test aislado Devnet y Clippy pasan.
-  Son **41 pruebas Rust por identidad** (31 integración, 1 carga, 9 cálculo).
-- Verificador de release endurecido: exige el conjunto completo de inputs/outputs,
-  detecta nuevos fuentes Rust, hashes inválidos, omisiones y rutas adicionales.
-  **23 pruebas cliente** pasan; TypeScript y `git diff --check` pasan.
-- Lectura Devnet de reserva/fundador realizada correctamente; no se firmó ni envió
-  ninguna transacción. Reporte temporal: `/tmp/papa-devnet-snapshot-current.json`.
-- Inspección de 76 archivos versionados sin coincidencias de nombres sensibles,
-  claves privadas PEM, tokens GitHub/AWS ni arrays JSON completos de keypair.
-  Es una comprobación heurística, no prueba universal de ausencia de secretos.
-  No se abrieron wallets, archivos de claves ni configuración personal.
-- Hash release: `1c3b71a2b792fa986b2a9264861d2bc58654e85370f2bb348cea4dcccaff8492`.
-- Hash Devnet local: `e2afff5bdf90e1879ef08d8fd5bec4a84b14891b23e12617eb86e4e53b7b93fb`.
+- La recuperación encontró el árbol limpio en `bc319b1`, no cambios perdidos.
+  `f46fde9` y `bc319b1` ya conservaban programa, app, CI, vendor y scripts.
+- `6268277`: verificación completa de inputs/outputs del build y recuperación.
+- `2247ef7`: RC con exclusión concurrente, fallos/interrupciones, hashes de fuentes,
+  versiones de herramientas y lectura Devnet estricta.
+- Continuación: reconstrucción aislada, verificación/empaquetado público del RC,
+  nuevas regresiones SBF, SIGKILL real y checksum oficial de Agave en CI.
+- No se descartó trabajo, no se publicó ni desplegó ningún cambio.
 
-### Segunda tanda después del commit de recuperación `6268277`
+## Estado y arquitectura
 
-El lector rechaza indicadores SPL no canónicos del mint antes de decodificar;
-regresiones cubren ambos COption y el byte de inicialización, además del caso válido.
-`npm run check` completo vuelve a pasar. Checkpoint remoto actualizado en
-`docs/DEVNET_CHECKPOINT.md`; ProgramData mantiene correspondencia histórica.
-Yarn audit refrescado: 1 hallazgo alto y 3 rutas moderadas, los mismos dos avisos
-ya documentados; no se declara el árbol libre de vulnerabilidades.
+Candidato **local para revisión**, no autorización de lanzamiento. Tres instrucciones
+Anchor: initialize, deposit y release. Una PDA por beneficiario/mint y un vault PDA;
+SPL Token clásico, transfer_checked, sin Token-2022, cancelación, rescate ni cierre.
+Payer, autoridad y beneficiario firman la creación; la autoridad deposita y el
+beneficiario libera hacia su propia cuenta del mint correcto.
 
-### Tercera tanda: gate RC y auditorías
+Identidad de release: `AYsgq7YWePj8zSHMznEQwtexDMAFqfXkPjDK6diHkHEn`.
+Identidad Devnet histórica: `BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc`.
+Ambas se compilan y prueban separadamente. El binario local NO se ha desplegado.
+La verificación denominada verify-mainnet-release.ts es enteramente offline.
 
-`npm run check:rc` reúne tests Python del runner, build/tests release, Clippy,
-build/tests Devnet aislado, verificación final de release y whitespace. CI usa el
-mismo comando. `target/rc-check.json` registra resultados y hashes de seis archivos
-públicos explícitos; nunca copia directorios de despliegue ni claves. Nueve tests
-comprueban fallos/interrupciones en cada gate, SIGTERM real y cierre del hijo,
-exclusión concurrente, fuentes cambiadas, artefactos ausentes y symlinks.
-El runner invalida el éxito previo antes de Git, registra versiones de herramientas
-y hashes de fuentes y rechaza cambios durante la ejecución.
-El informe no es una atestación independiente y registra si el árbol estaba sucio.
+## Verificación y reproducción
 
-Cargo-audit 0.22.2 reinstalado solo en `/tmp`: base actualizada al commit
-`e2111519ba6d14a5da59a7b2e5c8083ae8a37c01`, cero vulnerabilidades, cinco advertencias
-unmaintained y RUSTSEC-2026-0097 sin cambio respecto a la revisión documentada.
-El hash del vendor JS fue recomprobado y coincide con su README.
+```sh
+npm run check:rc
+npm run verify:reproducible
+# Requiere check:rc sobre el HEAD actual con árbol limpio:
+npm run verify:rc
+npm run package:rc
+```
 
-### Continuación
+- check:rc: tests Python, build SBF y Anchor IDL, Rust, TypeScript/clientes,
+  Clippy sobre todos los targets, build/tests Devnet aislado y verificación final de release.
+- **45 tests Rust por identidad**: 35 integración SBF, 1 carga y 9 cálculo.
+- **23 tests TypeScript**: cliente, lector, servidor, planificación, ProgramData,
+  vendor y registro de build. **16 tests Python**: RC, reproducción y paquete.
+- Fallos/interrupciones en cada gate, SIGTERM real con cierre del hijo, SIGKILL
+  real dejando evidencia incompleta, concurrencia, fuentes cambiadas, symlinks,
+  artefactos ausentes, informes incompletos y paquete determinista cubiertos.
+- SIGKILL no puede ejecutar limpieza: sus hijos pueden sobrevivir. La prueba
+  elimina sus procesos sintéticos; nunca interpretar un informe incompleto como éxito.
+- verify:reproducible crea un workspace/caché NUEVOS bajo target, reconstruye
+  SBF/IDL/tipos, compara bytes exactos y ejecuta Rust allí. Pasó con los mismos
+  hashes de release. Es reproducibilidad en la misma máquina/herramientas,
+  **no atestación independiente ni compilador hermético verificado**.
+- package:rc exige HEAD y árbol limpios, todas las pruebas exitosas, fuentes y
+  artefactos actuales y reproducción coincidente. Solo incluye entradas públicas
+  explícitas y su manifiesto. Nunca copia target/deploy en bloque.
+- Evidencia local ignorada por Git: target/rc-check.json,
+  target/reproducibility.json y target/rc/papa-<commit>.tar.gz con SHA-256.
+- CI usa check:rc y fija el checksum oficial del tarball Agave antes de extraerlo.
+  La ejecución hospedada de GitHub Actions no se ha disparado desde esta sesión.
 
-Seguir revisando preparación RC y regresiones de validación. La identidad Devnet
-local está compilada/probada pero no desplegada; no confundirla con el ejecutable
-histórico remoto. Ejecutar `npm run check` y `npm run build:devnet` para reproducir.
-La verificación de identidad de release es offline pese al nombre histórico del script.
+Hashes conocidos:
 
-Bloqueos externos vigentes: auditoría independiente, custodia, mint definitivo,
-fecha UTC aprobada, publicación duradera de metadata/logo, liquidez y revisión legal.
-No hay autorización para Mainnet, despliegues, fondos reales ni cambios de autoridades.
+- Release SBF: `1c3b71a2b792fa986b2a9264861d2bc58654e85370f2bb348cea4dcccaff8492`.
+- Devnet SBF local: `e2afff5bdf90e1879ef08d8fd5bec4a84b14891b23e12617eb86e4e53b7b93fb`.
+- Logo: `7be34ed33f6fd2fe52946d43a4eccfd8e41055190bbc29d46a3e285858ee55eb`.
 
----
+## Seguridad revisada
 
-## Registro histórico de la revisión inicial
+Cálculo temporal amplía a i128 antes de restar y multiplica en u128. Las pruebas
+incluyen rango i64 completo, u64 máximo, cliff al final, redondeo, monotonía,
+conservación de tokens y doble release atómico con rollback completo. Nuevos tests
+verifican firmas de authority/payer al inicializar y sustitución de cuentas en deposit.
+Las pruebas anteriores cubren beneficiario sin firma, fuentes/destinos incorrectos,
+PDAs, propietario/discriminador/programa token, congelación, saldo insuficiente,
+clock regresivo, financiación parcial, donaciones y reinicialización.
 
-Actualizado: 2026-09-26. Revisión local desde `d5c2998` (árbol inicialmente limpio).
+La inspección de archivos versionados no detectó los patrones de secretos y nombres
+sensibles comprobados; esto es heurístico. No se abrieron wallets o seed phrases,
+ni se copiaron claves. Los signers de pruebas son efímeros de LiteSVM.
 
-## Estado histórico (superado por las tandas anteriores)
+## App y Devnet
 
-Contrato funcional y candidato local fortalecido para revisión técnica. **No listo
-para lanzamiento**: quedan los requisitos de producción descritos abajo. Se revisaron
-historial Git, manifiestos y lockfiles, programa completo, tests, scripts, documentación
-y metadata. No existía este handoff. `app/` está vacío; no había `tests/` raíz (ahora
-contiene tests offline del cliente). No hay pipeline CI versionado ni frontend.
+App local de consulta, sin wallet ni firmas: `npm run app`, 127.0.0.1:3000.
+Probada con navegador real: reserva, fundador, vista móvil 390x844 sin overflow,
+sin errores registrados, y fallo RPC simulado que oculta resultados anteriores y
+rehabilita la consulta. Las bibliotecas de Chrome se extrajeron solo en /tmp.
 
-La identidad declarada por el código/IDL es
-`AYsgq7YWePj8zSHMznEQwtexDMAFqfXkPjDK6diHkHEn`; la identidad histórica Devnet es
-`BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc`. Un build no cambia de identidad
-porque el provider apunte a Devnet. El binario actual no sirve como upgrade del
-programa Devnet histórico sin preparar otro build con su identidad.
+Lecturas recientes de vestings y ProgramData pasan. Reserva/fundador mantienen
+saldo completo, liberado cero y no están congelados. ProgramData coincide con
+el ejecutable histórico, upgrade authority activa; **no coincide con una supuesta
+actualización del candidato local**. Metadata Devnet: PAPA/PAPA, mutable, URI GitHub
+histórica. Detalles y slots en docs/DEVNET_CHECKPOINT.md.
 
-## Arquitectura
+Lectores validan owners, longitudes, discriminadores, PDAs, mint, flags SPL
+canónicos y reloj de red en un contexto RPC común. Ningún indicador de cobertura
+del vault afirma que una transacción pueda ejecutarse.
 
-- Anchor Rust, tres instrucciones: `initialize`, `deposit`, `release`.
-- Una PDA vesting por beneficiario + mint; vault PDA por vesting.
-- `VestingAccount`: autoridad, beneficiario, mint, total/liberado, tres timestamps,
-  bump. La estructura y ABI no cambiaron en esta revisión.
-- Firma de payer, autoridad y beneficiario al inicializar. Depósito autorizado por
-  la autoridad. Liberación firmada por el beneficiario hacia su cuenta SPL.
-- SPL Token clásico; CPI `transfer_checked`; no soporte Token-2022.
-- Devnet scripts con Anchor TS 0.32.1 / web3.js 1.99.0; metadata con Umi/Metaplex.
-- LiteSVM carga el binario SBF generado; pruebas de cálculo llaman al método real.
-- No backend ni interfaz de usuario implementados.
+## Dependencias y herramientas
 
-## Trabajo terminado en esta sesión
+Rust/Cargo 1.89.0, Solana CLI 3.1.10, Anchor CLI 1.1.2; Cargo.lock resuelve
+Anchor Rust 1.2.0. Cliente Anchor TS 0.32.1/web3.js 1.99.0; Node 24.10.0,
+Yarn 1.22.22, TypeScript 5.9.3. Las diferencias de versiones están probadas en
+estos flujos, no se afirma compatibilidad universal. Usar Yarn frozen-lockfile
+con ignore-scripts; npm install no garantiza las resolutions de Yarn.
 
-1. Corregido overflow de diferencias i64 en calendarios válidos: se amplía a i128
-   antes de restar y se calcula con u128. Se conserva redondeo hacia abajo, cliff
-   y liberación completa al final. Ningún cambio de layout, seeds o instrucciones.
-2. Extraído el cálculo al método `VestingAccount::vested_amount`; eliminada la
-   fórmula duplicada de tests sin eliminar los cinco casos originales.
-3. Regresiones SBF: firma ausente del beneficiario; inicio igual a fin; rango
-   completo i64; rollback por saldo insuficiente y reintento; sustitución de
-   vault/programa token/owner/discriminador. Se comprueban errores esperados y
-   conservación del estado/saldos, no solo que una transacción falle.
-4. Pruebas de límites, redondeo, cliff al final, monotonía y monto u64 máximo.
-5. Scripts Devnet vinculados explícitamente a la identidad Devnet, sin mutar el
-   IDL de release. Pruebas offline de instrucciones y PDAs históricas.
-6. Signers operativos requieren `PAPA_DEVNET_{PAYER,DEVELOPMENT,FOUNDER,RESERVE}_KEYPAIR`;
-   ya no se carga implícitamente la wallet CLI ni rutas personales predeterminadas.
-   Estas variables no prueban que una clave sea exclusiva de Devnet: el operador
-   debe elegirla correctamente. No se ejecutaron loaders con claves reales.
-7. Depósitos calculan diferencia exacta según balance del vault con bigint y
-   comprueban mint/owner. El contrato vuelve a validar atómicamente al ejecutar.
-8. Inspección Devnet valida propietario/discriminador/beneficiario/mint y vault.
-9. Verificador de identidad de release completamente offline y sin abrir claves:
-   contrasta source/config/IDL y muestra SHA-256 del binario local.
-10. README y procedimiento de despliegue corregidos, errores de scripts de lectura
-    devuelven estado no cero, `.env` y PEM excluidos de Git.
+Yarn audit: 1 hallazgo alto de bigint-buffer y 3 rutas moderadas de stream-json.
+Vendor usa JS upstream sin binding nativo, hash y licencia comprobados. No se
+forzaron majors incompatibles. Cargo-audit 0.22.2: cero vulnerabilidades,
+cinco avisos unmaintained y RUSTSEC-2026-0097; triage y base en DEPENDENCY_REVIEW.md.
 
-## Herramientas comprobadas
+## Pendientes externos y límites
 
-- Rust y Cargo 1.89.0, fijados por `rust-toolchain.toml`.
-- Solana CLI 3.1.10; configuración CLI Devnet, commitment confirmed.
-- Anchor CLI 1.1.2. `Cargo.toml` permite desde 1.1.2 y **Cargo.lock resuelve 1.2.0**
-  para anchor-lang/anchor-spl. No se actualizaron dependencias ni lockfiles.
-- Node 24.10.0, npm 11.6.1, Yarn 1.22.22, TypeScript 5.9.3.
-- Anchor TS 0.32.1 y Rust Anchor 1.2.0 tienen versiones diferentes: la compilación
-  y construcción offline de las tres instrucciones pasan; no se afirma que todos
-  los comportamientos de ambas librerías sean intercambiables.
+config/production-plan.json mantiene **mint, startUtc, imageUri y metadataUri null**.
+plan:production falla deliberadamente con esos parámetros pendientes. No inventarlos.
+Metadata y logo todavía requieren almacenamiento duradero y verificación de contenido.
+Restan revisión independiente, custodia/multisig, fecha UTC aprobada, mint definitivo,
+liquidez y revisión legal. No se verificaron backups privados ni titularidad de claves.
 
-## Pruebas realizadas
+El mint puede tener freeze authority; el contrato no limita su suministro. Una
+posición parcialmente financiada puede liberar si cubre lo devengado y, después,
+deposit queda bloqueado aunque transferencias SPL directas sigan permitidas.
+Excedentes no tienen rescate. No añadir poderes administrativos sin decidir producto.
 
-- Baseline `npm run check`: build Anchor + 23 tests Rust funcionales + tsc OK.
-- Candidato: 22 tests de integración LiteSVM, 1 carga SBF, 9 de cálculo = **32 Rust**.
-- **5 tests cliente offline**: identidad/PDAs, initialize/signers/u64, deposit/release,
-  ausencia de signer explícito y top-up exacto con donaciones/montos grandes.
-- `cargo clippy --locked --lib -- -D warnings`: OK.
-- `npm run verify:release`: source/config/IDL coinciden; sin acceso a red o keys.
-- `git diff --check`: OK.
-- SHA-256 binario local:
-  `1c3b71a2b792fa986b2a9264861d2bc58654e85370f2bb348cea4dcccaff8492`.
-- SHA-256 logo coincide con la documentación:
-  `7be34ed33f6fd2fe52946d43a4eccfd8e41055190bbc29d46a3e285858ee55eb`.
-
-Reproducir con `npm run check` (reconstruye antes de probar) y
-`npm run verify:release`. No ejecutar `cargo test` sobre un binario antiguo ni
-interpretar un hash aislado como prueba de correspondencia con un despliegue.
-Los tests cliente se ejecutan directamente con ts-node/register y node:test;
-en este entorno la variante Node `--test` reportaba solo el archivo, por lo que
-se usa el comando que muestra y ejecuta explícitamente los cinco casos.
-
-## Límites y pendientes
-
-- No auditoría independiente. Este trabajo es revisión interna, no certificación.
-- No se consultó Mainnet ni se enviaron transacciones a ninguna red. No se leyó,
-  copió ni imprimió material de wallet; tests con signers efímeros en memoria.
-- No se revalidó el checkpoint Devnet remoto ni sus balances. El código local
-  ahora incluye cambios funcionales posteriores al binario histórico desplegado.
-- La documentación afirma backups de producción verificados anteriormente;
-  esta sesión no verificó custodia o backups ni abrió sus archivos.
-- Pendientes: revisión final de custodia, auditoría, URI duradera de logo/metadata,
-  mint definitivo, fecha UTC de lanzamiento y timestamps explícitos, estrategia
-  de liquidez y revisión legal. Requieren decisiones/servicios fuera del código.
-- Programa upgradeable, una sola posición por beneficiario/mint, sin cancelación,
-  cierre ni rescate de excedentes. No añadir esos poderes sin revisión de producto.
-- El programa no limita suministro del mint ni impide que su freeze authority
-  congele el vault. Comprobar suministro/decimales/ausencia de freeze al preparar
-  producción según la política existente.
-- Un vault parcialmente financiado puede pagar si cubre la cantidad devengada;
-  tras la primera liberación, `deposit` queda bloqueado. Transferencias SPL directas
-  siguen siendo posibles. Inicializar no garantiza financiación futura.
-- Cliente operativo todavía usa archivos de signers explícitos; no hay integración
-  wallet/hardware/multisig de producción. `app/` permanece sin requisitos de UI.
-- No se instaló un servidor MCP global ni se alteró configuración personal: la
-  revisión se apoyó en fuentes locales y pruebas ejecutables.
-
-## Próximo paso
-
-Revisar el diff y este candidato con un revisor independiente. Antes de una prueba
-remota, preparar un build Devnet aislado con identidad correcta y contrastar el
-estado histórico mediante lecturas Devnet. Antes de producción, completar los
-pendientes de metadata, fecha, mint y custodia. Ninguna instrucción de este documento
-autoriza Mainnet, fondos reales, revocaciones o publicación.
+Siguiente revisión: verificar el paquete público desde otra máquina/entorno, revisar
+las pruebas y el programa independientemente, ejecutar CI hospedado cuando se publique
+el commit y resolver los parámetros externos. No hay autorización para Mainnet,
+fondos reales ni cambios irreversibles de tokens/autoridades.

@@ -1146,7 +1146,7 @@ fn test_release_partial_and_repeated() {
     env.svm.expire_blockhash();
 
     let tx = Transaction::new_signed_with_payer(
-        &[release_ix.clone()],
+        std::slice::from_ref(&release_ix),
         Some(&env.payer.pubkey()),
         &[&env.payer, &env.beneficiary],
         env.svm.latest_blockhash(),
@@ -3831,7 +3831,7 @@ fn test_partial_funding_release_blocks_deposit_but_direct_funding_can_finish() {
         &spl_token_interface::ID, &env.authority_token.pubkey(), &env.mint.pubkey(),
         &env.vault, &env.authority.pubkey(), &[], env.total_amount / 2, 6,
     ).unwrap();
-    let tx = Transaction::new_signed_with_payer(&[transfer.clone()], Some(&env.payer.pubkey()),
+    let tx = Transaction::new_signed_with_payer(std::slice::from_ref(&transfer), Some(&env.payer.pubkey()),
         &[&env.payer, &env.authority], env.svm.latest_blockhash());
     env.svm.send_transaction(tx).unwrap();
     let tx = env.release_tx(destination, 150);
@@ -3872,4 +3872,122 @@ fn test_reinitialize_cannot_replace_funded_schedule() {
     assert!(error.meta.logs.iter().any(|l| l.contains("already in use")), "{error:?}");
     assert_eq!(env.svm.get_account(&env.vesting).unwrap().data, before);
     assert_eq!(env.balance(env.vault), env.total_amount);
+}
+
+#[test]
+fn test_initialize_requires_authority_and_rent_payer_signatures() {
+    for missing_authority in [true, false] {
+        let mut env = VestingTestEnv::new();
+        let fee_payer = Keypair::new();
+        env.svm.airdrop(&fee_payer.pubkey(), 1_000_000_000).unwrap();
+        let mut ix = env.initialize_ix(100, 100, 200);
+        let missing = if missing_authority { env.authority.pubkey() } else { env.payer.pubkey() };
+        ix.accounts.iter_mut().find(|a| a.pubkey == missing).unwrap().is_signer = false;
+        let signers: Vec<&Keypair> = if missing_authority {
+            vec![&fee_payer, &env.payer, &env.beneficiary]
+        } else { vec![&fee_payer, &env.authority, &env.beneficiary] };
+        let rent_before = env.svm.get_account(&env.payer.pubkey()).unwrap().lamports;
+        let tx = Transaction::new_signed_with_payer(&[ix], Some(&fee_payer.pubkey()), &signers, env.svm.latest_blockhash());
+        let error = env.svm.send_transaction(tx).unwrap_err();
+        assert!(error.meta.logs.iter().any(|l| l.contains("AccountNotSigner")), "{error:?}");
+        assert!(env.svm.get_account(&env.vesting).is_none());
+        assert!(env.svm.get_account(&env.vault).is_none());
+        assert_eq!(env.svm.get_account(&env.payer.pubkey()).unwrap().lamports, rent_before);
+    }
+}
+
+#[test]
+fn test_deposit_rejects_substituted_accounts_and_preserves_balances() {
+    for attack in ["source mint", "vault owner", "vault mint", "vesting PDA", "token program"] {
+        let mut env = VestingTestEnv::new();
+        env.initialize_schedule(100, 100, 200);
+        let mut vesting_address = env.vesting;
+        let mut token_program = anchor_spl::token::ID;
+        let expected = match attack {
+            "source mint" | "vault owner" | "vault mint" => {
+                let address = if attack == "source mint" { env.authority_token.pubkey() } else { env.vault };
+                let mut account = env.svm.get_account(&address).unwrap();
+                let mut token = TokenAccount::unpack(&account.data).unwrap();
+                if attack == "vault owner" { token.owner = Keypair::new().pubkey(); }
+                else { token.mint = Keypair::new().pubkey(); }
+                TokenAccount::pack(token, &mut account.data).unwrap();
+                env.svm.set_account(address, account).unwrap();
+                "ConstraintRaw"
+            }
+            "vesting PDA" => {
+                vesting_address = Keypair::new().pubkey();
+                env.svm.set_account(vesting_address, env.svm.get_account(&env.vesting).unwrap()).unwrap();
+                "ConstraintSeeds"
+            }
+            _ => { token_program = anchor_lang::system_program::ID; "InvalidProgramId" }
+        };
+        let before = env.svm.get_account(&env.vesting).unwrap().data;
+        let ix = Instruction { program_id: env.program_id,
+            accounts: accounts::Deposit { vesting: vesting_address, vault: env.vault,
+                authority: env.authority.pubkey(), mint: env.mint.pubkey(),
+                authority_token_account: env.authority_token.pubkey(), token_program,
+            }.to_account_metas(None), data: instruction::Deposit { amount: env.total_amount }.data(),
+        };
+        let tx = Transaction::new_signed_with_payer(&[ix], Some(&env.payer.pubkey()),
+            &[&env.payer, &env.authority], env.svm.latest_blockhash());
+        let error = env.svm.send_transaction(tx).unwrap_err();
+        assert!(error.meta.logs.iter().any(|l| l.contains(expected)), "{attack}: {error:?}");
+        assert_eq!(env.svm.get_account(&env.vesting).unwrap().data, before);
+        assert_eq!(env.balance(env.vault), 0);
+        assert_eq!(env.balance(env.authority_token.pubkey()), env.total_amount);
+    }
+}
+
+#[test]
+fn test_max_supply_full_timestamp_range_conserves_every_unit() {
+    let mut env = VestingTestEnv::new();
+    let mint_more = spl_token_interface::instruction::mint_to(
+        &spl_token_interface::ID, &env.mint.pubkey(), &env.authority_token.pubkey(),
+        &env.authority.pubkey(), &[], u64::MAX - env.total_amount,
+    ).unwrap();
+    let tx = Transaction::new_signed_with_payer(&[mint_more], Some(&env.payer.pubkey()),
+        &[&env.payer, &env.authority], env.svm.latest_blockhash());
+    env.svm.send_transaction(tx).unwrap();
+    env.total_amount = u64::MAX;
+    env.initialize_schedule(i64::MIN, i64::MIN, i64::MAX);
+    env.fund();
+    let destination = env.destination();
+    for now in [i64::MIN + 1, -1, 0, i64::MAX - 1, i64::MAX] {
+        let tx = env.release_tx(destination, now);
+        env.svm.send_transaction(tx).unwrap();
+        let account = env.svm.get_account(&env.vesting).unwrap();
+        let state = VestingAccount::try_deserialize(&mut &account.data[..]).unwrap();
+        assert_eq!(state.released_amount, env.balance(destination));
+        assert_eq!(u128::from(env.balance(destination)) + u128::from(env.balance(env.vault)), u128::from(u64::MAX));
+    }
+    assert_eq!(env.balance(destination), u64::MAX);
+    assert_eq!(env.balance(env.vault), 0);
+}
+
+#[test]
+fn test_duplicate_release_in_one_transaction_rolls_back_first_release() {
+    let mut env = VestingTestEnv::new();
+    env.initialize_schedule(100, 100, 200);
+    env.fund();
+    let destination = env.destination();
+    let before = env.svm.get_account(&env.vesting).unwrap().data;
+    let mut clock = env.svm.get_sysvar::<Clock>();
+    clock.unix_timestamp = 200;
+    env.svm.set_sysvar(&clock);
+    let ix = Instruction { program_id: env.program_id,
+        accounts: accounts::Release { vesting: env.vesting, vault: env.vault,
+            beneficiary: env.beneficiary.pubkey(), mint: env.mint.pubkey(),
+            beneficiary_token_account: destination, token_program: anchor_spl::token::ID,
+        }.to_account_metas(None), data: instruction::Release {}.data(),
+    };
+    let tx = Transaction::new_signed_with_payer(&[ix.clone(), ix], Some(&env.payer.pubkey()),
+        &[&env.payer, &env.beneficiary], env.svm.latest_blockhash());
+    let error = env.svm.send_transaction(tx).unwrap_err();
+    assert!(error.meta.logs.iter().any(|l| l.contains("NothingToRelease")), "{error:?}");
+    assert_eq!(env.svm.get_account(&env.vesting).unwrap().data, before);
+    assert_eq!(env.balance(destination), 0);
+    assert_eq!(env.balance(env.vault), env.total_amount);
+    let tx = env.release_tx(destination, 200);
+    env.svm.send_transaction(tx).unwrap();
+    assert_eq!(env.balance(destination), env.total_amount);
 }

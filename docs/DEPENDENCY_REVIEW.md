@@ -61,3 +61,10 @@ SHA-256 against its README. Reinstalled cargo-audit 0.22.2 under `/tmp` after th
 shutdown; a refreshed audit against the same RustSec database commit reports
 zero vulnerabilities, the same five unmaintained warnings and RUSTSEC-2026-0097.
 No dependency versions or lockfiles were changed during recovery.
+
+CI now checks the Agave 3.1.10 Linux archive SHA-256 before extraction:
+`a7205ff29bcf0f7199740225ecae2b85a28ea9668892d5ec21bd9749882984a1`.
+Source: the digest field of the official
+[Agave release API](https://api.github.com/repos/anza-xyz/agave/releases/tags/v3.1.10),
+queried during this continuation. This pins bytes supplied by that release; it is
+not a separate audit of the compiler or its supply chain.

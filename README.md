@@ -71,16 +71,36 @@ Revisar [dependencias](docs/DEPENDENCY_REVIEW.md), incluida la implementación
 JavaScript de bigint-buffer vendorizada. Instalar con Yarn: npm no respeta estas
 resolutions. Los avisos de auditoría pendientes no se silencian.
 
-### Combined local release-candidate gate
+## Release Candidate reproducible
 
-Run `npm run check:rc` to build/test the release identity, run Clippy, build/test
-Devnet in its isolated workspace, recheck release hashes and check whitespace.
-CI uses this same command. It writes `target/rc-check.json` with each exit status,
-the starting Git revision/dirty flag, tool versions, public input hashes and hashes
-of explicitly selected public artifacts. Concurrent runners are rejected and source
-changes during the run invalidate its result. A previous report is marked incomplete before any checks begin; a
-failed command stops the sequence and records failure. SIGINT/SIGTERM stop the
-child process group and mark the run interrupted; forced termination leaves an
-incomplete report. Interrupted runs are not successful evidence. The report is local evidence, not independent attestation
-or production approval. It neither reads keys nor performs network transactions;
-build tools may download dependencies. Dependency audits remain a separate gate.
+```sh
+npm run check:rc
+npm run verify:reproducible
+# Después de conservar los cambios en un commit, con el árbol limpio:
+npm run check:rc
+npm run verify:rc
+npm run package:rc
+```
+
+`check:rc` reúne tests Python, build SBF/IDL, Rust, TypeScript, Clippy, tests de
+Devnet aislado y verificación final de release. CI usa el mismo comando.
+`target/rc-check.json` registra revisión Git, estado del árbol, versiones de
+herramientas, hashes públicos y resultados. Rechaza otra ejecución simultánea y
+cambios de fuentes durante las pruebas. Invalida el éxito previo antes de consultar
+Git. SIGINT/SIGTERM cierran el grupo de procesos hijo; SIGKILL deja el registro
+incompleto y puede dejar hijos vivos, que deben detenerse antes de reanudar.
+
+`verify:reproducible` reconstruye con workspace y caché nuevos, compara los bytes
+SBF/IDL/tipos y ejecuta Rust de nuevo. Guarda `target/reproducibility.json`.
+Prueba reproducibilidad en la misma máquina, no una atestación independiente.
+Puede descargar dependencias y consume disco bajo `target/reproduce-*`.
+
+`verify:rc` y `package:rc` exigen el HEAD actual limpio, todas las comprobaciones,
+hashes actuales y reproducción coincidente. El paquete público está en
+`target/rc/papa-<commit>.tar.gz`, acompañado por SHA-256; incluye fuentes,
+documentación, artefactos seleccionados y manifiesto con evidencia de reproducción.
+Orden, permisos, timestamps y cabecera gzip son deterministas para esos bytes.
+Nunca se copia `target/deploy` en bloque, ya que puede contener keypairs.
+
+Estos comandos no despliegan, firman ni cambian autoridades. Los campos pendientes
+de producción y las auditorías externas siguen siendo requisitos separados.
