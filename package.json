@@ -10,7 +10,8 @@
     "@metaplex-foundation/umi": "1",
     "@metaplex-foundation/umi-bundle-defaults": "^1.5.1",
     "@solana/spl-token": "^0.4.15",
-    "@solana/web3.js": "^1.99.0"
+    "@solana/web3.js": "^1.99.0",
+    "fastestsmallesttextencoderdecoder": "1.0.22"
   },
   "devDependencies": {
     "@types/node": "^22.20.3",

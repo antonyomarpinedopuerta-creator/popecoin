@@ -41,7 +41,7 @@ npm run package:rc
 - check:rc: tests Python, build SBF y Anchor IDL, Rust, TypeScript/clientes,
   Clippy sobre todos los targets, build/tests Devnet aislado y verificación final de release.
 - **45 tests Rust por identidad**: 35 integración SBF, 1 carga y 9 cálculo.
-- **23 tests TypeScript**: cliente, lector, servidor, planificación, ProgramData,
+- **26 tests TypeScript**: cliente, lector, servidor, planificación, ProgramData,
   vendor y registro de build. **17 tests Python**: RC, reproducción y paquete.
 - Fallos/interrupciones en cada gate, SIGTERM real con cierre del hijo, SIGKILL
   real dejando evidencia incompleta, concurrencia, fuentes cambiadas, symlinks,
@@ -106,6 +106,10 @@ Anchor Rust 1.2.0. Cliente Anchor TS 0.32.1/web3.js 1.99.0; Node 24.10.0,
 Yarn 1.22.22, TypeScript 5.9.3. Las diferencias de versiones están probadas en
 estos flujos, no se afirma compatibilidad universal. Usar Yarn frozen-lockfile
 con ignore-scripts; npm install no garantiza las resolutions de Yarn.
+
+Instalación limpia: peer UTF-8 corregido (1.0.22); quedan tres warnings deliberados
+(overrides de seguridad toml/uuid e ignore-scripts). Tests prueban los consumidores
+reales y las regresiones de los parches; detalle exacto en DEPENDENCY_REVIEW.md.
 
 Yarn audit: 1 hallazgo alto de bigint-buffer y 3 rutas moderadas de stream-json.
 Vendor usa JS upstream sin binding nativo, hash y licencia comprobados. No se

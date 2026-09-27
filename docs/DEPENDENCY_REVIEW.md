@@ -68,3 +68,23 @@ Source: the digest field of the official
 [Agave release API](https://api.github.com/repos/anza-xyz/agave/releases/tags/v3.1.10),
 queried during this continuation. This pins bytes supplied by that release; it is
 not a separate audit of the compiler or its supply chain.
+
+## Exact installation warnings — 2026-09-27
+
+A fresh `git archive HEAD` checkout, empty node_modules and empty Yarn cache
+reproduced four installer warnings. These are separate from audit advisories.
+
+| Warning | Action and reason |
+| --- | --- |
+| Missing `fastestsmallesttextencoderdecoder@^1.0.22` peer | Fixed by pinning 1.0.22. UTF-8 round-trip tests exercise the actual Solana codec resolution with non-ASCII metadata. |
+| `toml@4.2.0` overrides Anchor's `^3.0.0` | Retained. Versions below 4.1.2 have prototype pollution ([maintainer advisory](https://github.com/BinaryMuse/toml-node/security/advisories/GHSA-v5mp-jgw5-2x6j)). Reverting merely to silence Yarn reintroduces affected code. Tests resolve TOML from Anchor, parse Anchor.toml and reject both published scalar-traversal payload variants. |
+| `uuid@11.1.1` overrides Jayson's `^8.3.2` | Retained. 11.1.1 is the patched CommonJS-compatible line for [GHSA-w5hq-g745-h8pq](https://github.com/uuidjs/uuid/security/advisories/GHSA-w5hq-g745-h8pq). Jayson uses v4, outside the vulnerable methods; tests nevertheless verify its actual request generator and patched v3 buffer bounds. Reverting revives the advisory; hiding or falsifying package versions is not a fix. |
+| `Ignored scripts due to flag` | Retained deliberately. `--ignore-scripts` prevents dependency lifecycle execution, including unnecessary native installers. The clean installation and supported client/build tests work without those scripts. |
+
+The new install has three expected warnings, no missing-peer warning. Yarn audit
+still reports one high bigint-buffer finding and three moderate stream-json paths
+(two distinct advisories), with 118 dependencies. Adding the peer introduces no
+new advisory in this audit. The native bigint path remains removed by the vendor;
+stream-json 3.5.0 is a different API/module layout than Jayson's 1.x imports, so a
+blind override is unsafe. Rust audit remains zero vulnerabilities plus five
+unmaintained notices and the previously documented rand unsoundness warning.

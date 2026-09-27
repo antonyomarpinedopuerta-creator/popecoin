@@ -8,3 +8,5 @@ import "./production.test";
 import "./devnet-program.test";
 
 import "./build-record.test";
+
+import "./dependencies.test";
