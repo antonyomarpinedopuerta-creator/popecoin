@@ -88,3 +88,14 @@ new advisory in this audit. The native bigint path remains removed by the vendor
 stream-json 3.5.0 is a different API/module layout than Jayson's 1.x imports, so a
 blind override is unsafe. Rust audit remains zero vulnerabilities plus five
 unmaintained notices and the previously documented rand unsoundness warning.
+
+## Política automatizada de hallazgos retenidos
+
+`npm run audit:dependencies` consulta Yarn y RustSec, conserva evidencia en
+`target/dependency-audit.json` y falla ante auditoría indisponible, vulnerabilidad
+Rust, advisory/ruta/severidad JavaScript nuevos o categoría/versión/aviso Rust nuevos.
+`config/dependency-policy.json` enumera exclusivamente los hallazgos revisados;
+no es una supresión del informe ni certifica ausencia de riesgo. CI instala
+cargo-audit 0.22.2 y aplica esta política antes del RC. La ejecución del 27 de
+septiembre de 2026 pasó con 4 rutas Yarn y 6 avisos Rust retenidos, cero
+vulnerabilidades Rust, base RustSec e2111519ba6d14a5da59a7b2e5c8083ae8a37c01.
