@@ -103,16 +103,59 @@ def bundle(root, report):
     return destination
 
 
+def verify_archive(root, archive_path):
+    """Check the actual gzip/tar against current validated evidence; never extract."""
+    report = verify(root)
+    expected_path = root / 'target/rc' / f"papa-{report['head'][:12]}.tar.gz"
+    if archive_path != expected_path or archive_path.is_symlink():
+        raise ValueError('Archive must be the current local RC package')
+    raw = public_bytes(root, archive_path.relative_to(root).as_posix())
+    expected_digest = hashlib.sha256(raw).hexdigest()
+    sidecar = public_bytes(root, archive_path.with_suffix('.sha256').relative_to(root).as_posix()).decode()
+    if sidecar != f'{expected_digest}  {archive_path.name}\n':
+        raise ValueError('Archive SHA-256 sidecar mismatch')
+    expected_files = {**report['sourceHashes'], **report['artifacts']}
+    expected_names = set(expected_files) | {'rc-manifest.json'}
+    seen = set()
+    with tarfile.open(fileobj=io.BytesIO(raw), mode='r|gz') as archive:
+        for member in archive:
+            if member.name not in expected_names or member.name in seen or not member.isfile():
+                raise ValueError('Unexpected, duplicate or non-regular archive entry')
+            seen.add(member.name)
+            # All expected artifact/input sizes are known independently of the tar header.
+            if member.name == 'rc-manifest.json':
+                expected_manifest = {**report, 'reproduction': json.loads(public_bytes(root, 'target/reproducibility.json'))}
+                data = (json.dumps(expected_manifest, sort_keys=True, indent=2) + '\n').encode()
+            else:
+                data = public_bytes(root, member.name)
+            if member.size != len(data):
+                raise ValueError('Archive member size mismatch')
+            archived = archive.extractfile(member).read(member.size + 1)
+            if archived != data or (member.name in expected_files and
+                    hashlib.sha256(archived).hexdigest() != expected_files[member.name]):
+                raise ValueError('Archive member content mismatch')
+    if seen != expected_names:
+        raise ValueError('Incomplete archive inventory')
+    if verify(root) != report:
+        raise ValueError('RC changed during archive verification')
+    print(f'PASS: {len(seen)} public entries, current manifest and archive SHA-256 {expected_digest}')
+    return expected_digest
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--verify-only', action='store_true')
+    parser.add_argument('--verify-archive', action='store_true')
     arguments = parser.parse_args()
     root = Path(__file__).resolve().parent.parent
     report = verify(root)
-    if arguments.verify_only:
+    if arguments.verify_archive:
+        verify_archive(root, root / 'target/rc' / f"papa-{report['head'][:12]}.tar.gz")
+    elif arguments.verify_only:
         print('PASS: clean current RC, complete checks, current artifacts and fresh-build correspondence')
     else:
-        bundle(root, report)
+        archive = bundle(root, report)
+        verify_archive(root, archive)
 
 
 if __name__ == '__main__':

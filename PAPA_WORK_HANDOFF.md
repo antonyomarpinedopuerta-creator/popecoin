@@ -36,13 +36,16 @@ npm run verify:reproducible
 # Requiere check:rc sobre el HEAD actual con árbol limpio:
 npm run verify:rc
 npm run package:rc
+npm run verify:package
+npm run check:clean
+npm run audit:dependencies
 ```
 
 - check:rc: tests Python, build SBF y Anchor IDL, Rust, TypeScript/clientes,
   Clippy sobre todos los targets, build/tests Devnet aislado y verificación final de release.
 - **47 tests Rust por identidad**: 36 integración SBF, 1 carga y 10 cálculo.
 - **26 tests TypeScript**: cliente, lector, servidor, planificación, ProgramData,
-  vendor y registro de build. **17 tests Python**: RC, reproducción y paquete.
+  vendor y registro de build. **26 tests Python**: RC, reproducción y paquete.
 - Fallos/interrupciones en cada gate, SIGTERM real con cierre del hijo, SIGKILL
   real dejando evidencia incompleta, concurrencia, fuentes cambiadas, symlinks,
   artefactos ausentes, informes incompletos y paquete determinista cubiertos.
@@ -133,3 +136,19 @@ Siguiente revisión: verificar el paquete público desde otra máquina/entorno, 
 las pruebas y el programa independientemente, ejecutar CI hospedado cuando se publique
 el commit y resolver los parámetros externos. No hay autorización para Mainnet,
 fondos reales ni cambios irreversibles de tokens/autoridades.
+
+## Continuación: controles finales del candidato
+
+Commits d08da32 y 566068a: peer UTF-8 corregido, regresiones de overrides,
+2048 schedules deterministas y rechazo de PDAs sustituidas al inicializar.
+El programa y sus binarios no cambiaron. Se añadieron controles de archivos públicos,
+verificación del tar sin extracción (inventario, hashes, duplicados, symlinks y
+traversal), y auditorías que rechazan hallazgos nuevos sin ocultar los retenidos.
+CI ejecuta auditorías, los siete gates RC, reproducción y verificación del paquete;
+su ejecución hospedada sigue pendiente. check:clean exige HEAD limpio, exporta solo
+Git, instala con caché Yarn nueva y reconstruye/prueba ambas identidades sin outputs
+heredados. Comparte toolchains instaladas y caché de registros Cargo: no es hermético.
+Evidencia de ejecución actual en target/clean-check.json, target/rc-check.json,
+target/dependency-audit.json y target/reproducibility.json; solo status passed
+(o reviewed-findings-only para auditoría) constituye éxito. No usar informes viejos
+como evidencia de un HEAD posterior. El paquete final incluye el HEAD en su nombre.

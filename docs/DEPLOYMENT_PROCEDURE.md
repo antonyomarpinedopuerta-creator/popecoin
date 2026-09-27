@@ -181,3 +181,15 @@ it never recursively archives deployment directories. Reports with failed,
 interrupted or incomplete status are unusable. Source changes require new checks;
 changes to Rust/build inputs also require fresh reproduction. Review unresolved
 production parameters and dependency advisories even when all local gates pass.
+
+### Verificación final offline del RC
+
+Sobre un HEAD limpio: `npm run check:rc`, `npm run verify:reproducible`,
+`npm run check:clean`, `npm run verify:rc`, `npm run package:rc` y
+`npm run verify:package`. El último comando verifica el tar real, sin extraerlo,
+contra el inventario, manifiesto y hashes del candidato actual. check:clean usa
+una exportación Git, caché Yarn vacía y builds nuevos; conserva toolchains y caché
+Cargo instaladas. No ejecuta transacciones ni usa wallets. Los informes están
+bajo target/ y no se versionan. Ejecutar además `npm run audit:dependencies`
+con cargo-audit 0.22.2 instalado; los hallazgos retenidos siguen visibles.
+El gate de archivos públicos es heurístico, no garantiza ausencia universal de secretos.

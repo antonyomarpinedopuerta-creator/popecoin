@@ -32,7 +32,10 @@
     "check:rc": "python3 scripts/check-rc.py",
     "verify:reproducible": "python3 scripts/reproduce-release.py",
     "verify:rc": "python3 scripts/package-rc.py --verify-only",
-    "package:rc": "python3 scripts/package-rc.py"
+    "package:rc": "python3 scripts/package-rc.py",
+    "verify:package": "python3 scripts/package-rc.py --verify-archive",
+    "check:clean": "python3 scripts/check-clean.py",
+    "audit:dependencies": "python3 scripts/audit-dependencies.py"
   },
   "private": true,
   "engines": {

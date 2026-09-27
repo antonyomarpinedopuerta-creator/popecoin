@@ -12,7 +12,7 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 90
     env:
       NO_DNA: '1'
     steps:
@@ -28,6 +28,7 @@ jobs:
           sudo apt-get install -y libudev-dev pkg-config libssl-dev clang build-essential
           rustup toolchain install 1.89.0 --profile minimal --component clippy
           cargo install anchor-cli --version 1.1.2 --locked
+          cargo install cargo-audit --version 0.22.2 --locked
           curl --fail --location --retry 3 https://github.com/anza-xyz/agave/releases/download/v3.1.10/solana-release-x86_64-unknown-linux-gnu.tar.bz2 -o "$RUNNER_TEMP/solana.tar.bz2"
           # Digest from the official Agave v3.1.10 GitHub release asset metadata.
           echo "a7205ff29bcf0f7199740225ecae2b85a28ea9668892d5ec21bd9749882984a1  $RUNNER_TEMP/solana.tar.bz2" | sha256sum --check --strict
@@ -35,6 +36,15 @@ jobs:
           echo "$RUNNER_TEMP/solana-release/bin" >> "$GITHUB_PATH"
           npm install --global yarn@1.22.22
       - name: Install locked client dependencies
-        run: yarn install --frozen-lockfile --ignore-scripts
+        run: yarn install --frozen-lockfile --ignore-scripts --production=false
+      - name: Audit dependencies against documented findings
+        run: npm run audit:dependencies
       - name: Validate local release candidate and isolated Devnet build
         run: npm run check:rc
+      - name: Reproduce release with fresh build caches
+        run: npm run verify:reproducible
+      - name: Verify and package the clean candidate
+        run: |
+          npm run verify:rc
+          npm run package:rc
+          npm run verify:package

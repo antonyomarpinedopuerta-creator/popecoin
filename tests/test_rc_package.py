@@ -79,3 +79,40 @@ class RcPackageTests(unittest.TestCase):
         (self.root / 'linked').symlink_to(self.root / 'target', target_is_directory=True)
         with self.assertRaisesRegex(ValueError, 'Symlinks'):
             package.public_bytes(self.root, 'linked/rc-check.json')
+
+    def test_real_archive_and_sidecar_are_verified(self):
+        archive = package.bundle(self.root, package.verify(self.root))
+        digest = package.verify_archive(self.root, archive)
+        self.assertEqual(digest, hashlib.sha256(archive.read_bytes()).hexdigest())
+        archive.with_suffix('.sha256').write_text('invalid checksum\n')
+        with self.assertRaisesRegex(ValueError, 'sidecar mismatch'):
+            package.verify_archive(self.root, archive)
+
+    def test_archive_tampering_fails_even_with_recomputed_checksum(self):
+        import io
+        archive = package.bundle(self.root, package.verify(self.root))
+        with tarfile.open(archive) as original:
+            entries = [(member.name, original.extractfile(member).read()) for member in original]
+        for attack in ['content', 'extra', 'missing', 'duplicate', 'symlink', 'manifest']:
+            changed = list(entries)
+            if attack == 'content':
+                name, data = changed[0]
+                changed[0] = (name, bytes([data[0] ^ 1]) + data[1:])
+            if attack == 'extra': changed.append(('../outside', b'synthetic'))
+            if attack == 'missing': changed.pop()
+            if attack == 'duplicate': changed.append(changed[0])
+            if attack == 'manifest': changed = [(name, b'{}' if name == 'rc-manifest.json' else data) for name, data in changed]
+            with tarfile.open(archive, 'w:gz') as output:
+                for index, (name, data) in enumerate(changed):
+                    member = tarfile.TarInfo(name)
+                    if attack == 'symlink' and index == 0:
+                        member.type = tarfile.SYMTYPE
+                        member.linkname = '/does-not-exist'
+                        output.addfile(member)
+                    else:
+                        member.size = len(data)
+                        output.addfile(member, io.BytesIO(data))
+            digest = hashlib.sha256(archive.read_bytes()).hexdigest()
+            archive.with_suffix('.sha256').write_text(f'{digest}  {archive.name}\n')
+            with self.assertRaises(ValueError, msg=attack):
+                package.verify_archive(self.root, archive)

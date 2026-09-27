@@ -2,7 +2,7 @@
 
 This document records the verified Devnet state of the PAPA project before moving to Mainnet preparation.
 
-## Repository
+## Historical repository checkpoint
 
 - Checkpoint commit: `0923248488d11bd78d86b191f96022f2355d76a2`
 - Branch: `master`
@@ -172,3 +172,14 @@ are unchanged. The local candidate was not deployed.
 Metadata was independently read: name/symbol PAPA, mutable, with the historical
 GitHub raw metadata URI. This confirms Devnet metadata only; that mutable hosting
 is still unsuitable as the final durable production publication decision.
+
+## Latest readonly verification — 2026-09-27 11:20 UTC
+
+Slots 504763863/504763864: reserve/founder vaults hold respectively
+3000000000000/1000000000000 base units, released and claimable zero, shortfall
+zero, neither frozen. Supply remains 10000000000000, mint authority active,
+freeze authority absent. ProgramData at slot 504764027 still matches historical
+source 990cd9ed0126c81e178a7156ce1bf416c412d28b; deployed slot 499370833,
+upgrade authority active. No transactions were sent. The current RC has NOT
+been deployed. Current local counts are 47 Rust tests per identity, 26 TypeScript
+and 26 Python; earlier counts in this document describe historical checkpoints.
