@@ -34,13 +34,5 @@ jobs:
           npm install --global yarn@1.22.22
       - name: Install locked client dependencies
         run: yarn install --frozen-lockfile --ignore-scripts
-      - name: Compile and test release identity
-        run: npm run check
-      - name: Lint program
-        run: cargo clippy --locked --lib -- -D warnings
-      - name: Compile and test isolated Devnet identity
-        run: npm run build:devnet
-      - name: Verify Devnet build did not replace release artifacts
-        run: npm run verify:release
-      - name: Check whitespace
-        run: git diff --check
+      - name: Validate local release candidate and isolated Devnet build
+        run: npm run check:rc

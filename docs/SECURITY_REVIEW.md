@@ -381,3 +381,16 @@ Malformed HTTP request targets return controlled errors. No signing UI was added
 See DEPENDENCY_REVIEW.md for the native bigint-buffer mitigation and outstanding
 upstream advisories. ProgramData read-only verification on 2026-09-26 matches the
 historical executable hash, not this local candidate. No deployment was performed.
+
+## 16. Recovery and RC evidence hardening — 2026-09-26
+
+The recovered working tree was already committed at bc319b1. Release validation
+now rejects incomplete input/output hash sets, added Rust sources and malformed
+hashes. Devnet mint decoding additionally rejects noncanonical initialization and
+COption flags before presenting data. The combined RC command passes 41 Rust
+tests per identity, 23 client tests and nine Python runner tests, plus TypeScript,
+Anchor IDL generation and Clippy. The runner invalidates stale success before Git
+inspection, rejects concurrent runs and changed public inputs, and stops its child
+process group on SIGTERM/SIGINT. Real SIGTERM behavior is tested with a synthetic
+child; no wallets or network transactions are involved. Abrupt power loss cannot
+be reported as a completed run. This evidence remains local and is not an audit.

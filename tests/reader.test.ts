@@ -80,3 +80,23 @@ test("reader rejects malformed classic SPL and unexpected vault powers", async (
     await assert.rejects(readVesting(f.beneficiary, f.connection), /./, attack);
   }
 });
+
+test("reader rejects noncanonical mint flags from RPC", async () => {
+  for (const offset of [0, 46]) {
+    for (const invalid of [2, 255, 256, 0xffffffff]) {
+      const f = await fixture();
+      f.values[2].data.writeUInt32LE(invalid, offset);
+      await assert.rejects(readVesting(f.beneficiary, f.connection), /Invalid classic SPL account/);
+    }
+  }
+  for (const invalid of [2, 255]) {
+    const f = await fixture(); f.values[2].data[45] = invalid;
+    await assert.rejects(readVesting(f.beneficiary, f.connection), /Invalid classic SPL account/);
+  }
+  const f = await fixture();
+  f.values[2].data.writeUInt32LE(1, 0);
+  f.values[2].data.writeUInt32LE(1, 46);
+  const result = await readVesting(f.beneficiary, f.connection);
+  assert.equal(result.mintAuthorityActive, true);
+  assert.equal(result.freezeAuthorityActive, true);
+});

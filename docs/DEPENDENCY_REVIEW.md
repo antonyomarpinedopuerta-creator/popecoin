@@ -52,3 +52,12 @@ cargo audit --json
 Nonzero Yarn audit status remains expected while advisories exist; never label
 this dependency tree “zero vulnerabilities”. CI build checks do not substitute
 for refreshed registry audits and human review before a release.
+
+## Recovery refresh — 2026-09-26
+
+Re-ran Yarn registry audit: one high finding for bigint-buffer and three moderate
+paths for stream-json, matching the triage above. Verified the vendored JavaScript
+SHA-256 against its README. Reinstalled cargo-audit 0.22.2 under `/tmp` after the
+shutdown; a refreshed audit against the same RustSec database commit reports
+zero vulnerabilities, the same five unmaintained warnings and RUSTSEC-2026-0097.
+No dependency versions or lockfiles were changed during recovery.

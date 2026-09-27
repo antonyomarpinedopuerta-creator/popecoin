@@ -70,3 +70,17 @@ Su primera ejecución remota queda pendiente; los comandos se verifican localmen
 Revisar [dependencias](docs/DEPENDENCY_REVIEW.md), incluida la implementación
 JavaScript de bigint-buffer vendorizada. Instalar con Yarn: npm no respeta estas
 resolutions. Los avisos de auditoría pendientes no se silencian.
+
+### Combined local release-candidate gate
+
+Run `npm run check:rc` to build/test the release identity, run Clippy, build/test
+Devnet in its isolated workspace, recheck release hashes and check whitespace.
+CI uses this same command. It writes `target/rc-check.json` with each exit status,
+the starting Git revision/dirty flag, tool versions, public input hashes and hashes
+of explicitly selected public artifacts. Concurrent runners are rejected and source
+changes during the run invalidate its result. A previous report is marked incomplete before any checks begin; a
+failed command stops the sequence and records failure. SIGINT/SIGTERM stop the
+child process group and mark the run interrupted; forced termination leaves an
+incomplete report. Interrupted runs are not successful evidence. The report is local evidence, not independent attestation
+or production approval. It neither reads keys nor performs network transactions;
+build tools may download dependencies. Dependency audits remain a separate gate.

@@ -154,3 +154,9 @@ bytes are zero padding. SHA-256 including padding:
 Reproduce using `npm run devnet:snapshot` and `npm run devnet:program`. These are
 network reads only. No current local changes were deployed; this record does not
 certify production readiness or the current holder of any signing key.
+
+## Recovery revalidation — 2026-09-26
+
+Read-only snapshot at 2026-09-26T14:07:24.439Z: reserve and founder were observed at slot 504433172, with full scheduled balances, zero released, zero shortfall and neither vault frozen. This covers these two positions only.
+
+Program inspection at 2026-09-26T14:15:56.981Z (slot 504435395) still matches the historical executable plus zero padding. The local candidate remains undeployed. No transactions were sent.

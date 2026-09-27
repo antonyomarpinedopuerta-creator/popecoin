@@ -46,7 +46,9 @@ export async function readVesting(beneficiary: PublicKey, connection = createDev
   }
   if (!vaultInfo || !mintInfo || vaultInfo.executable || mintInfo.executable ||
       vaultInfo.data.length !== AccountLayout.span || mintInfo.data.length !== MintLayout.span ||
-      ![1, 2].includes(vaultInfo.data[108])) throw new Error("Invalid classic SPL account");
+      ![1, 2].includes(vaultInfo.data[108]) || mintInfo.data[45] !== 1 ||
+      ![0, 1].includes(mintInfo.data.readUInt32LE(0)) ||
+      ![0, 1].includes(mintInfo.data.readUInt32LE(46))) throw new Error("Invalid classic SPL account");
   const token = unpackAccount(vault, vaultInfo);
   const mint = unpackMint(DEVNET_MINT, mintInfo);
   if (!token.owner.equals(vesting) || !token.mint.equals(DEVNET_MINT) || !token.isInitialized ||

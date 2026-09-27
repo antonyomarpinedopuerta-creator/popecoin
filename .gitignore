@@ -18,3 +18,7 @@ test-ledger
 .env.*
 !.env.example
 *.pem
+
+# Python verification cache
+__pycache__/
+*.pyc

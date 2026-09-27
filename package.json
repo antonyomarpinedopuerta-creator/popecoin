@@ -27,7 +27,8 @@
     "build:devnet": "python3 scripts/build-devnet.py",
     "devnet:snapshot": "ts-node scripts/devnet-snapshot.ts",
     "plan:production": "ts-node scripts/production-plan.ts",
-    "devnet:program": "ts-node scripts/devnet-program.ts"
+    "devnet:program": "ts-node scripts/devnet-program.ts",
+    "check:rc": "python3 scripts/check-rc.py"
   },
   "private": true,
   "engines": {

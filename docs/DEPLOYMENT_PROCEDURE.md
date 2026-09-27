@@ -153,3 +153,16 @@ The scripts access only public build inputs/artifacts; do not inspect generated
 keypair files as part of these checks. Historical custody claims in this document
 were not revalidated in this session. Deployment and production custody review
 remain separate, explicitly authorized operator tasks.
+
+## Local RC preparation after recovery
+
+Run `npm run check:rc` before considering a release. This single gate builds and
+tests both isolated identities, runs TypeScript/client tests, Python fault tests,
+Clippy and final release verification. Review `target/rc-check.json`: only a
+`passed` report is successful evidence, and its Git revision, dirty flag, source
+hashes and tool versions must describe the candidate under review. A dirty-tree
+run is development evidence, not a frozen release. Do not run builds or edit source
+concurrently. Never archive target/deploy wholesale; it may contain keypairs.
+The runner hashes only explicitly named public artifacts. No command here deploys,
+changes authorities or authorizes production. Registry audits remain a separate
+review, including the documented outstanding JavaScript advisories.

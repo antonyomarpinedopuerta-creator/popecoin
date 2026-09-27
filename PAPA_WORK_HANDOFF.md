@@ -15,7 +15,7 @@ Las secciones históricas inferiores describen la primera revisión, no el estad
   Son **41 pruebas Rust por identidad** (31 integración, 1 carga, 9 cálculo).
 - Verificador de release endurecido: exige el conjunto completo de inputs/outputs,
   detecta nuevos fuentes Rust, hashes inválidos, omisiones y rutas adicionales.
-  **22 pruebas cliente** pasan; TypeScript y `git diff --check` pasan.
+  **23 pruebas cliente** pasan; TypeScript y `git diff --check` pasan.
 - Lectura Devnet de reserva/fundador realizada correctamente; no se firmó ni envió
   ninguna transacción. Reporte temporal: `/tmp/papa-devnet-snapshot-current.json`.
 - Inspección de 76 archivos versionados sin coincidencias de nombres sensibles,
@@ -24,6 +24,32 @@ Las secciones históricas inferiores describen la primera revisión, no el estad
   No se abrieron wallets, archivos de claves ni configuración personal.
 - Hash release: `1c3b71a2b792fa986b2a9264861d2bc58654e85370f2bb348cea4dcccaff8492`.
 - Hash Devnet local: `e2afff5bdf90e1879ef08d8fd5bec4a84b14891b23e12617eb86e4e53b7b93fb`.
+
+### Segunda tanda después del commit de recuperación `6268277`
+
+El lector rechaza indicadores SPL no canónicos del mint antes de decodificar;
+regresiones cubren ambos COption y el byte de inicialización, además del caso válido.
+`npm run check` completo vuelve a pasar. Checkpoint remoto actualizado en
+`docs/DEVNET_CHECKPOINT.md`; ProgramData mantiene correspondencia histórica.
+Yarn audit refrescado: 1 hallazgo alto y 3 rutas moderadas, los mismos dos avisos
+ya documentados; no se declara el árbol libre de vulnerabilidades.
+
+### Tercera tanda: gate RC y auditorías
+
+`npm run check:rc` reúne tests Python del runner, build/tests release, Clippy,
+build/tests Devnet aislado, verificación final de release y whitespace. CI usa el
+mismo comando. `target/rc-check.json` registra resultados y hashes de seis archivos
+públicos explícitos; nunca copia directorios de despliegue ni claves. Nueve tests
+comprueban fallos/interrupciones en cada gate, SIGTERM real y cierre del hijo,
+exclusión concurrente, fuentes cambiadas, artefactos ausentes y symlinks.
+El runner invalida el éxito previo antes de Git, registra versiones de herramientas
+y hashes de fuentes y rechaza cambios durante la ejecución.
+El informe no es una atestación independiente y registra si el árbol estaba sucio.
+
+Cargo-audit 0.22.2 reinstalado solo en `/tmp`: base actualizada al commit
+`e2111519ba6d14a5da59a7b2e5c8083ae8a37c01`, cero vulnerabilidades, cinco advertencias
+unmaintained y RUSTSEC-2026-0097 sin cambio respecto a la revisión documentada.
+El hash del vendor JS fue recomprobado y coincide con su README.
 
 ### Continuación
 
@@ -42,7 +68,7 @@ No hay autorización para Mainnet, despliegues, fondos reales ni cambios de auto
 
 Actualizado: 2026-09-26. Revisión local desde `d5c2998` (árbol inicialmente limpio).
 
-## Estado actual
+## Estado histórico (superado por las tandas anteriores)
 
 Contrato funcional y candidato local fortalecido para revisión técnica. **No listo
 para lanzamiento**: quedan los requisitos de producción descritos abajo. Se revisaron
