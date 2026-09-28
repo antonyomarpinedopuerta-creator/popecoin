@@ -12,7 +12,7 @@ los registros históricos anteriores permanecen en Git.
   versiones de herramientas y lectura Devnet estricta.
 - Continuación: reconstrucción aislada, verificación/empaquetado público del RC,
   nuevas regresiones SBF, SIGKILL real y checksum oficial de Agave en CI.
-- No se descartó trabajo, no se publicó ni desplegó ningún cambio.
+- No se descartó trabajo. Se publicó hasta c556eef en origin/master; no se desplegó ningún programa.
 
 ## Estado y arquitectura
 
@@ -62,7 +62,7 @@ npm run audit:dependencies
 - Evidencia local ignorada por Git: target/rc-check.json,
   target/reproducibility.json y target/rc/papa-<commit>.tar.gz con SHA-256.
 - CI usa check:rc y fija el checksum oficial del tarball Agave antes de extraerlo.
-  La ejecución hospedada de GitHub Actions no se ha disparado desde esta sesión.
+  El run hospedado 36384418193 falló al instalar Anchor; diagnóstico al final.
 
 Hashes conocidos:
 
@@ -177,5 +177,14 @@ usarlas; una ejecución incompleta/fallida no acredita el candidato. La publicac
 duradera, auditoría independiente, firmas para el ensayo Devnet y decisiones de
 custodia/parámetros definitivos siguen pendientes externos.
 
-Instrucción más reciente: terminar esta tanda, guardar los cambios válidos, hacer
-push a origin master y detener el desarrollo después del push.
+Instrucción vigente: corregir CI hospedado, publicar y comprobar los nuevos runs;
+continuar con pendientes técnicos seguros cuando CI esté verde.
+
+## Corrección de CI hospedado — run 36384418193
+
+HEAD probado c556eeff170b830a003d2f4bb924b44a856e3bf1. Ambos jobs fallaron
+antes de las pruebas al compilar anchor-cli 1.1.2: cargo-platform 0.3.3 exige
+rustc 1.91, mientras el override del repositorio activaba 1.89.0. La instalación
+ahora selecciona explícitamente cargo +1.91.0 para Anchor y cargo-audit. El
+programa, tests, Clippy y SBF conservan 1.89.0; no se cambia el lockfile ni el ABI.
+Las pruebas locales no sustituyen la comprobación del siguiente run hospedado.
