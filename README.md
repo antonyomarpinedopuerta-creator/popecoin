@@ -122,3 +122,8 @@ Para revisión independiente: [alcance y evidencias](docs/INDEPENDENT_AUDIT.md) 
 `npm run rehearse:devnet` solo consultan datos públicos. `npm run prepare:audit`
 exige evidencias exitosas del mismo HEAD y genera un expediente con hashes, sin
 aprobar lanzamiento ni sustituir la auditoría externa.
+
+Después de un CI hospedado exitoso del HEAD local, ejecutar
+`npm run collect:ci -- <run-id>` antes de `npm run prepare:audit`. Se comprueban
+los dos paquetes hospedados y sus seis artefactos contra el RC local. La instalación
+de herramientas host usa Rust 1.91.0; el programa conserva Rust 1.89.0.

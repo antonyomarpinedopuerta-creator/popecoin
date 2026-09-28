@@ -51,5 +51,5 @@ binary = output / 'popecoin_vesting.so'
 record = {'cluster': 'devnet', 'programId': devnet_id, 'binary': str(binary.relative_to(root)),
           'sha256': hashlib.sha256(binary.read_bytes()).hexdigest(), 'sourceHashes': source_hashes,
           'validation': 'cargo build-sbf --locked and cargo test --locked passed; not deployed'}
-(workspace / 'build-record.json').write_text(json.dumps(record, indent=2) + '\n')
+(workspace / 'build-record.json').write_text(json.dumps(record, indent=2, sort_keys=True) + '\n')
 print(json.dumps({k:v for k,v in record.items() if k != 'sourceHashes'}, indent=2))

@@ -70,7 +70,7 @@ def main():
         repro = load('reproduce-release.py')
         expected = repro.hashes(root, repro.OUTPUTS)
         repro.compare(expected, repro.hashes(source, repro.OUTPUTS))
-        devnet = ['target/devnet-workspace/target/deploy/popecoin_vesting.so']
+        devnet = ['target/devnet-workspace/target/deploy/popecoin_vesting.so', 'target/devnet-workspace/build-record.json']
         if repro.hashes(root, devnet) != repro.hashes(source, devnet):
             raise ValueError('Clean export Devnet binary differs')
         if subprocess.check_output(['git', 'status', '--porcelain'], cwd=root) or subprocess.check_output(

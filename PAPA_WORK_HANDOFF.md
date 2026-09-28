@@ -44,7 +44,7 @@ npm run audit:dependencies
   Clippy sobre todos los targets, build/tests Devnet aislado y verificación final de release.
 - **47 tests Rust por identidad**: 36 integración SBF, 1 carga y 10 cálculo.
 - **28 tests TypeScript**: cliente, lector, servidor, planificación, ProgramData,
-  vendor y registro de build. **32 tests Python**: RC, reproducción y paquete.
+  vendor y registro de build. **35 tests Python**: RC, reproducción y paquete.
 - Fallos/interrupciones en cada gate, SIGTERM real con cierre del hijo, SIGKILL
   real dejando evidencia incompleta, concurrencia, fuentes cambiadas, symlinks,
   artefactos ausentes, informes incompletos y paquete determinista cubiertos.
@@ -144,7 +144,7 @@ El programa y sus binarios no cambiaron. Se añadieron controles de archivos pú
 verificación del tar sin extracción (inventario, hashes, duplicados, symlinks y
 traversal), y auditorías que rechazan hallazgos nuevos sin ocultar los retenidos.
 CI ejecuta auditorías, los ocho gates RC, reproducción y verificación del paquete;
-su ejecución hospedada sigue pendiente. check:clean exige HEAD limpio, exporta solo
+el run 36441044629 pasó en ambas réplicas y en compare. check:clean exige HEAD limpio, exporta solo
 Git, instala con caché Yarn nueva y reconstruye/prueba ambas identidades sin outputs
 heredados. Comparte toolchains instaladas y caché de registros Cargo: no es hermético.
 Evidencia de ejecución actual en target/clean-check.json, target/rc-check.json,
@@ -188,3 +188,20 @@ rustc 1.91, mientras el override del repositorio activaba 1.89.0. La instalació
 ahora selecciona explícitamente cargo +1.91.0 para Anchor y cargo-audit. El
 programa, tests, Clippy y SBF conservan 1.89.0; no se cambia el lockfile ni el ABI.
 Las pruebas locales no sustituyen la comprobación del siguiente run hospedado.
+
+## CI verde y evidencia cruzada
+
+El run 36441044629 de f96ebfe5246bebc618abd9a7acf49f666c60865e pasó los tres
+jobs. La comparación local de sus artefactos confirmó binarios/IDL/tipos idénticos,
+pero detectó orden variable de claves en el registro JSON Devnet (contenido igual,
+bytes distintos). Se canoniza ese registro con sort_keys y se añade regresión con
+orden de creación de archivos invertido. check:clean ahora compara también ese
+registro, no solo el binario Devnet.
+
+`npm run collect:ci -- <run-id>` requiere un RC local limpio y consulta la identidad,
+HEAD, workflow y éxito de los tres jobs. Descarga únicamente las tres evidencias
+públicas esperadas y verifica inventario, hashes/manifiesto de ambos tar sin extraer,
+comparación hospedada y correspondencia de los seis artefactos con el RC local.
+`prepare:audit` exige ahora target/hosted-ci.json del mismo HEAD; ya no declara
+CI pendiente cuando existe esa evidencia verificada. Tras publicar esta tanda se
+debe validar su propio run; el éxito de f96ebfe no acredita un commit posterior.

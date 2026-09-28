@@ -31,11 +31,15 @@ def main():
     archive_sha = package.verify_archive(root, archive)
     evidence = {}
     for name, status in [('clean-check', 'passed'), ('metadata-local', 'passed'), ('metadata-remote', 'passed'),
-                         ('devnet-rehearsal', 'passed'), ('dependency-audit', 'reviewed-findings-only')]:
+                         ('devnet-rehearsal', 'passed'), ('hosted-ci', 'passed'), ('dependency-audit', 'reviewed-findings-only')]:
         path = root / f'target/{name}.json'
         raw = package.public_bytes(root, path.relative_to(root).as_posix())
         value = json.loads(raw)
         validate_evidence(value, head, status)
+        if name == 'hosted-ci':
+            load('collect-ci.py').validate_run(value['run'], head, value['run']['databaseId'])
+            if value['comparison']['sourceHashes'] != rc['sourceHashes'] or value['comparison']['artifactHashes'] != rc['artifacts']:
+                raise ValueError('Hosted CI evidence differs from current candidate')
         if name == 'clean-check' and value.get('sourceHashes') != rc['sourceHashes']:
             raise ValueError('Clean installation sources differ')
         evidence[name] = {'sha256': hashlib.sha256(raw).hexdigest(), 'report': value}
@@ -44,7 +48,7 @@ def main():
     report = {'status': 'prepared-for-independent-review', 'head': head, 'observedAt': datetime.now(timezone.utc).isoformat(),
               'archive': str(archive.relative_to(root)), 'archiveSha256': archive_sha, 'evidence': evidence,
               'scopeDocument': 'docs/INDEPENDENT_AUDIT.md',
-              'unfulfilled': ['Independent security audit', 'Hosted CI run and cross-runner comparison',
+              'unfulfilled': ['Independent security audit',
                              'Signed Devnet deployment and lifecycle for this candidate', 'Production parameters and custody approval'],
               'warning': 'Integrity links are not signatures or independent verification. No production authorization.'}
     temporary = output.with_suffix('.tmp')

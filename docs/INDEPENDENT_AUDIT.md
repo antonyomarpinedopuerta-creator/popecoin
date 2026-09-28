@@ -38,7 +38,7 @@ boundary. Internal tests cannot establish custody ownership or audit key backups
 Install the pinned tools described in README and use Yarn frozen-lockfile with
 ignore-scripts. Run check:rc, verify:reproducible, check:clean, audit:dependencies,
 check:metadata:remote and rehearse:devnet on a clean HEAD, then package:rc,
-verify:package and prepare:audit. Remote commands are reads only and may fail on
+verify:package, `collect:ci -- <successful-run-id>` and prepare:audit. Remote commands are reads only and may fail on
 network availability or changed chain state; a failure is never a release pass.
 
 `audit-review.json` embeds the checked reports and their hashes, including readonly
@@ -49,7 +49,7 @@ channel. Review the CI run identity and permissions, not merely its green badge.
 
 CI uses two separate ubuntu-24.04 runners and compares all six artifact hashes and
 full source inventories. These runners share a platform/toolchain design; this
-is not diverse-compilation proof. CI execution is pending until hosted. The two
+is not diverse-compilation proof. Run 36441044629 passed for f96ebfe; later commits require their own successful run. The two
 artifact actions are pinned to upstream commits for
 [upload v4.6.2](https://github.com/actions/upload-artifact/releases/tag/v4.6.2) and
 [download v4.3.0](https://github.com/actions/download-artifact/releases/tag/v4.3.0).
@@ -64,3 +64,13 @@ allowlist substitutes for acceptance. Rebuild and re-review the final fixed comm
 External deliverables: signed/attributable audit report, verified candidate deployment
 rehearsal, approved authorities and custody plan, definitive mint/date/durable URIs,
 and explicit launch authorization. No release is authorized by this document.
+
+## Hosted evidence acceptance
+
+`collect:ci` checks the GitHub run repository, commit, workflow, event and all jobs;
+it downloads the three named public artifacts, checks both tar inventories and
+hashes without extraction and compares all six artifacts with the local candidate.
+The dossier requires this evidence for its exact HEAD. Different Python versions
+can change informational version strings in manifests; build artifacts and source
+inventories must still match byte-for-byte. Both runners use the same toolchain;
+this remains a reproducibility check, not an independent audit opinion.
