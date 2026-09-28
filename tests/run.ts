@@ -10,3 +10,5 @@ import "./devnet-program.test";
 import "./build-record.test";
 
 import "./dependencies.test";
+
+import "./metadata.test";

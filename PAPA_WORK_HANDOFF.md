@@ -1,7 +1,6 @@
 # PAPA — handoff técnico actual
 
-Actualizado en la continuación del 26 de septiembre de 2026 (últimas lecturas
-remotas del 27 de septiembre UTC). Este documento describe el árbol actual;
+Actualizado en la continuación del 28 de septiembre de 2026. Este documento describe el árbol actual;
 los registros históricos anteriores permanecen en Git.
 
 ## Recuperación y commits
@@ -44,8 +43,8 @@ npm run audit:dependencies
 - check:rc: tests Python, build SBF y Anchor IDL, Rust, TypeScript/clientes,
   Clippy sobre todos los targets, build/tests Devnet aislado y verificación final de release.
 - **47 tests Rust por identidad**: 36 integración SBF, 1 carga y 10 cálculo.
-- **26 tests TypeScript**: cliente, lector, servidor, planificación, ProgramData,
-  vendor y registro de build. **26 tests Python**: RC, reproducción y paquete.
+- **28 tests TypeScript**: cliente, lector, servidor, planificación, ProgramData,
+  vendor y registro de build. **32 tests Python**: RC, reproducción y paquete.
 - Fallos/interrupciones en cada gate, SIGTERM real con cierre del hijo, SIGKILL
   real dejando evidencia incompleta, concurrencia, fuentes cambiadas, symlinks,
   artefactos ausentes, informes incompletos y paquete determinista cubiertos.
@@ -144,7 +143,7 @@ Commits d08da32 y 566068a: peer UTF-8 corregido, regresiones de overrides,
 El programa y sus binarios no cambiaron. Se añadieron controles de archivos públicos,
 verificación del tar sin extracción (inventario, hashes, duplicados, symlinks y
 traversal), y auditorías que rechazan hallazgos nuevos sin ocultar los retenidos.
-CI ejecuta auditorías, los siete gates RC, reproducción y verificación del paquete;
+CI ejecuta auditorías, los ocho gates RC, reproducción y verificación del paquete;
 su ejecución hospedada sigue pendiente. check:clean exige HEAD limpio, exporta solo
 Git, instala con caché Yarn nueva y reconstruye/prueba ambas identidades sin outputs
 heredados. Comparte toolchains instaladas y caché de registros Cargo: no es hermético.
@@ -152,3 +151,31 @@ Evidencia de ejecución actual en target/clean-check.json, target/rc-check.json,
 target/dependency-audit.json y target/reproducibility.json; solo status passed
 (o reviewed-findings-only para auditoría) constituye éxito. No usar informes viejos
 como evidencia de un HEAD posterior. El paquete final incluye el HEAD en su nombre.
+
+## Tanda actual: metadata, CI y preparación de auditoría
+
+Se conserva el RC f6470b4 anterior y su reconstrucción limpia verificada. La tanda
+actual añade validación estricta de metadata local/remota (branding y disclaimer
+exactos, PNG fijado por hash, límites de tamaño, URLs públicas fijas, sin redirects),
+y valida owner/PDA/mint/discriminador/URI de la metadata on-chain.
+
+CI compila en dos runners separados, conserva únicamente el paquete y los informes
+públicos enumerados y compara sus inventarios y seis hashes de artefactos. La prueba
+local del comparador no demuestra ejecución hospedada; revisar Actions después del
+push. No se añaden permisos de escritura ni acceso a wallets al workflow.
+
+`npm run rehearse:devnet` verifica app HTTP -> cuentas Devnet y ProgramData/metadata
+sin firmas. Es lectura del despliegue histórico, NO ensayo firmado del candidato.
+`npm run prepare:audit` reúne el RC y los informes exitosos del mismo HEAD con hashes
+para revisión independiente; no emite aprobación de seguridad. Procedimientos:
+docs/INDEPENDENT_AUDIT.md y docs/DEVNET_REHEARSAL.md.
+
+Evidencias: target/metadata-local.json, target/metadata-remote.json,
+target/devnet-rehearsal.json y target/audit-review.json, además de los informes RC,
+reproducción, instalación limpia y dependencias. Comprobar status y HEAD antes de
+usarlas; una ejecución incompleta/fallida no acredita el candidato. La publicación
+duradera, auditoría independiente, firmas para el ensayo Devnet y decisiones de
+custodia/parámetros definitivos siguen pendientes externos.
+
+Instrucción más reciente: terminar esta tanda, guardar los cambios válidos, hacer
+push a origin master y detener el desarrollo después del push.

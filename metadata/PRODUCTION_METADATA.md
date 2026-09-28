@@ -25,3 +25,12 @@ Production metadata URI: PENDING
 Production image URI: PENDING
 
 No Mainnet metadata transaction is authorized by this document.
+
+## Automated checks
+
+`npm run check:metadata` verifies exact local branding/disclaimer, rejects duplicate
+JSON keys and pins PNG bytes/dimensions. `npm run check:metadata:remote` verifies
+only the fixed public Devnet URLs with no redirects and bounded downloads. Reports
+are under target/metadata-{local,remote}.json. The on-chain reader additionally
+checks owner, PDA, mint, discriminator and URI. None of these checks establishes
+production hosting permanence; final content-addressed URIs remain pending.

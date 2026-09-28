@@ -35,7 +35,11 @@
     "package:rc": "python3 scripts/package-rc.py",
     "verify:package": "python3 scripts/package-rc.py --verify-archive",
     "check:clean": "python3 scripts/check-clean.py",
-    "audit:dependencies": "python3 scripts/audit-dependencies.py"
+    "audit:dependencies": "python3 scripts/audit-dependencies.py",
+    "check:metadata": "python3 scripts/check-metadata.py",
+    "check:metadata:remote": "python3 scripts/check-metadata.py --remote",
+    "rehearse:devnet": "ts-node scripts/rehearse-devnet.ts",
+    "prepare:audit": "python3 scripts/prepare-audit.py"
   },
   "private": true,
   "engines": {

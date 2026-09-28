@@ -116,3 +116,9 @@ Cargo instaladas. No ejecuta transacciones ni usa wallets. Los informes están
 bajo target/ y no se versionan. Ejecutar además `npm run audit:dependencies`
 con cargo-audit 0.22.2 instalado; los hallazgos retenidos siguen visibles.
 El gate de archivos públicos es heurístico, no garantiza ausencia universal de secretos.
+
+Para revisión independiente: [alcance y evidencias](docs/INDEPENDENT_AUDIT.md) y
+[ensayo Devnet](docs/DEVNET_REHEARSAL.md). `npm run check:metadata:remote` y
+`npm run rehearse:devnet` solo consultan datos públicos. `npm run prepare:audit`
+exige evidencias exitosas del mismo HEAD y genera un expediente con hashes, sin
+aprobar lanzamiento ni sustituir la auditoría externa.
