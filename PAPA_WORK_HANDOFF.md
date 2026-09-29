@@ -264,3 +264,41 @@ Reejecutados únicamente los 3 tests de rehearsal, tsc --noEmit y la comprobaci�
 automatizada de plantilla null/error CLI esperado; todos pasan. Sin builds pesados.
 La publicación en master está autorizada por el usuario; el resultado del nuevo
 workflow debe verificarse contra el SHA del commit publicado.
+
+## Rehearsal build sin claves — siguiente tanda
+
+- **IMPLEMENTED:** `npm run build:rehearsal -- --program-id <ID público>` prepara
+  una copia nueva y `--build --platform-tools <directorio instalado>` compila offline
+  con Cargo SBF directo y llvm-objcopy. No usa cargo build-sbf, Anchor, wallets ni
+  tests VM con signers. Falta de ID/identidades protegidas fallan antes de copiar.
+  `--verify <workspace>` verifica fuentes, IDL adaptado, ELF, identidad y hashes;
+  manifiestos incompletos/fallidos no pasan. La documentación detalla sus límites.
+- **SECURITY FINDINGS:** Agave 3.1.10 build-sbf genera un keypair si falta: se evitó
+  por completo en la ruta nueva. Root Anchor.toml conserva wallet por defecto y
+  direcciones históricas/de release; no se copia ni usa en esta ruta. Los siete
+  mutadores históricos cargaban claves al arrancar: ahora requieren opt-in explícito
+  antes de esa lectura y comprueban programa/mint/genesis antes de operar. Siguen
+  siendo herramientas legacy con signers JSON, no integración wallet para rehearsal.
+  Un ID público o genesis RPC no demuestra custodia exclusiva ni atestación independiente.
+- **TESTED:** 10 regresiones Python del builder y guardas de scripts; 1 regresión
+  del build histórico; 8 tests TypeScript del cliente histórico; 3 del rehearsal;
+  tsc --noEmit, check-public y diff check. Compilación local única con fixture público
+  fijo (sin identidad/keypair creado), platform-tools v1.52, completada en 1m15s.
+  SHA-256 ELF: e932987ffdb686dcffd3563ca2bbccdfcf51dc89debefb6d6cb046e5f5bf7ecb.
+  Manifiesto: 9f78de101708a4895aa1bb6d23f0cdef8ddd71898e95e12a76b5117dbc1f2be5.
+  Evidencia ignorada: target/rehearsal-builds/YMN9Qj5jPNp7j14VPcML1B6xGgcPWVZUGLFU3Mnyfaf-w76xispf.
+  Verificación local pasó y no hay archivos keypair en ese workspace. El resultado
+  se marca built-not-runtime-verified, nunca como deployment/ensayo firmado.
+- **EXTERNALLY VERIFIED:** al revisar esta tanda, el run 36537577277 de 88557dc
+  seguía en progreso. Su resultado no acredita estas nuevas ediciones; comprobar
+  el run del nuevo commit después del push. No se repitieron RC/reproducción/clean.
+- **PENDING:** ID/mint y autoridades públicas aprobados; build para ese ID real,
+  revisión independiente/runtime y ProgramData desplegado; integración wallet y
+  aprobaciones humanas separadas. La plantilla rehearsal sigue null. No se crearon
+  identidades, mints ni cuentas; no hubo despliegue, wallet, simulación, firma,
+  envío, uso de SOL ni operaciones Mainnet.
+
+Procedimiento y límites completos: docs/REHEARSAL_BUILD.md. El manifiesto no es una
+atestación independiente y el IDL se adapta desde evidencia del build release, no
+se genera de nuevo. Los compiladores, caché y configuración Cargo local deben ser
+confiables. El nuevo binario no está agregado al paquete RC histórico automáticamente.

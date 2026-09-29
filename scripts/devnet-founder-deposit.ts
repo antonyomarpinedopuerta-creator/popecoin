@@ -1,4 +1,4 @@
-import { devnetIdl, loadDevnetKeypair, remainingDepositAmount } from "./devnet-config";
+import { assertHistoricalDevnet, devnetIdl, loadDevnetKeypair, remainingDepositAmount } from "./devnet-config";
 import * as anchor from "@coral-xyz/anchor";
 import { PublicKey } from "@solana/web3.js";
 import {
@@ -49,6 +49,7 @@ const [vault] = PublicKey.findProgramAddressSync(
 );
 
 async function main() {
+  await assertHistoricalDevnet(connection, program.programId, mint);
   const authorityTokenAccount = await getAssociatedTokenAddress(
     mint,
     beneficiary.publicKey

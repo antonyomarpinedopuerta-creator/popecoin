@@ -59,7 +59,8 @@ Existing dedicated test identities can instead be proposed for review.
 
 `npm run build:devnet` currently builds the historical Devnet identity, NOT the new
 rehearsal target. Once a public isolated program ID is approved, prepare and review
-a separate build for that ID, with source changes and binary/IDL hashes recorded.
+a separate build for that ID using [the offline rehearsal builder](REHEARSAL_BUILD.md),
+with source changes and binary/IDL hashes recorded.
 Do not deploy either existing binary as the isolated candidate. Changing the IDL
 address alone does not change the executable's embedded identity.
 

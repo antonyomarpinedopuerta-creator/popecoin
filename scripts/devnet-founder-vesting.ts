@@ -1,4 +1,4 @@
-import { devnetIdl, loadDevnetKeypair } from "./devnet-config";
+import { assertHistoricalDevnet, devnetIdl, loadDevnetKeypair } from "./devnet-config";
 import * as anchor from "@coral-xyz/anchor";
 import { PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
@@ -44,6 +44,7 @@ const [vault] = PublicKey.findProgramAddressSync(
 // Do not reuse as a Mainnet deployment script without explicit fixed timestamps
 // and a final verification of beneficiary, mint, amount and authorities.
 async function main() {
+  await assertHistoricalDevnet(connection, program.programId, mint);
   const now = Math.floor(Date.now() / 1000);
 
   // Scheduled allocation: 1,000,000 PAPA, 6 decimals

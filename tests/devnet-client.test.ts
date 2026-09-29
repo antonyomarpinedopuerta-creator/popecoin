@@ -3,7 +3,7 @@ import test from "node:test";
 import { BN, Idl, Program } from "@coral-xyz/anchor";
 import { Connection, PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { devnetIdl, DEVNET_PROGRAM_ID, DEVNET_MINT, loadDevnetKeypair, remainingDepositAmount } from "../scripts/devnet-config";
+import { devnetIdl, DEVNET_PROGRAM_ID, DEVNET_MINT, loadDevnetKeypair, remainingDepositAmount, requireHistoricalDevnetOptIn, assertHistoricalDevnet } from "../scripts/devnet-config";
 
 const idl: Idl = require("../target/idl/popecoin_vesting.json");
 const beneficiary = new PublicKey("HnXgMRPyukmJCXRoi5vF9YZNuBmbuTa2csiVmKYTfRHa");
@@ -45,9 +45,15 @@ test("generated IDL encodes deposit and release offline", async () => {
 
 test("missing explicit Devnet signer fails before reading a default wallet", () => {
   const original = process.env.PAPA_DEVNET_PAYER_KEYPAIR;
+  const optIn = process.env.PAPA_ALLOW_HISTORICAL_DEVNET;
+  process.env.PAPA_ALLOW_HISTORICAL_DEVNET = DEVNET_PROGRAM_ID.toBase58();
   delete process.env.PAPA_DEVNET_PAYER_KEYPAIR;
   try { assert.throws(() => loadDevnetKeypair("PAYER"), /Set PAPA_DEVNET_PAYER_KEYPAIR/); }
-  finally { if (original !== undefined) process.env.PAPA_DEVNET_PAYER_KEYPAIR = original; }
+  finally {
+    if (original !== undefined) process.env.PAPA_DEVNET_PAYER_KEYPAIR = original;
+    if (optIn === undefined) delete process.env.PAPA_ALLOW_HISTORICAL_DEVNET;
+    else process.env.PAPA_ALLOW_HISTORICAL_DEVNET = optIn;
+  }
 });
 
 test("deposit top-up handles donations and large exact amounts", () => {
@@ -80,4 +86,33 @@ test("SPL layouts use the vendored pure-JS bigint converter with exact u64 value
   }
   // Native vulnerability affected large buffers; pure JS must safely handle this.
   assert.equal(converter.toBigIntLE(Buffer.alloc(4096)), 0n);
+});
+
+
+test("historical tools reject missing opt-in before reading any signer file", () => {
+  const previous = process.env.PAPA_ALLOW_HISTORICAL_DEVNET;
+  delete process.env.PAPA_ALLOW_HISTORICAL_DEVNET;
+  try {
+    assert.throws(() => requireHistoricalDevnetOptIn(), /explicit/);
+    assert.throws(() => loadDevnetKeypair("PAYER"), /explicit/);
+  } finally {
+    if (previous !== undefined) process.env.PAPA_ALLOW_HISTORICAL_DEVNET = previous;
+  }
+});
+
+test("historical network guard rejects retargeting and incorrect genesis", async () => {
+  const previous = process.env.PAPA_ALLOW_HISTORICAL_DEVNET;
+  process.env.PAPA_ALLOW_HISTORICAL_DEVNET = DEVNET_PROGRAM_ID.toBase58();
+  let calls = 0;
+  const rpc = {getGenesisHash: async () => { calls++; return 'wrong-network'; }};
+  try {
+    await assert.rejects(assertHistoricalDevnet(rpc, new PublicKey(idl.address), DEVNET_MINT), /mismatch/);
+    await assert.rejects(assertHistoricalDevnet(rpc, DEVNET_PROGRAM_ID, PublicKey.default), /mismatch/);
+    assert.equal(calls, 0);
+    await assert.rejects(assertHistoricalDevnet(rpc, DEVNET_PROGRAM_ID, DEVNET_MINT), /genesis/);
+    await assertHistoricalDevnet({getGenesisHash: async () => 'EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG'}, DEVNET_PROGRAM_ID, DEVNET_MINT);
+  } finally {
+    if (previous === undefined) delete process.env.PAPA_ALLOW_HISTORICAL_DEVNET;
+    else process.env.PAPA_ALLOW_HISTORICAL_DEVNET = previous;
+  }
 });

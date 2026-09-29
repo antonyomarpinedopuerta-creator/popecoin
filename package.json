@@ -25,6 +25,7 @@
     "test:client": "node --require ts-node/register tests/run.ts",
     "verify:release": "ts-node scripts/verify-mainnet-release.ts",
     "app": "ts-node app/server.ts",
+    "build:rehearsal": "python3 scripts/build-rehearsal.py",
     "build:devnet": "python3 scripts/build-devnet.py",
     "devnet:snapshot": "ts-node scripts/devnet-snapshot.ts",
     "plan:production": "ts-node scripts/production-plan.ts",

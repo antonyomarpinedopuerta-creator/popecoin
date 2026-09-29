@@ -31,7 +31,8 @@ a binary merely because its filename is the same. Generated deployment key files
 are not identity evidence and are excluded from this procedure.
 
 `build:devnet` targets the historical identity in the table; it is not a builder
-for an arbitrary isolated rehearsal ID. `prepare:rehearsal` rejects both IDs in
+for an arbitrary isolated rehearsal ID. Use [build:rehearsal](REHEARSAL_BUILD.md)
+for explicit public-ID offline preparation and compilation. `prepare:rehearsal` rejects both IDs in
 the table as deployment targets. Follow the staged public setup and authorization
 review in [DEVNET_REHEARSAL.md](DEVNET_REHEARSAL.md#next-operator-review-no-execution-authorization-yet).
 
