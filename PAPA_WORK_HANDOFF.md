@@ -12,7 +12,7 @@ los registros históricos anteriores permanecen en Git.
   versiones de herramientas y lectura Devnet estricta.
 - Continuación: reconstrucción aislada, verificación/empaquetado público del RC,
   nuevas regresiones SBF, SIGKILL real y checksum oficial de Agave en CI.
-- No se descartó trabajo. Se publicó hasta c556eef en origin/master; no se desplegó ningún programa.
+- No se descartó trabajo. Se publicó hasta dc5a5ec en origin/master; no se desplegó ningún programa.
 
 ## Estado y arquitectura
 
@@ -43,7 +43,7 @@ npm run audit:dependencies
 - check:rc: tests Python, build SBF y Anchor IDL, Rust, TypeScript/clientes,
   Clippy sobre todos los targets, build/tests Devnet aislado y verificación final de release.
 - **47 tests Rust por identidad**: 36 integración SBF, 1 carga y 10 cálculo.
-- **28 tests TypeScript**: cliente, lector, servidor, planificación, ProgramData,
+- **32 tests TypeScript**: cliente, lector, servidor, planificación, ProgramData,
   vendor y registro de build. **35 tests Python**: RC, reproducción y paquete.
 - Fallos/interrupciones en cada gate, SIGTERM real con cierre del hijo, SIGKILL
   real dejando evidencia incompleta, concurrencia, fuentes cambiadas, symlinks,
@@ -205,3 +205,26 @@ comparación hospedada y correspondencia de los seis artefactos con el RC local.
 `prepare:audit` exige ahora target/hosted-ci.json del mismo HEAD; ya no declara
 CI pendiente cuando existe esa evidencia verificada. Tras publicar esta tanda se
 debe validar su propio run; el éxito de f96ebfe no acredita un commit posterior.
+
+## Preparación offline de ensayo y metadata
+
+El run 36449546784 de dc5a5ec pasó ambos validate y compare. Sus seis artefactos
+coincidieron con el RC local; collect:ci y prepare:audit terminaron correctamente.
+La nueva tanda añade prepare:rehearsal: instrucciones sin firmas, orden de cuentas,
+PDAs y datos ABI contrastados contra Anchor. Un test detectó argumentos snake_case
+del IDL frente a camelCase del cliente; se corrigió y se comprueban también los
+enteros codificados. config/rehearsal-plan.json conserva elecciones públicas null.
+No se generaron signers ni se accedió a claves, se simuló o se envió transacción.
+
+prepare:metadata genera bytes JSON deterministas cuando exista una URI de imagen
+aprobada. Valida estructura/canonicalidad de CID o identificador Arweave y permite
+comparar los archivos públicos descargados con los bytes/hashes aprobados. No
+publica ni selecciona hosting. Los parámetros de producción siguen null. Se
+reescribió DEPLOYMENT_PROCEDURE.md para eliminar comandos históricos ambiguos y
+referencias a wallets por defecto; la historia continúa disponible en Git.
+
+Nuevas pruebas: 2 de ensayo offline y 2 de metadata/URI; total TypeScript 32.
+El programa Rust, ABI, binarios y dependencias no cambian. Esta tanda requiere su
+propio CI/RC; los informes del HEAD anterior no acreditan una revisión posterior.
+Siguen externos: wallet-held signing para ensayo real, auditoría independiente,
+custodia/autoridades públicas definitivas, URIs publicadas y autorización de lanzamiento.

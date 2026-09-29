@@ -127,3 +127,9 @@ Después de un CI hospedado exitoso del HEAD local, ejecutar
 `npm run collect:ci -- <run-id>` antes de `npm run prepare:audit`. Se comprueban
 los dos paquetes hospedados y sus seis artefactos contra el RC local. La instalación
 de herramientas host usa Rust 1.91.0; el programa conserva Rust 1.89.0.
+
+Preparación sin claves: `npm run prepare:rehearsal` emite instrucciones para revisión
+usando config/rehearsal-plan.json; no simula, firma ni envía. `npm run prepare:metadata`
+genera el JSON público determinista cuando exista una URI de imagen aprobada.
+Ambos rechazan los parámetros pendientes. Ver docs/DEVNET_REHEARSAL.md y
+metadata/PRODUCTION_METADATA.md para los pasos externos y sus evidencias.

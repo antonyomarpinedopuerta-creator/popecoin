@@ -438,3 +438,19 @@ is an internal review of the current source, not a proof of absence of defects.
 The suite now has 47 Rust tests per identity: 36 integration, one load and ten math.
 No program logic, ABI, seeds or layout changed in this continuation. JS dependency
 regressions additionally cover actual Anchor TOML/Jayson UUID consumers and UTF-8.
+
+## Offline rehearsal and publication preparation
+
+The new rehearsal planner has no signing, send or RPC execution path. It requires
+explicit Devnet scope, public addresses, separate authority/beneficiary, an isolated
+mint and bounded exact decimal amounts/UTC schedules. Tests compare its three
+instructions with Anchor's generated metas/data and independently inspect the
+serialized u64/i64 values. Production identity and historical PAPA mint are rejected.
+This proves instruction construction, not network state, deployment or custody.
+
+Production URI validation now checks canonical encoded identifier structure instead
+of a permissive prefix/length pattern. Metadata preparation preserves the reviewed
+disclaimer and pinned logo and hashes deterministic JSON bytes. Download verification
+rejects even whitespace changes to the approved JSON. Hosting permanence, URI
+provenance and authority approval remain external. No on-chain program behavior,
+account layout, dependency version or signer custody changed in this batch.

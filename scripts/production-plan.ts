@@ -1,3 +1,5 @@
+import { durableUri } from "./durable-uri";
+export { durableUri } from "./durable-uri";
 import fs from "fs";
 import { createHash } from "crypto";
 import { PublicKey } from "@solana/web3.js";
@@ -12,12 +14,6 @@ export const ALLOCATIONS = [
   { role: "founder", tokens: 1000000n, beneficiary: "7qJ4uvLJtXU3inXRZxCxMswdCXn9TJJoZCaKo7y8aAZm", cliffDays: 180 },
   { role: "development", tokens: 500000n, beneficiary: "9xLgRbisSmpgmvFNP89w8Qu9KTwFjy787EtAVFtqjF6g" },
 ];
-export function durableUri(value: unknown): string {
-  if (typeof value !== "string" || Buffer.byteLength(value, "utf8") > 200 || !/^(ipfs:\/\/(Qm[1-9A-HJ-NP-Za-km-z]{44}|b[a-z2-7]{20,120})|ar:\/\/[A-Za-z0-9_-]{43})(\/[A-Za-z0-9._/-]+)?$/.test(value) || value.includes("..")) {
-    throw new Error("A content-addressed ipfs:// or ar:// URI is required");
-  }
-  return value;
-}
 export function preparePlan(input: { mint: unknown; startUtc: unknown; imageUri: unknown; metadataUri: unknown }) {
   if (typeof input.mint !== "string" || typeof input.startUtc !== "string") throw new Error("Final mint and approved startUtc are pending");
   const mint = new PublicKey(input.mint);

@@ -1,195 +1,99 @@
-# PAPA Safe Deployment / Upgrade Procedure
-
-This document defines the reviewed manual procedure for future Solana program deployment or upgrade work.
-
-It is intentionally manual. Do not convert this into an automatic deployment script without a separate review.
-
-## Current source identity (2026-09-26)
-
-The current source and generated release IDL declare
-`AYsgq7YWePj8zSHMznEQwtexDMAFqfXkPjDK6diHkHEn`.
-The Devnet provider in Anchor.toml does not change the ID embedded in the binary.
-The procedure below describes the historical Devnet target and must not be applied
-to the current production-identity binary. A Devnet upgrade requires a separately
-reviewed source/build with the Devnet declare_id, followed by a fresh build, all
-checks, identity verification and a new binary hash. No deployment was performed
-in the 2026-09-26 local review.
-
-`npm run verify:release` checks source/config/IDL consistency offline and records
-the local binary hash. It does not open production keypairs, contact Mainnet, or
-prove deployed binary correspondence. Production signer verification remains a
-separate operator responsibility before any future authorized deployment.
-
-## Critical Rule
-
-Do NOT run a normal `anchor deploy` blindly.
-
-The generated local program keypair currently resolves to:
-
-`Ei7LusW1YjHJdR2vPEWdaTobrEwQCJQ8Tff9XGnXBWSF`
-
-while the existing Devnet vesting program is:
-
-`BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc`
-
-The intended Program ID must always be specified explicitly.
-
-## 1. Confirm Network
-
-Before any deployment or upgrade, run `solana config get` and verify the intended cluster manually.
-
-Never assume the active RPC is correct.
-
-## 2. Confirm Repository State
-
-Run `git status` and `git rev-parse HEAD`.
-
-The working tree must be clean and the exact commit must be recorded before any deployment or upgrade.
-
-## 3. Run Full Safe Validation
-
-Run `yarn run check`.
-
-The safe build, Rust tests and TypeScript checks must all pass before any deployment or upgrade is considered.
-
-## 4. Confirm Program Identity (historical procedure; superseded below)
-
-Verify that `Anchor.toml`, `programs/popecoin_vesting/src/lib.rs` and `target/idl/popecoin_vesting.json` all reference:
-
-`BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc`
-
-Verify the generated local program keypair separately with:
-
-`solana-keygen pubkey target/deploy/popecoin_vesting-keypair.json`
-
-The generated local keypair currently resolves to `Ei7LusW1YjHJdR2vPEWdaTobrEwQCJQ8Tff9XGnXBWSF`, so a normal `anchor deploy` must not be used blindly.
-
-## 5. Record the Release Binary
-
-Before deployment, record the exact binary being considered:
-
-`ls -lh target/deploy/popecoin_vesting.so`
-`sha256sum target/deploy/popecoin_vesting.so`
-
-The historical local SHA-256 recorded before subsequent source changes was:
-
-`96e35568d7da089c130f43fa28b389bfd33ebd35667558aed890cc07b6e2464d`
-
-Do not rebuild after recording the hash unless validation and hash recording are repeated.
-
-## 6. Confirm Current Upgrade Authority
-
-Run:
-
-`solana --url https://api.devnet.solana.com program show BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc`
-
-Verify the Program ID, ProgramData address and upgrade authority.
-
-The expected current Devnet upgrade authority is:
-
-`8X8ZV5J2W1agj7vm4UAJGCg4fZDYThGBwhSRFEzm8bwn`
-
-Do not continue if the authority does not match the expected signer.
-
-## 7. Reviewed Upgrade Command Form
-
-For an upgrade to the existing Devnet program, explicitly target the intended Program ID:
-
-`solana --url https://api.devnet.solana.com program deploy --program-id BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc --upgrade-authority ~/.config/solana/id.json target/deploy/popecoin_vesting.so`
-
-This command is documentation only.
-
-Do NOT execute it unless every previous verification has passed and the upgrade has been explicitly approved.
-
-Do NOT add `--final`.
-
-Do NOT revoke the upgrade authority as part of a routine deployment.
-
-## 8. Post-Deployment Verification
-
-After any explicitly approved deployment or upgrade, run:
-
-`solana --url https://api.devnet.solana.com program show BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc`
-
-Record the Program ID, ProgramData address, upgrade authority, deployed slot, data length and transaction signature.
-
-Then re-run `yarn run check`.
-
-## 9. Mainnet Warning
-
-This document does not authorize a Mainnet deployment.
-
-Mainnet requires a separate production review including secure production key management, exact release-candidate verification, independent security review, final authority policy, durable metadata, explicit production vesting timestamps, liquidity review, legal/compliance review, and explicit approval before spending real SOL.
-
-Devnet wallets and development JSON keypairs must not be reused as production keys.
-
-## Mainnet Program Identity
-
-The dedicated production program keypair has been generated outside the Git repository and its offline recovery backup has been verified.
-
-- Planned Mainnet Program ID: `AYsgq7YWePj8zSHMznEQwtexDMAFqfXkPjDK6diHkHEn`
-- Production program keypair: stored outside the repository
-- File permissions verified: `600`
-- Recovery from the 24-word offline backup was tested successfully
-- The recovered public key matched the original production Program ID
-
-This Program ID is planned for Mainnet but has not yet been deployed on-chain.
-
-Do not publish it as the deployed PAPA vesting program address until the Mainnet deployment succeeds and the deployed program is independently verified on-chain.
-
-
-## Current isolated build workflow (supersedes step 4 build paths)
-
-Run `npm run check`, then `npm run build:devnet`, then `npm run verify:release`.
-The release root source/IDL retain the release identity. The isolated Devnet
-source is `target/devnet-workspace/programs/popecoin_vesting/src/lib.rs`, and its
-candidate is `target/devnet-workspace/target/deploy/popecoin_vesting.so`.
-`target/devnet-workspace/build-record.json` records source hashes and candidate
-hash after successful SBF tests. No root IDL mutation is required; clients bind
-explicitly to the Devnet identity. Never reuse the root release binary for a
-Devnet upgrade. Step 7's historical command is not applicable to that binary.
-
-The scripts access only public build inputs/artifacts; do not inspect generated
-keypair files as part of these checks. Historical custody claims in this document
-were not revalidated in this session. Deployment and production custody review
-remain separate, explicitly authorized operator tasks.
-
-## Local RC preparation after recovery
-
-Run `npm run check:rc` before considering a release. This single gate builds and
-tests both isolated identities, runs TypeScript/client tests, Python fault tests,
-Clippy and final release verification. Review `target/rc-check.json`: only a
-`passed` report is successful evidence, and its Git revision, dirty flag, source
-hashes and tool versions must describe the candidate under review. A dirty-tree
-run is development evidence, not a frozen release. Do not run builds or edit source
-concurrently. Never archive target/deploy wholesale; it may contain keypairs.
-The runner hashes only explicitly named public artifacts. No command here deploys,
-changes authorities or authorizes production. Registry audits remain a separate
-review, including the documented outstanding JavaScript advisories.
-
-## Freeze and package the public candidate
-
-1. Complete `npm run check:rc` and `npm run verify:reproducible`.
-2. Commit reviewed changes locally, then rerun `npm run check:rc` on the clean HEAD.
-3. Run `npm run verify:rc` and `npm run package:rc`.
-4. Inspect the public archive, its SHA-256 and embedded rc-manifest.json. Reproduce
-   from a separate machine for independent evidence before any deployment decision.
-
-The verifier rejects a dirty/different revision, incomplete checks, source/artifact
-changes or reproduction mismatches. Packaging explicitly selects public inputs;
-it never recursively archives deployment directories. Reports with failed,
-interrupted or incomplete status are unusable. Source changes require new checks;
-changes to Rust/build inputs also require fresh reproduction. Review unresolved
-production parameters and dependency advisories even when all local gates pass.
-
-### Verificación final offline del RC
-
-Sobre un HEAD limpio: `npm run check:rc`, `npm run verify:reproducible`,
-`npm run check:clean`, `npm run verify:rc`, `npm run package:rc` y
-`npm run verify:package`. El último comando verifica el tar real, sin extraerlo,
-contra el inventario, manifiesto y hashes del candidato actual. check:clean usa
-una exportación Git, caché Yarn vacía y builds nuevos; conserva toolchains y caché
-Cargo instaladas. No ejecuta transacciones ni usa wallets. Los informes están
-bajo target/ y no se versionan. Ejecutar además `npm run audit:dependencies`
-con cargo-audit 0.22.2 instalado; los hallazgos retenidos siguen visibles.
-El gate de archivos públicos es heurístico, no garantiza ausencia universal de secretos.
+# PAPA deployment review procedure
+
+This procedure prepares an operator review. It does not authorize a deployment,
+signature, authority change, real-fund transaction or Mainnet operation. Historical
+command examples have been removed because they mixed release and Devnet binaries
+and used an implicit local wallet. Their history remains in Git.
+
+## 1. Freeze the exact candidate
+
+Record clean Git HEAD, successful hosted run, public package digest and audit
+findings. Use the RC/reproduction/clean-build reports for that HEAD. Compare the
+hosted artifacts using `npm run collect:ci -- <run-id>` and prepare the dossier
+with `npm run prepare:audit`. If public inputs change, the previous evidence does
+not certify the new revision. Never package all of target/deploy.
+
+## 2. Select the network and deployment identity explicitly
+
+Only Devnet is in the current rehearsal scope. An authorized operator must verify
+the RPC endpoint AND genesis hash against independently trusted Devnet information;
+a local CLI default or a URL label alone is insufficient.
+
+| Candidate | Embedded program ID | Binary path |
+|---|---|---|
+| Release, offline only | AYsgq7YWePj8zSHMznEQwtexDMAFqfXkPjDK6diHkHEn | target/deploy/popecoin_vesting.so |
+| Historical Devnet identity | BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc | target/devnet-workspace/target/deploy/popecoin_vesting.so |
+
+The root IDL is for release; Devnet clients explicitly adapt the address. Changing
+Anchor.toml's provider does not change the identity embedded in an ELF. A new
+isolated program ID needs a separately reviewed build and new hashes. Never reuse
+a binary merely because its filename is the same. Generated deployment key files
+are not identity evidence and are excluded from this procedure.
+
+The local candidate has NOT been deployed. The existing Devnet ProgramData matches
+a historical executable, not this candidate. Do not overwrite the existing reserve
+or founder experiment to claim an isolated rehearsal was completed.
+
+## 3. Review public authorities and token state
+
+Before any authorized operation, record program/ProgramData addresses, current
+upgrade authority, proposed public signers, fee payer and instruction account metas.
+Verify control through the approved wallet-held signing process; do not export keys.
+Private backup/custody claims in historical documents have not been revalidated.
+
+For rehearsal use an isolated classic SPL test mint with 6 decimals and no freeze
+authority. Record supply, mint authority, token-program owner, source/destination
+owners, balances, delegates and close authorities. Require new vesting/vault PDAs.
+Production supply and authority policies are separate human decisions: the vesting
+program itself neither caps mint supply nor prevents a mint freeze authority.
+
+## 4. Prepare and review the rehearsal
+
+Fill only approved public values in config/rehearsal-plan.json. Run
+`npm run prepare:rehearsal`. It emits three unsigned instruction descriptions with
+ordered account metas, encoded data, schedule, PDAs and a digest. It does not select
+a blockhash, simulate, access a wallet or send a transaction. Unknown public values
+remain null; synthetic test fixtures are never approved deployment parameters.
+
+An operator must independently verify candidate correspondence, Devnet chain time,
+fees/rent, fresh account state and funding before each step. Initialize creates the
+vault; the prepared deposit assumes it remains empty and must be regenerated if
+any tokens arrive first. Repeated release uses current chain time and released state,
+not a fixed amount from the plan. Review the expected pre-cliff/repeated-claim failures.
+
+## 5. Simulate, approve and sign externally
+
+Use a reviewed wallet/hardware/multisig integration holding the keys. Review the
+exact network, program, mint, recipients, amounts, writable accounts and fee payer.
+Simulate against current state; then obtain explicit approval immediately before
+signing. Refresh expired blockhashes through the reviewed flow and re-simulate when
+state changes. No script or document in this repository is blanket approval.
+
+Legacy devnet-*.ts and metadata mutation scripts load external JSON signers and
+may send transactions directly. They are historical operator tools, NOT the new
+rehearsal path, and are not executed by this session. Do not run them to bypass the
+review above. A wallet-held signing integration remains an external prerequisite.
+
+## 6. Reconcile after an authorized rehearsal
+
+Record public transaction signatures, confirmation slots, instruction results,
+ProgramData and executable digest, and token/vesting snapshots at each checkpoint.
+Exercise initialize, full deposit, pre-cliff rejection, partial claim, repeated or
+unauthorized claim rejection, final claim and final balance conservation. Account
+for fees separately from token balances. Confirm no historical PAPA position changed.
+A local LiteSVM test or a readonly snapshot is not evidence of this signed lifecycle.
+
+## 7. Stop conditions
+
+Stop on unexpected cluster/identity/authority, binary mismatch, frozen mint/account,
+occupied PDA, altered metadata, insufficient funding, failed simulation, stale
+blockhash or unreviewed account meta. Do not repair by revoking authorities, changing
+custody or deploying another binary without a new review. No --final, authority
+revocation or other irreversible action is part of this routine procedure.
+
+## Production remains external
+
+Require independent security review, approved custody and public authorities,
+definitive mint/date, verified durable metadata publication, allocation reconciliation,
+and explicit launch authorization. Internal tests and two matching CI builds do not
+replace an independent audit or demonstrate control of production signers.

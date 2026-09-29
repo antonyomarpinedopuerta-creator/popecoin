@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { PublicKey } from "@solana/web3.js";
 import { preparePlan, durableUri, verifyLocalMetadata } from "../scripts/production-plan";
-const input = { mint: new PublicKey(Buffer.alloc(32, 7)).toBase58(), startUtc: "2027-01-01T00:00:00Z", imageUri: `ar://${"A".repeat(43)}`, metadataUri: `ar://${"B".repeat(43)}` };
+const input = { mint: new PublicKey(Buffer.alloc(32, 7)).toBase58(), startUtc: "2027-01-01T00:00:00Z", imageUri: `ar://${"A".repeat(43)}`, metadataUri: `ar://${Buffer.alloc(32, 1).toString("base64url")}` };
 test("offline plan reconciles supply, UTC dates and distinct vesting vaults", () => {
   const plan = preparePlan(input);
   assert.equal(plan.allocations.reduce((sum, a) => sum + BigInt(a.amount), 0n), 10000000000000n);

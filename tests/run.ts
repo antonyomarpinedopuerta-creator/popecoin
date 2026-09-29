@@ -12,3 +12,7 @@ import "./build-record.test";
 import "./dependencies.test";
 
 import "./metadata.test";
+
+import "./rehearsal-plan.test";
+
+import "./metadata-production.test";

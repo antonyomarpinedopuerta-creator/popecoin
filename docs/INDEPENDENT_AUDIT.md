@@ -74,3 +74,12 @@ The dossier requires this evidence for its exact HEAD. Different Python versions
 can change informational version strings in manifests; build artifacts and source
 inventories must still match byte-for-byte. Both runners use the same toolchain;
 this remains a reproducibility check, not an independent audit opinion.
+
+## Additional offline preparation surface
+
+Review prepare-rehearsal.ts against the instruction ABI and account ordering; it
+creates review descriptions only and cannot sign/send. Review durable-uri.ts and
+prepare-metadata.ts for canonical URI validation and deterministic publication bytes.
+These tools deliberately reject missing operator parameters and do not certify RPC
+state, signer custody, uploaded URI provenance or deployment success. Existing
+legacy signer-file operator scripts remain outside the no-key rehearsal path.

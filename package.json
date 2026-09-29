@@ -40,7 +40,9 @@
     "check:metadata:remote": "python3 scripts/check-metadata.py --remote",
     "rehearse:devnet": "ts-node scripts/rehearse-devnet.ts",
     "prepare:audit": "python3 scripts/prepare-audit.py",
-    "collect:ci": "python3 scripts/collect-ci.py"
+    "collect:ci": "python3 scripts/collect-ci.py",
+    "prepare:rehearsal": "ts-node scripts/prepare-rehearsal.ts",
+    "prepare:metadata": "ts-node scripts/prepare-metadata.ts"
   },
   "private": true,
   "engines": {

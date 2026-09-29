@@ -32,3 +32,18 @@ identity produces different PDA seeds and a different binary and requires a new
 explicitly reviewed Devnet build. No Mainnet actions, real funds or production
 authority changes are part of this procedure. The current session does not execute
 this signed section because it prohibits private-key access and custody changes.
+
+## Offline instruction preparation
+
+`npm run prepare:rehearsal` reads only config/rehearsal-plan.json and the public
+IDL. The template deliberately leaves every operator choice null. It rejects the
+release program ID, historical PAPA mint, off-curve signers, ambiguous amounts,
+invalid UTC dates and unsuitable short-test schedules. Authority and beneficiary
+must differ to exercise authorization. All three instructions are compared in tests
+against Anchor's account ordering and ABI, with explicit checks of encoded amounts
+and timestamps; no network or signer is used in these tests.
+
+The output is not a signed transaction and does not prove deployment or simulate
+execution. Check every prerequisite printed in the plan. Supply only public addresses
+from the approved Devnet test setup; never put a seed, keypair or credential in the
+configuration. The test fixtures are illustrative, not approved real parameters.

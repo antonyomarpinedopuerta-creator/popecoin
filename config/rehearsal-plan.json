@@ -1,0 +1,12 @@
+{
+  "cluster": "devnet",
+  "program": null,
+  "mint": null,
+  "payer": null,
+  "authority": null,
+  "beneficiary": null,
+  "amount": null,
+  "startUtc": null,
+  "cliffSeconds": null,
+  "durationSeconds": null
+}
