@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 import { BN, BorshInstructionCoder, Idl } from "@coral-xyz/anchor";
 import { PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY, TransactionInstruction } from "@solana/web3.js";
 import { getAssociatedTokenAddressSync, TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { DEVNET_MINT } from "./devnet-config";
+import { DEVNET_MINT, DEVNET_PROGRAM_ID } from "./devnet-config";
 import { PRODUCTION_PROGRAM } from "./production-plan";
 
 export type RehearsalInput = { cluster: unknown; program: unknown; mint: unknown; payer: unknown;
@@ -18,7 +18,7 @@ function address(value: unknown, signer = false) {
 export function prepareRehearsal(input: RehearsalInput, idl: Idl) {
   if (input.cluster !== "devnet") throw new Error("Only an explicit Devnet rehearsal is supported");
   const program = address(input.program), mint = address(input.mint);
-  if (program.equals(PRODUCTION_PROGRAM) || mint.equals(DEVNET_MINT)) throw new Error("Use an isolated Devnet program/mint; production identity and historical PAPA mint are prohibited");
+  if (program.equals(PRODUCTION_PROGRAM) || program.equals(DEVNET_PROGRAM_ID) || mint.equals(DEVNET_MINT)) throw new Error("Use an isolated Devnet program/mint; production identity, historical Devnet program and historical PAPA mint are prohibited");
   const payer = address(input.payer, true), authority = address(input.authority, true), beneficiary = address(input.beneficiary, true);
   if (authority.equals(beneficiary)) throw new Error("Use distinct authority and beneficiary to exercise authorization");
   if (typeof input.amount !== "string" || !/^[1-9][0-9]*$/.test(input.amount) || input.amount.length > 9 || BigInt(input.amount) > 100000000n) throw new Error("Use 1..100000000 test-token base units as an exact decimal string");
@@ -47,7 +47,7 @@ export function prepareRehearsal(input: RehearsalInput, idl: Idl) {
     steps, instructionsSha256: createHash('sha256').update(JSON.stringify(steps)).digest('hex'),
     prerequisites: ['Verify Devnet genesis and candidate ProgramData/binary match', 'Use a dedicated classic SPL test mint with 6 decimals and no freeze authority',
       'Confirm vesting/vault do not exist and source/destination ATAs have correct owners and mint', 'Source must hold the full amount; initialize creates an empty vault',
-      'Check current chain clock and fees/rent, simulate each step and obtain wallet-held approval immediately before sending',
+      'Check current chain clock and fees/rent; obtain approval before wallet simulation, show its result and obtain separate approval before signing/sending',
       'Release before cliff must fail; reconcile partial, repeated and final claims by chain time', 'These instructions contain no blockhash or signatures and must not be replayed blindly'] };
 }
 if (require.main === module) {

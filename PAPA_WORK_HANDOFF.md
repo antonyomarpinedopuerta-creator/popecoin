@@ -228,3 +228,39 @@ El programa Rust, ABI, binarios y dependencias no cambian. Esta tanda requiere s
 propio CI/RC; los informes del HEAD anterior no acreditan una revisión posterior.
 Siguen externos: wallet-held signing para ensayo real, auditoría independiente,
 custodia/autoridades públicas definitivas, URIs publicadas y autorización de lanzamiento.
+
+## Continuación 29 septiembre 2026 — aislamiento del rehearsal
+
+Inicio en master, HEAD 4d1780ca753365f49603c9d0093bdf7ea121aebd, árbol limpio.
+Los informes locales RC/clean/auditoría y hosted-ci conservan ese HEAD; hosted-ci
+registra status passed y run 36509299040. No se volvió a consultar GitHub en esta
+continuación ni se repitieron compilaciones. Esa evidencia no acredita los cambios
+del árbol posteriores a ese commit.
+
+- **IMPLEMENTED:** prepare:rehearsal rechaza también el programa Devnet histórico;
+  antes lo aceptaba incluso como fixture positivo. El fixture ahora usa bytes
+  públicos sintéticos, sin generar signers ni identidades. Documentado que
+  build:devnet sigue compilando la identidad histórica, no una aislada arbitraria.
+  Añadida secuencia de revisión pública y autorizaciones separadas para setup,
+  simulación con wallet y firma/envío. Releases repetidos se evalúan por reloj y
+  cantidad devengada; no se presupone que siempre fallen.
+- **TESTED:** 3 tests de rehearsal-plan pasan; tsc --noEmit y git diff --check
+  pasan. prepare:rehearsal sale con código 1 y Public rehearsal addresses are pending,
+  como corresponde. Configuración pública permanece null. Sin cambios Rust/ABI.
+- **EXTERNALLY VERIFIED:** CI hospedado del HEAD inicial según evidencia conservada
+  y confirmación del usuario; no hay evidencia externa nueva para estas ediciones.
+- **PENDING:** el operador debe proponer/aprobar direcciones públicas aisladas y
+  método de custodia. Crear identidades requiere autorización previa; no se solicita
+  acceso a claves. Después faltan build revisado de esa identidad, integración de
+  firma en wallet, manifiesto exacto de operaciones/costes Devnet y autorizaciones
+  explícitas antes de simulación y firma. Nunca ejecutar los scripts legacy con
+  keypairs para completar este rehearsal. No hubo RPC, wallet, simulación, firma,
+  creación de identidad ni despliegue en esta continuación.
+
+Revisión previa a publicación: revisado el diff completo de los cinco archivos;
+alineadas también las frases antiguas de DEPLOYMENT_PROCEDURE sobre releases
+repetidos y el requisito impreso de aprobación previa a simulación con wallet.
+Reejecutados únicamente los 3 tests de rehearsal, tsc --noEmit y la comprobación
+automatizada de plantilla null/error CLI esperado; todos pasan. Sin builds pesados.
+La publicación en master está autorizada por el usuario; el resultado del nuevo
+workflow debe verificarse contra el SHA del commit publicado.

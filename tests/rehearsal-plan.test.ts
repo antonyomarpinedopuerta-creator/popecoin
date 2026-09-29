@@ -6,7 +6,8 @@ import { prepareRehearsal } from "../scripts/prepare-rehearsal";
 import { DEVNET_MINT, DEVNET_PROGRAM_ID } from "../scripts/devnet-config";
 import { PRODUCTION_PROGRAM } from "../scripts/production-plan";
 const idl: Idl = require('../target/idl/popecoin_vesting.json');
-const input = { cluster:'devnet', program:DEVNET_PROGRAM_ID.toBase58(), mint:new PublicKey(Buffer.alloc(32,7)).toBase58(),
+// Public byte fixtures only: no generated identity, signer or approved deployment target.
+const input = { cluster:'devnet', program:new PublicKey(Buffer.alloc(32,8)).toBase58(), mint:new PublicKey(Buffer.alloc(32,7)).toBase58(),
  payer:'HnXgMRPyukmJCXRoi5vF9YZNuBmbuTa2csiVmKYTfRHa', authority:'HnXgMRPyukmJCXRoi5vF9YZNuBmbuTa2csiVmKYTfRHa', beneficiary:'DuvtonEx95RYtTXiUUaUpz1t4PuRHRDGAVB6wD29EfT3', amount:'100',startUtc:'2027-01-01T00:00:00Z',cliffSeconds:60,durationSeconds:120 };
 test('unsigned rehearsal instructions match Anchor account ordering and encoded ABI', async () => {
  const plan = prepareRehearsal(input,idl), coder = new BorshInstructionCoder(idl);
@@ -37,4 +38,7 @@ test('unsigned rehearsal rejects protected identities, ambiguous amounts and mal
    assert.throws(()=>prepareRehearsal({...input,...change},idl));
  const [pda]=PublicKey.findProgramAddressSync([Buffer.from('not-a-signer')],DEVNET_PROGRAM_ID);
  assert.throws(()=>prepareRehearsal({...input,payer:pda.toBase58()},idl));
+});
+test('historical Devnet program is rejected even with a separate test mint', () => {
+ assert.throws(()=>prepareRehearsal({...input,program:DEVNET_PROGRAM_ID.toBase58()},idl), /historical Devnet program/);
 });

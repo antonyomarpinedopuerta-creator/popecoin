@@ -30,6 +30,11 @@ isolated program ID needs a separately reviewed build and new hashes. Never reus
 a binary merely because its filename is the same. Generated deployment key files
 are not identity evidence and are excluded from this procedure.
 
+`build:devnet` targets the historical identity in the table; it is not a builder
+for an arbitrary isolated rehearsal ID. `prepare:rehearsal` rejects both IDs in
+the table as deployment targets. Follow the staged public setup and authorization
+review in [DEVNET_REHEARSAL.md](DEVNET_REHEARSAL.md#next-operator-review-no-execution-authorization-yet).
+
 The local candidate has NOT been deployed. The existing Devnet ProgramData matches
 a historical executable, not this candidate. Do not overwrite the existing reserve
 or founder experiment to claim an isolated rehearsal was completed.
@@ -59,13 +64,15 @@ An operator must independently verify candidate correspondence, Devnet chain tim
 fees/rent, fresh account state and funding before each step. Initialize creates the
 vault; the prepared deposit assumes it remains empty and must be regenerated if
 any tokens arrive first. Repeated release uses current chain time and released state,
-not a fixed amount from the plan. Review the expected pre-cliff/repeated-claim failures.
+not a fixed amount from the plan. Review pre-cliff failures and repeated-claim
+outcomes: a repeated claim fails only when no additional units are releasable.
 
 ## 5. Simulate, approve and sign externally
 
 Use a reviewed wallet/hardware/multisig integration holding the keys. Review the
 exact network, program, mint, recipients, amounts, writable accounts and fee payer.
-Simulate against current state; then obtain explicit approval immediately before
+Obtain explicit approval before any wallet simulation. Simulate against current state,
+present the result, then obtain separate explicit approval immediately before
 signing. Refresh expired blockhashes through the reviewed flow and re-simulate when
 state changes. No script or document in this repository is blanket approval.
 
@@ -78,8 +85,9 @@ review above. A wallet-held signing integration remains an external prerequisite
 
 Record public transaction signatures, confirmation slots, instruction results,
 ProgramData and executable digest, and token/vesting snapshots at each checkpoint.
-Exercise initialize, full deposit, pre-cliff rejection, partial claim, repeated or
-unauthorized claim rejection, final claim and final balance conservation. Account
+Exercise initialize, full deposit, pre-cliff rejection, partial claim, repeated
+claims reconciled by chain time, unauthorized claim rejection, final claim and
+final balance conservation. Account
 for fees separately from token balances. Confirm no historical PAPA position changed.
 A local LiteSVM test or a readonly snapshot is not evidence of this signed lifecycle.
 
