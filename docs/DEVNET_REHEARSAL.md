@@ -1,5 +1,9 @@
 # Devnet rehearsal boundaries and evidence
 
+The next isolated rehearsal follows [the staged runbook](ISOLATED_REHEARSAL_RUNBOOK.md):
+identity approval stop, per-transaction review, rent/fee caps, temporal reconciliation
+and public evidence. No identity or signed operation is authorized by that document.
+
 `npm run rehearse:devnet` requires a clean HEAD, starts a temporary loopback HTTP
 server and exercises actual public app assets and both vesting API roles against
 Devnet. It validates expected identities, balances/coverage, unfrozen vaults,

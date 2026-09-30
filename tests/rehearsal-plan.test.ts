@@ -4,7 +4,7 @@ import { BorshInstructionCoder, Idl, Program } from "@coral-xyz/anchor";
 import { Connection, PublicKey } from "@solana/web3.js";
 import { prepareRehearsal } from "../scripts/prepare-rehearsal";
 import { DEVNET_MINT, DEVNET_PROGRAM_ID } from "../scripts/devnet-config";
-import { PRODUCTION_PROGRAM } from "../scripts/production-plan";
+import { ALLOCATIONS, PRODUCTION_PROGRAM } from "../scripts/production-plan";
 const idl: Idl = require('../target/idl/popecoin_vesting.json');
 // Public byte fixtures only: no generated identity, signer or approved deployment target.
 const input = { cluster:'devnet', program:new PublicKey(Buffer.alloc(32,8)).toBase58(), mint:new PublicKey(Buffer.alloc(32,7)).toBase58(),
@@ -41,4 +41,15 @@ test('unsigned rehearsal rejects protected identities, ambiguous amounts and mal
 });
 test('historical Devnet program is rejected even with a separate test mint', () => {
  assert.throws(()=>prepareRehearsal({...input,program:DEVNET_PROGRAM_ID.toBase58()},idl), /historical Devnet program/);
+});
+test('protected identities and account collisions fail in every rehearsal role', () => {
+ for (const role of ['program','mint','payer','authority','beneficiary']) {
+  for (const key of [PRODUCTION_PROGRAM.toBase58(), DEVNET_PROGRAM_ID.toBase58(), DEVNET_MINT.toBase58(), ...ALLOCATIONS.map(a=>a.beneficiary)])
+   assert.throws(()=>prepareRehearsal({...input,[role]:key},idl));
+ }
+ for (const change of [{program:input.mint},{program:input.payer},{mint:input.beneficiary}])
+  assert.throws(()=>prepareRehearsal({...input,...change},idl));
+ assert.throws(()=>prepareRehearsal(input,idl,input.mint), /Protected identity/);
+ assert.throws(()=>prepareRehearsal(input,idl,'invalid'));
+ assert.throws(()=>prepareRehearsal(input,idl,''));
 });

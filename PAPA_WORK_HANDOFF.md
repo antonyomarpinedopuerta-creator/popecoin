@@ -302,3 +302,50 @@ Procedimiento y límites completos: docs/REHEARSAL_BUILD.md. El manifiesto no es
 atestación independiente y el IDL se adapta desde evidencia del build release, no
 se genera de nuevo. Los compiladores, caché y configuración Cargo local deben ser
 confiables. El nuevo binario no está agregado al paquete RC histórico automáticamente.
+
+## Preparación del rehearsal real — 29 septiembre 2026 (Chicago)
+
+- **EXTERNALLY VERIFIED: success** para
+  `bdbf93588d6f4346f4cce18d043f2abc4ddf59dd`, workflow `36539185798`:
+  completed/success; validate (first), validate (second), compare success.
+  Consultado en GitHub en esta conversación y confirmado por el usuario. No se
+  reetiquetan los informes locales antiguos ni se acredita con ello un HEAD nuevo.
+- **IMPLEMENTED:** docs/ISOLATED_REHEARSAL_RUNBOOK.md concreta custodia/identidad,
+  build y pins públicos, cada transacción de deploy/setup/vesting, ficha obligatoria
+  de operación/coste/roles/reversibilidad/evidencia y aprobación no transferible.
+  Incluye releases repetidos según tiempo real, conservación y formato del reporte.
+  prepare:rehearsal ahora rechaza direcciones protegidas en TODOS los roles,
+  beneficiarios de producción, mint de producción configurado y colisiones entre
+  programa/mint/signers; expone authority y beneficiary en su salida pública.
+  rehearsal-rent.ts fija endpoint Devnet, prohíbe redirects y métodos fuera de
+  getGenesisHash/getMinimumBalanceForRentExemption, comprueba genesis antes/después
+  y calcula rent pico conservador. No usa CLI ni wallets, ni simula/envía/airdrop.
+- **TESTED:** 4 tests offline de plan/ABI + 4 de rent/transporte; 10 tests Python
+  del builder con compilador mock; tsc --noEmit. Plantilla null rechazada con código
+  1. Verificado el workspace fixture existente con --verify (sin build): mismo ELF
+  e932987ffdb686dcffd3563ca2bbccdfcf51dc89debefb6d6cb046e5f5bf7ecb.
+  El fixture no es una identidad de deploy ni prueba runtime del candidato real.
+- **RPC READ ONLY:** 2026-09-30T00:20:53.083Z, genesis Devnet completo correcto;
+  ELF fixture 232528 bytes, capacidad supuesta 232528, loader v3. Rent consultado:
+  program 833120, ProgramData 1182121080, buffer 1182080440, mint 1066800,
+  source/destination/vault 1488440 cada uno, vesting 1386840 lamports.
+  Rent pico 2371953600 lamports = 2.371953600 SOL Devnet, sin descontar refunds.
+  NO es presupuesto final: falta ELF real, mensajes exactos, fees y cap aprobado.
+- **SECURITY FINDINGS:** el plan anterior no bloqueaba identidades protegidas
+  intercambiadas entre roles; corregido. No se afirma exclusividad/custodia solo
+  por public key. Root Anchor/legacy siguen fuera del recorrido; no se ejecutaron.
+  Deployer automático que firme múltiples mensajes sin paradas queda prohibido.
+  La integración de custodia/firma y validación de receipts reales sigue pendiente;
+  no hay executor de este runbook habilitado. No se leyó ningún secreto, creó
+  identidad/mint/cuenta, firmó, simuló con wallet, desplegó ni envió transacciones.
+- **READY FOR DEVNET REHEARSAL:** preparación disponible; ejecución NO habilitada.
+- **REQUIRES MY APPROVAL:** siguiente paso es crear UNA identidad exclusiva del
+  programa en custodia externa del operador, etiqueta PAPA/Devnet rehearsal/program,
+  nunca archivo keypair local. Proveedor/dispositivo pendiente de selección explícita.
+  Crear identidad offline cuesta 0 SOL; solo su public key irá a rehearsal-plan.
+  Después: build aislado para ese ID y verificación ELF/IDL/manifiesto, sin deploy.
+- **PENDING:** identidad/custodia y roles públicos, mint de prueba, build real,
+  integración externa revisada con paradas por mensaje, estado/fees/caps actuales,
+  aprobaciones individuales y evidencia/reporte del lifecycle real. Publicar esta
+  tanda y registrar el run nuevo sin esperar que finalice. No repetir auditoría,
+  RC/reproducción/clean ni builds pesados para estas modificaciones TypeScript/docs.

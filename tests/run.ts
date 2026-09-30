@@ -14,5 +14,6 @@ import "./dependencies.test";
 import "./metadata.test";
 
 import "./rehearsal-plan.test";
+import "./rehearsal-rent.test";
 
 import "./metadata-production.test";

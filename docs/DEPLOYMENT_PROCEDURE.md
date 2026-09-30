@@ -1,5 +1,8 @@
 # PAPA deployment review procedure
 
+For the isolated Devnet rehearsal, use the concrete sequence and mandatory stops in
+[ISOLATED_REHEARSAL_RUNBOOK.md](ISOLATED_REHEARSAL_RUNBOOK.md).
+
 This procedure prepares an operator review. It does not authorize a deployment,
 signature, authority change, real-fund transaction or Mainnet operation. Historical
 command examples have been removed because they mixed release and Devnet binaries
