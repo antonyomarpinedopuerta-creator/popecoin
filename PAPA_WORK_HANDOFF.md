@@ -634,3 +634,49 @@ Validación de esta tanda: `tests/rehearsal-spl-one-tx.test.ts` 7/7; `tsc --noEm
 `git diff --check` PASS. Ningún build Rust/SBF ni operación Devnet. Debe ejecutarse
 el control externo del nuevo SHA y diagnosticar por separado el fallo previo del
 workflow 36663891675 antes de tratar CI como verde.
+
+## Diagnóstico y corrección del CI 36663891675
+
+Logs de ambos jobs leídos una vez por API de Actions. Causa idéntica en first y
+second: `npm run check:rc` llegó a `npm run check`, el cual reportó 51 client tests,
+43 pass / 8 fail. Los ocho fallos de `tests/rehearsal-one-tx.test.ts` daban
+`ENOENT` para `target/rehearsal-builds`; en el test de buffer seed, ese mismo
+`ENOENT` además violaba la aserción esperada sobre el seed. Ese path está ignorado
+y no forma parte del checkout limpio de Actions. Los tests acoplaban planner/mock
+tests al output local creado por build:rehearsal. `check:rc` detuvo la secuencia
+en `npm run check`; no alcanzó el comando posterior `npm run build:devnet`.
+
+Clasificación: defecto real de aislamiento de los tests del rehearsal tooling,
+expuesto por el entorno limpio de CI. No fue Rust/programa, toolchain/dependencia,
+ni un mismatch del ELF. No alterar ni suprimir gates.
+
+Corrección en código: `findCandidate` recibe un root explícito opcional y aplica el
+mismo pin de manifest/ELF/IDL hashes, estado, IDL Program ID y rechazo de symlinks.
+Tests construyen fixture sintético en un tempdir, fijan hashes a ese fixture y lo
+inyectan a las funciones; no requieren `target/`, ELF real ni keypairs. CLI y uso
+ordinario mantienen su root fijo `target/rehearsal-builds`; sigue fallando cerrado
+si no existe candidato real.
+
+También se añadió planner unsigned lifecycle en `scripts/rehearsal-vesting-one-tx.ts`:
+initialize (PDA/vault ausentes, supply/source exactos, destination 0), deposit (vault
+0, full source, released 0), release-precliff (zero vested y cliff a >=1800s del chain
+time observado), partial/repeated (accrual positivo y >300s antes de end), final
+(end alcanzado). Cada llamada arma a lo sumo un transaction con una instrucción;
+fee, rent, balance, blockhash expiry, mensaje hash y firmantes informados. Release
+programa no codifica amount; `expectedAmountAtSnapshot` es estimación porque Anchor
+lee Clock al incluir. Snapshots verifican Program/ProgramData ELF/authority local-
+on-chain, mint/ATAs/vault/vesting del mismo RPC slot + block time. Reconciliation
+final exige source/vault=0, beneficiary=supply=total, released=total, shortfall=0.
+No signer/simulate/send. Inputs rehearsal siguen null y CLI falla cerrado.
+
+Verificación local completada: planner de deploy 11/11, planner vesting 7/7,
+`npm run test:client` 65/65, `tsc --noEmit`, check-public PASS (127 ficheros), diff
+check PASS, búsqueda de filenames de credenciales tracked sin matches. Sin build
+Rust/SBF ni operación Devnet. No repetir `check:rc` entero: incluye builds pesados
+innecesarios para esta causa de test fixture.
+
+Payer balance permanece 0 SOL tras el único airdrop fallido (-32603); no hubo retry.
+El nuevo SHA y run ID se registran después de commit/push de esta corrección; nunca
+marcarlo EXTERNALLY VERIFIED hasta que todas las validaciones del workflow terminen
+success. Si el run está activo, no hacer polling. No hay aprobación de firma, envío,
+cuenta, mint, buffer o deploy.

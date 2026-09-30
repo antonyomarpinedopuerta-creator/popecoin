@@ -17,5 +17,6 @@ import "./rehearsal-plan.test";
 import "./rehearsal-rent.test";
 import "./rehearsal-one-tx.test";
 import "./rehearsal-spl-one-tx.test";
+import "./rehearsal-vesting-one-tx.test";
 
 import "./metadata-production.test";

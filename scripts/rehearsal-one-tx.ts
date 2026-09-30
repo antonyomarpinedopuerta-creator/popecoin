@@ -59,9 +59,11 @@ export function assertBufferAddress(p:Deployment,key:PublicKey,roles:{program:Pu
  if(p.buffer!==null&&p.buffer!==key.toBase58())throw Error('Derived buffer differs from pinned public buffer address');
 }
 
-export function findCandidate(p:Deployment) {
- const base=path.join(ROOT,'target/rehearsal-builds');
- for(let cur=base;cur.startsWith(ROOT);cur=path.dirname(cur))if(fs.lstatSync(cur).isSymbolicLink())throw Error('Symlink in candidate path');
+export function findCandidate(p:Deployment, candidateRoot=path.join(ROOT,'target/rehearsal-builds')) {
+ const base=path.resolve(candidateRoot);
+ let baseInfo:fs.Stats;try{baseInfo=fs.lstatSync(base);}catch{throw Error('Candidate directory is absent or invalid');}
+ if(!baseInfo.isDirectory())throw Error('Candidate directory is absent, a symlink or invalid');
+ for(let cur=base;;){if(fs.lstatSync(cur).isSymbolicLink())throw Error('Symlink in candidate path');const parent=path.dirname(cur);if(parent===cur)break;cur=parent;}
  const dirs=fs.readdirSync(base,{withFileTypes:true}).filter(d=>d.isDirectory()&&!d.isSymbolicLink()&&d.name.startsWith(p.program+'-'));
  const matches=dirs.map(d=>path.join(base,d.name)).filter(dir=>{
   try {
@@ -134,9 +136,9 @@ async function unsigned(connection:Connection,feePayer:PublicKey,instructions:Tr
   expectedEffect:'Exactly the listed instructions if separately signed and submitted; this planner did neither.',evidenceToRecord:['approved message SHA-256','transaction signature','confirmation slot','before/after account snapshots'],...summary};
 }
 
-export async function prepareOne(connection:Connection,step:string,args:Record<string,string|undefined>,p=readDeployment()) {
+export async function prepareOne(connection:Connection,step:string,args:Record<string,string|undefined>,p=readDeployment(),candidateRoot?:string) {
  if(!['buffer-create','buffer-write','buffer-verify','program-deploy'].includes(step))throw Error('Exactly one supported rehearsal step is required');
- const roles=assertSafeRoles(p);await pinnedConnection(connection);const {dir,elf}=findCandidate(p);
+ const roles=assertSafeRoles(p);await pinnedConnection(connection);const {dir,elf}=findCandidate(p,candidateRoot);
  const buffer=step==='program-verify'?undefined:await deriveBuffer(roles.payer,args.bufferSeed??'');
  if(step!=='program-verify'&&p.bufferSeed!==null&&args.bufferSeed!==p.bufferSeed)throw Error('Buffer seed differs from pinned public seed');
  if(buffer)assertBufferAddress(p,buffer,roles);
@@ -183,8 +185,8 @@ export async function prepareOne(connection:Connection,step:string,args:Record<s
  throw Error('Exactly one supported step is required: buffer-create, buffer-write, buffer-verify, program-deploy');
 }
 
-export async function verifyProgram(connection:Connection,p=readDeployment()) {
- assertSafeRoles(p);await pinnedConnection(connection);const candidate=findCandidate(p);const program=pubkey(p.program,'program');
+export async function verifyProgram(connection:Connection,p=readDeployment(),candidateRoot?:string) {
+ assertSafeRoles(p);await pinnedConnection(connection);const candidate=findCandidate(p,candidateRoot);const program=pubkey(p.program,'program');
  const info=await connection.getAccountInfo(program,'confirmed');if(!info||!info.executable||!info.owner.equals(LOADER)||info.data.length!==36||info.data.readUInt32LE(0)!==2)throw Error('Program account owner/state/executable mismatch');
  const [programData]=PublicKey.findProgramAddressSync([program.toBuffer()],LOADER);if(!new PublicKey(info.data.subarray(4,36)).equals(programData))throw Error('ProgramData address mismatch');
  const pd=await connection.getAccountInfo(programData,'confirmed');if(!pd||!pd.owner.equals(LOADER)||pd.data.length!==45+p.maxProgramBytes||pd.data.readUInt32LE(0)!==3)throw Error('ProgramData owner/state/length mismatch');
