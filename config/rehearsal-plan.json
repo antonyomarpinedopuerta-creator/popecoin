@@ -1,8 +1,8 @@
 {
   "cluster": "devnet",
-  "program": null,
+  "program": "6nLZrtmi9Uf3E3kJjGY9Po4KqNhvLDQqQAax5UKMAGVk",
   "mint": null,
-  "payer": null,
+  "payer": "4nt7G7nXvBNvygsDjn4zS9vQCR1Zgn1GTpyh8Snh5N7m",
   "authority": null,
   "beneficiary": null,
   "amount": null,

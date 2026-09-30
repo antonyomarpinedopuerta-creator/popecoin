@@ -349,3 +349,253 @@ confiables. El nuevo binario no está agregado al paquete RC histórico automát
   aprobaciones individuales y evidencia/reporte del lifecycle real. Publicar esta
   tanda y registrar el run nuevo sin esperar que finalice. No repetir auditoría,
   RC/reproducción/clean ni builds pesados para estas modificaciones TypeScript/docs.
+
+## Punto de aprobación: identidad local aislada (CI 36650609233 verde)
+
+- EXTERNALLY VERIFIED: success para 19d8bf926c6117b12d345a91079b760e6ceb57f4.
+  GitHub run 36650609233 completed/success; validate (first), validate (second)
+  y compare completed/success, consultados antes de continuar. Master y HEAD
+  coinciden; árbol inicialmente limpio. No se repitieron tests ni builds.
+- La instrucción nueva del usuario permite PREPARAR un archivo de identidad local
+  aislado, sustituyendo para este paso la propuesta anterior de custodia externa.
+  Su generación todavía exige aprobación explícita; NO se ha ejecutado.
+- Preparados únicamente directorios privados (0700) y configuración CLI pública
+  (0600), bajo /home/antony/popecoin_vesting/target/rehearsal-private/papa-devnet-19d8bf9/.
+  cli-config.yml fija RPC https://api.devnet.solana.com y ruta explícita del futuro
+  program-keypair.json. Sin fallback a ~/.config/solana/id.json. Padres revisados
+  sin symlinks. Archivo keypair ausente; git check-ignore confirma exclusión por
+  target y git ls-files no contiene esta ruta. No incluirla en evidencia/paquetes.
+- Herramienta instalada: solana-keygen 3.1.10, binario resuelto explícito abajo.
+  --silent documenta supresión de seed phrase; stdout/stderr se descartan además.
+  umask 077 restringe permisos; sin --force, no se autoriza sobrescribir.
+- Comando PROPUESTO, NO EJECUTADO; requiere aprobación individual del usuario:
+
+```sh
+umask 077
+/home/antony/.local/share/solana/install/releases/3.1.10/solana-release/bin/solana-keygen new --config /home/antony/popecoin_vesting/target/rehearsal-private/papa-devnet-19d8bf9/cli-config.yml --silent --no-bip39-passphrase --outfile /home/antony/popecoin_vesting/target/rehearsal-private/papa-devnet-19d8bf9/program-keypair.json >/dev/null 2>&1
+```
+
+- Propósito: identidad NUEVA solo para Program ID del rehearsal Devnet, no payer,
+  no identidad histórica/producción. Generación local cuesta 0 SOL y no hace RPC,
+  no firma ni envía, no crea cuentas ni toca Mainnet. El archivo no se agregará a Git.
+  Se almacena sin passphrase BIP39, protegido por permisos locales: nunca abrir,
+  mostrar, copiar ni exportar su contenido. No es una propuesta de custodia Mainnet.
+- Tras aprobación: revalidar ruta/permisos/ausencia del archivo; generar una vez,
+  obtener solo public key mediante herramienta, rechazar igualdad con IDs protegidos
+  antes de configurar/build. No es posible comparar una dirección aún inexistente.
+  Si falla generación, detenerse sin imprimir archivos ni logs secretos.
+- Después: build:rehearsal para la public key aprobada, ELF/IDL/manifiesto/hashes y
+  pruebas necesarias. PARAR antes del deploy con genesis/fees/comando exacto;
+  cada operación posterior requiere aprobación separada. No hay autorización actual
+  de generación, deploy, mint, airdrop, simulación con wallet ni transacciones.
+- Pendientes: ciclo Devnet real y evidencia; metadata/URI/supply/allocations/fecha,
+  autoridades/custodia, revisión independiente y checklist producción. No declarar
+  listo para Mainnet. Este cambio documental está sin commit al detenerse.
+
+## Identidad creada con aprobación expresa y candidato construido — parada pre-deploy
+
+La autorización posterior del usuario permitió ejecutar exclusivamente el comando
+solana-keygen new registrado arriba. Se ejecutó una vez, exit 0, stdout/stderr
+suprimidos. El archivo tiene permisos 0600, directorios 0700, Git lo ignora por
+`target`. No se mostró ni copió contenido privado; solana-keygen pubkey produjo
+únicamente la dirección pública. No volver a generar/sobrescribir esta identidad.
+
+- Program ID: `6nLZrtmi9Uf3E3kJjGY9Po4KqNhvLDQqQAax5UKMAGVk`.
+- Rechazo comprobado frente a release, programa/mint históricos, beneficiarios de
+  producción y fixture previo; dirección on-curve. Mint de producción sigue null.
+- Solo `program` en config/rehearsal-plan.json se completó; demás campos siguen null.
+- Build offline con platform-tools v1.52, sin build-sbf, Anchor, nuevas identidades
+  ni operaciones de red. Workspace:
+  `target/rehearsal-builds/6nLZrtmi9Uf3E3kJjGY9Po4KqNhvLDQqQAax5UKMAGVk-eadtrh7r`.
+- ELF: 232640 bytes;
+  SHA-256 `034d073f1d400f27e941525f9b18406bd643374c69d22903aac3af52ad085061`.
+- IDL SHA-256 `2524801c5c4cfd81405c5c534eddd0e2bb251bc5afc9f29f62520c51a91ad95f`.
+- Manifest SHA-256 `5366c6012833ff968a3822ba6030d9f420cd331a4e8eba9008cfdeae9457babd`.
+- --verify pasó: fuentes, identidad, ELF y hashes; IDL comparado estructuralmente
+  con release y solo address difiere. Estado built-not-runtime-verified: no ejecución
+  SBF del lifecycle para este ID ni deployment. No confundir con CI del binario nuevo.
+- Tests directamente relacionados: 10 Python del builder y 4 TypeScript plan/ABI,
+  todos passed. Sin tests que generen otros signers ni builds históricos/release.
+- ProgramData PDA derivada offline:
+  `3XmkEz8dhj5AkbPb1oMkyPEfnbtkiUaHc81awxdfh6Zm` (no cuenta creada).
+  PDAs/ATAs de vesting pendientes de mint/beneficiary; no inventarlos.
+- RPC SOLO LECTURA a https://api.devnet.solana.com, 2026-09-30T01:06:36.491Z:
+  genesis `EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG` comprobado antes/después.
+  Capacidad considerada 232640 bytes: rent pico programa+ProgramData+buffer
+  2366172560 lamports = 2.366172560 SOL Devnet, sin descontar devoluciones.
+  Incluyendo cuentas del ensayo: 2.373091520 SOL Devnet. NO incluye fees ni es
+  cap máximo total: mensajes exactos, payer y presupuesto siguen pendientes.
+- Evidencia SOLO PÚBLICA, ignorada localmente:
+  `target/rehearsal-evidence/19d8bf9-6nLZrtmi/` contiene candidate.json,
+  build-manifest.json, rent.json, SHA256SUMS. No hay claves ni copias de claves allí.
+- EXTERNALLY VERIFIED: success sigue correspondiendo exclusivamente al commit
+  19d8bf926c6117b12d345a91079b760e6ceb57f4/run 36650609233. El binario de esta
+  identidad está verificado localmente; no se atribuye al workflow anterior.
+
+**PARADA:** no deploy, mint, cuentas, airdrop, wallet simulation, firma ni envío.
+Se pidieron únicamente las public keys del payer y upgrade authority, pendientes.
+Falta identidad de buffer y flujo de despliegue revisado por transacción. La ayuda
+local de Agave confirma buffer aleatorio por defecto y envío/re-firma automático
+con program deploy: NO es un comando compatible con aprobación individual por tx.
+No emitir un comando con fallback a la wallet global ni inventar un coste máximo.
+El comando exacto de deploy y cap final están bloqueados hasta esas decisiones y
+la preparación de mensajes revisables. Cada identidad nueva necesita autorización;
+la autorización usada NO habilita crear payer/buffer/mint/beneficiary.
+
+Siguiente paso: resolver roles/custodia públicos y preparador por transacción,
+preservando el ELF/hash ya construido. Antes de cualquier deploy presentar mensaje
+exacto, signers, genesis, coste máximo y aprobación individual. No repetir el build
+si fuentes/ID/artefactos no cambian. Sin nuevo commit/push: config pública y handoff
+modificados sobre master 19d8bf9; no tocar ni agregar el archivo privado.
+
+## Plan pendiente de aprobación: payer y upgrade authority aislados
+
+Revisado el working tree: se conservan los cambios públicos de handoff y
+config/rehearsal-plan.json. Sin commit, sin pérdida de cambios. Los tres hashes
+ELF/IDL/manifiesto del candidato 6nLZrtmi... coinciden; no se modificó ni recompiló.
+
+Propuestos, todavía AUSENTES y NO GENERADOS, bajo el directorio existente 0700
+/home/antony/popecoin_vesting/target/rehearsal-private/papa-devnet-19d8bf9/:
+- payer-keypair.json: payer exclusivo para fees/rent SOL Devnet.
+- upgrade-authority-keypair.json: autoridad exclusiva del programa Devnet;
+  puede ser también buffer authority, sin generar otra autoridad para escrituras.
+Ambos se crearían 0600 mediante umask 077, solana-keygen 3.1.10 --silent
+--no-bip39-passphrase, --config cli-config.yml explícito, --outfile explícito,
+sin --force y stdout/stderr a /dev/null. Rutas sin symlinks; git check-ignore
+confirma exclusión por target. Generación local 0 SOL; no RPC, wallet global ni
+Mainnet. Debe revalidarse ausencia/permisos inmediatamente antes de generar.
+Cada creación necesita autorización expresa; no ejecutar todavía.
+
+No es requisito del loader que payer y upgrade authority sean distintos: una
+única identidad NUEVA y exclusiva puede desempeñar ambos roles. Reduce un secreto
+y firmas cuando coinciden, manteniendo aislamiento de histórico/global/producción,
+pero concentra gasto y control del programa; no ofrece separación de funciones.
+Se proponen dos conforme a la petición actual. No copiar el mismo keypair a dos
+archivos si el usuario prefiere un solo rol compartido; usar la misma public key.
+
+Deploy: no usar solana program deploy ni write-buffer, ambos automatizan múltiples
+mensajes/envíos. Preparar un executor con una única transacción por invocación,
+separando preparación pública de firma/envío y sin avance/reintento automático:
+(1) CreateAccount buffer + InitializeBuffer atómicos, con authority=upgrade authority;
+(2) Write de cada fragmento del ELF fijado por hash, aprobación independiente por tx;
+(3) verificar buffer completo por lectura/hash;
+(4) CreateAccount program + DeployWithMaxDataLen atómicos, aprobación independiente;
+(5) verificar ProgramData/owner/authority/ELF por lectura. Buffer identity aún no
+existe: su eventual creación requiere otra autorización; ninguna se genera ahora.
+Plan contrastado con solana-loader-v3-interface 6.1.1 local, instruction.rs,
+create_buffer/write/deploy_with_max_program_len, y CLI Agave v3.1.10.
+No usar BpfLoader legacy como sustituto del loader upgradeable.
+
+Antes de cada simulación/firma/envío: comprobar genesis, hashes, estado, signers,
+importe, max fee/rent, blockhash/expiración y mensaje exacto. Aprobación individual
+atada al hash del mensaje; cualquier cambio obliga a nueva aprobación. Expiración
+no autoriza re-firma. Ante envío incierto, consultar firma antes de reintentar.
+El executor aún NO está implementado/validado: este es su diseño, no autorización.
+La carga implica muchos fragmentos y aprobaciones; no agrupar autorizaciones por
+comodidad. No hubo creación de claves, buffer/cuentas, airdrop, firmas ni envíos
+en esta tanda. Siguiente acción: presentar comandos y esperar aprobación.
+
+## Payer y upgrade authority creados — esperando aprobación de financiación
+
+El usuario autorizó los DOS comandos exactos de creación propuestos. Ejecutados
+una vez cada uno, exit 0, sin salida privada. Permisos de ambos archivos 0600;
+directorio 0700. Git ignora ambos; git ls-files no contiene la ruta privada.
+Se obtuvieron únicamente public keys mediante solana-keygen pubkey:
+- payer: 4nt7G7nXvBNvygsDjn4zS9vQCR1Zgn1GTpyh8Snh5N7m
+- upgrade authority: EcWN9K2zyrXfUnbji8WyUmRwhezGcqvtSGnBB1yixjYb
+
+Ambas on-curve, diferentes entre sí y del program, y distintas de release,
+programa/mint históricos, allocations protegidas y fixture. Solo el payer se
+completó en rehearsal-plan; authority/beneficiary/mint siguen null. Nuevo archivo
+público config/rehearsal-deployment.json conserva roles, hashes, cluster/genesis y
+buffer/cap pendientes. No se modificó ni recompiló el ELF/IDL/manifiesto.
+
+Próxima operación PROPUESTA, NO AUTORIZADA/NO EJECUTADA: requestAirdrop de 2 SOL
+Devnet para el payer, coste del solicitante 0 SOL, sin claves ni firmas locales.
+Ficha y comando exacto en docs/REHEARSAL_NEXT_APPROVAL.md. Revalidar genesis y saldo
+antes de actuar; cualquier complemento requiere aprobación aparte. Dos SOL no
+cubren la estimación conservadora previa de rent pico; no confundir financiación
+con autorización de gasto. No hubo airdrop, buffer, cuenta, simulación, firma,
+transacción ni deploy. No se accedió a wallet global ni se usó Mainnet.
+
+El airdrop único autorizado devolvió RPC -32603 Internal error, sin firma; saldo
+confirmado antes/después 0 SOL. No repetirlo ni usar faucet alterno sin nueva orden.
+
+## Planner unsigned por transacción — continuación posterior
+
+Se añadió `scripts/rehearsal-one-tx.ts` / `npm run prepare:rehearsal-tx`. Es
+deliberadamente solo preparador: un unsigned Transaction serializado por invocación,
+sin import de Keypair, rutas de signer, simulate ni send. Usa Connection a endpoint
+Devnet hardcoded, valida genesis antes/después, fee/blockhash/rent/balance por RPC
+readonly y devuelve el hash exacto de mensaje, signers, costes y datos unsigned.
+Fail-closed ante config/endpoints/genesis/hash/ELF/IDL/rent/fee/cuenta/signers
+incorrectos; no usa Solana CLI config ni env URL. El CI 36650609233 solo verifica
+19d8bf9 anterior, no este planner ni el ELF vía hosted build.
+
+Buffer: no requiere una tercera identidad. Address determinista con
+`PublicKey.createWithSeed(payer, seed_public, BPF_UPGRADEABLE_LOADER_ID)`, crear
+con `SystemProgram.createAccountWithSeed` y authority = upgrade authority. Solo
+buffer-create inicializa en una transacción unsigned; buffer-write prepara un
+fragmento <=650 bytes y exige el prefijo del buffer exacto; se ejecuta una llamada
+manual por fragmento y nunca un loop. Buffer-verify comprueba state/owner/authority,
+ELF completo y zero padding. Program-deploy exige Program/ProgramData ausentes y
+buffer completo; prepara CreateAccount(program)+DeployWithMaxDataLen atómicos.
+Program-verify consulta Program y ProgramData y compara dirección, owner, executable,
+authority, ELF bytewise/hash y padding. Agave source confirma que el loader usa el
+rent del buffer para reembolsar al payer y luego cobra ProgramData; planner suma
+rent de buffer y de Program + ProgramData + fee conservadoramente.
+
+Documentado en docs/REHEARSAL_ONE_TX.md, con comandos de continuación. Todavía NO
+hay submitter; cada unsigned mensaje necesita custodia wallet externa, revisión y
+aprobación individual. Program CLI no se usará porque envía varias transacciones.
+La derivación del buffer no crea una cuenta. La eventual llamada buffer-create sí
+es on-chain y está pendiente de aprobación.
+
+**Tests locales relacionados:** 11 suites en `tests/rehearsal-one-tx.test.ts`
+(fixtures/mock RPC y datos sintéticos); sin signers ni keypairs. Revisan one-message,
+signers/loader encodings, orden, packet limit, fail-closed network/candidate/cost,
+buffer y ProgramData verificaciones. TypeScript `tsc --noEmit` pasó al añadir
+planner; volver a correr tras cambios finales. No build Rust/SBF/ELF.
+
+Working tree público: handoff, config/rehearsal-plan, config/rehearsal-deployment,
+docs/REHEARSAL_NEXT_APPROVAL y docs/REHEARSAL_ONE_TX, package.json, nuevo script,
+tests/run.ts y test planner. Revisar diff completo y correr solo tsc, tests cliente
+relevantes, diff check, check-public y búsqueda de filenames secretos; después commit
+y push autorizados antes. `target/` (evidencia y keypairs privados) ignorado. No
+incluir/abrir los keypairs. No airdrop, buffer, mint, cuenta, firma, simulación,
+envío, deploy ni Mainnet. No tests/CI nuevos pueden verificar lifecycle on-chain.
+
+**Pendiente principal:** construir preparadores SPL one-tx para mint init/ATAs/
+mintToChecked y estado precondición; adaptar initialize/deposit/release a transacción
+individual tras completar valores públicos restantes. El plan existente cubre ABI y
+PDAs unsigned, pero aún no es un executor/signer ni lifecycle completo. Mantener el
+mint/authority/beneficiary/amount/schedule null hasta decisión explícita. El payer
+sigue con 0 SOL.
+
+## Estado local después de preparar planner one-tx
+
+Resultado tests de cliente tras el planner/config de seed pinned: `npm run test:client`
+51/51 PASS. TypeScript `tsc --noEmit` PASS; test específico del planner 11/11 PASS.
+`check-public.py`: PASS 121 ficheros en su última ejecución (antes de añadir solo
+código/docs públicos adicionales; volver a ejecutar final). `git diff --check` PASS.
+Cambios actuales pendientes de commit: handoff, config/rehearsal-plan,
+config/rehearsal-deployment, package script, tests/run, test nuevo,
+script one-tx, docs REHEARSAL_NEXT_APPROVAL reescrito tras rechazo y nuevo
+REHEARSAL_ONE_TX.md.
+
+La última prueba unitaria usa PublicKey/Transaction y mock RPC, nunca lee archivos
+keypair. Último airdrop falló -32603 y no se volvió a llamar. Sin buffer/cuentas/
+mint/signature/simulación/envío/deploy. No candidato/build/test Rust modificado.
+Candidato ELF/IDL/manifiesto debe conservar hashes del handoff. CI 36650609233 solo
+verifica commit 19d8bf9 anterior; no atribuir cobertura externa al cambio actual.
+Antes de commit: revisar diff completo, check-public, nombres tracked secretos,
+exclusión target keypairs, diff check y tests relevant. Commit/push ya autorizados en
+la solicitud actual. Tras push consultar ID nuevo de workflow sin esperar; no llamar
+EXTERNALLY VERIFIED hasta success.
+
+Pendiente explícito: no hay submitter para mensaje signed ni planner SPL mint/ATAs/
+mintTo y validadores estado de vesting en transacciones individuales. El plan
+prepare:rehearsal mantiene ABI offline únicamente. Siguiente operación de red sería
+solicitar nuevos fondos SOLO con autorización; no repetir airdrop rechazado. El payer
+no puede cubrir ni el buffer rent con su saldo actual. Ninguna operación irreversible
+queda autorizada por CI/test/documentación.

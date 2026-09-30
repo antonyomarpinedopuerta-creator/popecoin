@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "status": "PREPARATION ONLY — NO TRANSACTION AUTHORIZED",
+  "cluster": "devnet",
+  "rpc": "https://api.devnet.solana.com",
+  "genesisHash": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+  "program": "6nLZrtmi9Uf3E3kJjGY9Po4KqNhvLDQqQAax5UKMAGVk",
+  "payer": "4nt7G7nXvBNvygsDjn4zS9vQCR1Zgn1GTpyh8Snh5N7m",
+  "upgradeAuthority": "EcWN9K2zyrXfUnbji8WyUmRwhezGcqvtSGnBB1yixjYb",
+  "buffer": null,
+  "bufferSeed": "papa-buffer-19d8bf9",
+  "bufferAuthority": "EcWN9K2zyrXfUnbji8WyUmRwhezGcqvtSGnBB1yixjYb",
+  "maxProgramBytes": 232640,
+  "elfSha256": "034d073f1d400f27e941525f9b18406bd643374c69d22903aac3af52ad085061",
+  "idlSha256": "2524801c5c4cfd81405c5c534eddd0e2bb251bc5afc9f29f62520c51a91ad95f",
+  "manifestSha256": "5366c6012833ff968a3822ba6030d9f420cd331a4e8eba9008cfdeae9457babd",
+  "maxDeployCostLamports": null
+}
