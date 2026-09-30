@@ -44,6 +44,7 @@
     "collect:ci": "python3 scripts/collect-ci.py",
     "prepare:rehearsal": "ts-node scripts/prepare-rehearsal.ts",
     "prepare:rehearsal-tx": "ts-node scripts/rehearsal-one-tx.ts",
+    "prepare:rehearsal-spl": "ts-node scripts/rehearsal-spl-one-tx.ts",
     "prepare:metadata": "ts-node scripts/prepare-metadata.ts"
   },
   "private": true,

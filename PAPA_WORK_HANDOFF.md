@@ -593,9 +593,44 @@ exclusión target keypairs, diff check y tests relevant. Commit/push ya autoriza
 la solicitud actual. Tras push consultar ID nuevo de workflow sin esperar; no llamar
 EXTERNALLY VERIFIED hasta success.
 
-Pendiente explícito: no hay submitter para mensaje signed ni planner SPL mint/ATAs/
-mintTo y validadores estado de vesting en transacciones individuales. El plan
-prepare:rehearsal mantiene ABI offline únicamente. Siguiente operación de red sería
-solicitar nuevos fondos SOLO con autorización; no repetir airdrop rechazado. El payer
-no puede cubrir ni el buffer rent con su saldo actual. Ninguna operación irreversible
-queda autorizada por CI/test/documentación.
+Pendiente explícito: no hay submitter para mensajes unsigned/signed, ni planner de
+estado vesting en transacciones individuales. El preparador SPL se añadió después,
+según la sección más reciente debajo. El plan `prepare:rehearsal` sigue siendo ABI
+offline únicamente. No repetir el airdrop rechazado; payer 0 SOL. Ninguna operación
+irreversible queda autorizada por CI/test/documentación.
+Coda / continuación 2026-09-29: consultado una sola vez workflow 36663891675,
+SHA `44652e592fc75c9b5206e6824a5f2aaeb263edc6`; completed/failure. Ambos jobs
+`validate (first)` y `validate (second)` fallaron en step “Validate local release
+candidate and isolated Devnet build”; `compare` quedó skipped. No consultar de nuevo
+en esta sesión según la instrucción. No declarar este SHA EXTERNALLY VERIFIED. El
+detalle interno del step no se recuperó; debe revisarse en la próxima sesión antes
+de afirmar que el fallo es causado o resuelto por cambios posteriores.
+
+Se añade `scripts/rehearsal-spl-one-tx.ts` (y `npm run prepare:rehearsal-spl`),
+planner clásico SPL que prepara exactamente un mensaje unsigned por invocación:
+mint account + InitializeMint2 (decimals 6, authority configurada, freeze authority
+nula), una ATA idempotente, o MintToChecked únicamente si supply aún es cero. Incluye
+verificadores read-only de mint/ATAs. Endpoints/genesis Devnet fijos; rechaza mint,
+programa, roles y allocations protegidos, roles duplicados, cantidad inválida,
+cuenta existente inesperada, estado incompatible y endpoint/genesis incorrectos.
+No importa ni lee keypairs; no firma, simula ni envía. Los tests usan direcciones
+públicas fixture/estado mock, nunca identidades privadas.
+
+Config `config/rehearsal-plan.json` deja mint/authority/beneficiary null, por lo que
+la CLI fallará cerrado hasta que el operador apruebe/especifique esas direcciones.
+No se generó clave/mint ni cuenta; airdrop no repetido. El payer quedó en 0 SOL
+tras el único requestAirdrop anterior fallido (-32603); detenerse ante cualquier
+necesidad de financiación y solicitar autorización por separado.
+
+Pendiente deliberado (no hay código parcial): planificador unsigned de vesting
+initialize/deposit/release, control de pre-cliff cuya ventana de inclusión no cruce
+cliff, releases parciales/repetidos/final según chain clock, lecturas coherentes
+por slot de state Anchor y SPL source/vault/beneficiary/supply, reconciliación final
+y reporte. `prepare-rehearsal.ts` solo genera instrucciones offline y no valida
+cuentas/clock ni debe presentarse como esos preparadores. Ver `docs/REHEARSAL_SPL_ONE_TX.md`.
+
+Validación de esta tanda: `tests/rehearsal-spl-one-tx.test.ts` 7/7; `tsc --noEmit`,
+`npm run test:client` 58/58, `scripts/check-public.py` PASS (124 ficheros),
+`git diff --check` PASS. Ningún build Rust/SBF ni operación Devnet. Debe ejecutarse
+el control externo del nuevo SHA y diagnosticar por separado el fallo previo del
+workflow 36663891675 antes de tratar CI como verde.
