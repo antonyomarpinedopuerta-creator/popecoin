@@ -1,3 +1,5 @@
+> HISTORICAL PAPA DOCUMENT — not the current ROBUSTO launch plan. See [ROBUSTO status](ROBUSTO_STATUS.md). Historical checkmarks are not evidence of ROBUSTO production readiness.
+
 # PAPA ($PAPA) — Mainnet Security Checklist
 
 This document defines the checks that must be completed before PAPA is considered ready for a Mainnet launch.

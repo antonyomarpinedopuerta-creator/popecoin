@@ -5,7 +5,7 @@ Esta es la entrada actual de estado. Las referencias técnicas PAPA/popecoin y s
 | Estado | Alcance |
 |---|---|
 | IMPLEMENTED | Programa/planners históricos; recuperación RPC persistente de ROBUSTO; preparación unsigned de reciclaje; propuesta de producción separada; metadata ROBUSTO separada; runbook del segundo rehearsal |
-| TESTED | Consultar el registro de validación de esta sesión; los mocks no prueban inclusión real de transacciones |
+| TESTED | 70 tests cliente, 45 tests Python, TypeScript y metadata histórica PASS; ver evidence/robusto/VALIDATION_2026-10-03.md. Los mocks no prueban inclusión real de transacciones |
 | EXTERNALLY VERIFIED | Solo observaciones RPC de Devnet documentadas en `evidence/robusto/recovery-*.json`, con slot, firma y commitment. Esto no es auditoría independiente ni CI aprobado |
 | PENDING | Segundo rehearsal temporal real; imagen oficial, hosting y metadata; decisiones finales de producción/custodia/distribución; revisión independiente; autorización y financiación de lanzamiento |
 

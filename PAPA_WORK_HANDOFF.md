@@ -694,3 +694,7 @@ El antiguo handoff de preparación y payer=0 quedó obsoleto; configuración his
 
 Segundo rehearsal: docs/ROBUSTO_REHEARSAL_2.md; config/robusto-rehearsal-2.json. Reutilizar supply mediante retorno SPL autorizado por separado; después nueva identidad de beneficiario y nuevo calendario relativo a chain time. No reinicializar la PDA antigua. Ninguna nueva transacción autorizada en esta sesión; solo lecturas/preparación/simulaciones.
 Propuesta producción ROBUSTO separada: config/robusto-production.json, 1B tokens = 1e15 base units, freeze=null, metadata mutable. No mint/programa/custodia/allocations/URIs finales ni autorización Mainnet o revocaciones. Imagen oficial perro negro/gris con cohete pendiente en metadata/robusto/robusto-logo.png; nunca reemplazar PAPA.
+
+Cierre local 2026-10-03: 70/70 client tests y 45/45 Python PASS; tsc, metadata PAPA, check-public y diff-check PASS. Sin recompilar Rust/SBF. Ver docs/evidence/robusto/VALIDATION_2026-10-03.md.
+Devolución preparada y simulada UNSIGNED (NO ENVIADA): docs/evidence/robusto/recycle-proposal-2026-10-03T14-51-42-245Z.json, fee=10000 lamports, rent=0, simulación err=null. El blockhash es temporal: revalidar/reconstruir antes de cualquier firma futura. El estado real permanece released=10000000, vault=source=0, beneficiario=10000000, payer=6305902880.
+Única próxima autorización solicitada: TransferChecked de 10000000 base units del beneficiario antiguo al source; nada más. Nuevo beneficiario, ATA, Initialize, Deposit y releases siguientes no están autorizados. No mint adicional ni Mainnet.

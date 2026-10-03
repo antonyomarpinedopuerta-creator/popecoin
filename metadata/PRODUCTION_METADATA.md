@@ -1,3 +1,5 @@
+> HISTORICAL PAPA DOCUMENT — not the current ROBUSTO launch plan. See [ROBUSTO status](../docs/ROBUSTO_STATUS.md). Historical checkmarks are not evidence of ROBUSTO production readiness.
+
 # PAPA Production Metadata
 
 ## Final Branding

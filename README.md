@@ -1,4 +1,10 @@
-# PAPA vesting
+# ROBUSTO · vesting
+
+Estado actual y límites de lanzamiento: [ROBUSTO_STATUS.md](docs/ROBUSTO_STATUS.md).
+ROBUSTO es la marca pública; los nombres técnicos `popecoin_vesting`, IDs, binarios y metadata PAPA se conservan para reproducibilidad. Los planes PAPA de 10 millones de tokens son históricos: la nueva propuesta ROBUSTO de 1.000 millones está separada y no autorizada.
+
+El lector web conserva datos del ensayo histórico PAPA, explícitamente identificados; no muestra el mint ROBUSTO ni balances de producción.
+
 
 Programa Solana/Anchor para vesting lineal de tokens SPL clásicos. Requiere firma del beneficiario al crear y liberar; la autoridad financia el vault. No tiene cancelación, retiro administrativo ni recuperación de excedentes. La acumulación comienza en `start_time` y se puede reclamar desde `cliff_time`.
 
