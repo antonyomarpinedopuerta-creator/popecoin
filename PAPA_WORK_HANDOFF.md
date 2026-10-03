@@ -680,3 +680,17 @@ El nuevo SHA y run ID se registran después de commit/push de esta corrección; 
 marcarlo EXTERNALLY VERIFIED hasta que todas las validaciones del workflow terminen
 success. Si el run está activo, no hacer polling. No hay aprobación de firma, envío,
 cuenta, mint, buffer o deploy.
+
+
+## ROBUSTO — recuperación persistida 2026-10-03 (prioridad sobre estados anteriores)
+
+Marca pública ROBUSTO / $ROBUSTO; nombres técnicos y metadata PAPA históricos intactos.
+Entrada actual: docs/ROBUSTO_STATUS.md. Evidencia pública: docs/evidence/robusto/RECOVERY_2026-10-03.md y JSON RPC asociado.
+
+Devnet genesis EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG. Programa 6nLZrtmi9Uf3E3kJjGY9Po4KqNhvLDQqQAax5UKMAGVk; mint CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo.
+Release 2BBYKsCEPVcbgi76YEBy2782xWhrXAqt55rbPT6PHYgeJXQUKZuZ14SKJWe1m8WxBdryBZCCFret8UXzSjkKCguB FINALIZED, slot 506267233, fee 10000 lamports. No repetir.
+Snapshot finalized actual slot 507030325: supply=total=released=10000000 base units (=10 tokens, decimals 6), vault=source=0, beneficiary=10000000. Payer 6305902880 lamports.
+El antiguo handoff de preparación y payer=0 quedó obsoleto; configuración histórica con null no representa el estado ejecutado por comandos inline anteriores.
+
+Segundo rehearsal: docs/ROBUSTO_REHEARSAL_2.md; config/robusto-rehearsal-2.json. Reutilizar supply mediante retorno SPL autorizado por separado; después nueva identidad de beneficiario y nuevo calendario relativo a chain time. No reinicializar la PDA antigua. Ninguna nueva transacción autorizada en esta sesión; solo lecturas/preparación/simulaciones.
+Propuesta producción ROBUSTO separada: config/robusto-production.json, 1B tokens = 1e15 base units, freeze=null, metadata mutable. No mint/programa/custodia/allocations/URIs finales ni autorización Mainnet o revocaciones. Imagen oficial perro negro/gris con cohete pendiente en metadata/robusto/robusto-logo.png; nunca reemplazar PAPA.
