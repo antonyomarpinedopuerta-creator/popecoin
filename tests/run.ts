@@ -20,3 +20,5 @@ import "./rehearsal-spl-one-tx.test";
 import "./rehearsal-vesting-one-tx.test";
 
 import "./metadata-production.test";
+
+import "./robusto.test";

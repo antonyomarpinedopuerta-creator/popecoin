@@ -1,0 +1,21 @@
+{
+  "status": "PREPARATION_ONLY_NOT_AUTHORIZED",
+  "cluster": "devnet",
+  "program": "6nLZrtmi9Uf3E3kJjGY9Po4KqNhvLDQqQAax5UKMAGVk",
+  "mint": "CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo",
+  "payer": "4nt7G7nXvBNvygsDjn4zS9vQCR1Zgn1GTpyh8Snh5N7m",
+  "authority": "EEbLZxtZ7hfruksSCG3iKd9CZ7fJ69tQE414Z78Kzt8p",
+  "beneficiary": null,
+  "amount": "10000000",
+  "startUtc": null,
+  "cliffSeconds": 60,
+  "durationSeconds": 3600,
+  "schedulePolicy": {
+    "startDelayFromFreshChainTimeSeconds": 2400,
+    "firstReleaseAfterStartSeconds": 900,
+    "secondReleaseAfterStartSeconds": 2100,
+    "finalReleaseAfterStartSeconds": 3600
+  },
+  "mintAdditionalTokens": false,
+  "prerequisite": "Return existing 10000000 base units from old beneficiary ATA to source after separate approval; then choose a new dedicated beneficiary and verify its new PDA/vault are absent."
+}

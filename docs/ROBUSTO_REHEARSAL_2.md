@@ -29,3 +29,9 @@ No dormir ni esperar en bucles largos en la laptop. Registrar checkpoints durade
 ## Cierre de evidencia
 
 Guardar por paso: snapshot previo/posterior, chain time, genesis, operación, cuentas, signature, estado finalized/err, slot, fee, balances y supply. La reconciliación final exige source=0, vault nuevo=0, beneficiario nuevo=total=supply=released, shortfall=0. El primer ensayo verificó pre-cliff simulado y final; los dos parciales del segundo siguen PENDING hasta evidencia RPC real.
+
+## Comandos preparados
+
+`npm run robusto:prepare-vesting -- schedule` consulta chain time y propone calendario cuando se haya seleccionado el nuevo beneficiario. No escribe ni cambia un calendario existente; copiar una propuesta revisada a la configuración únicamente antes de Initialize.
+`npm run robusto:prepare-vesting -- ata-beneficiary` prepara la ATA nueva. El mismo comando acepta snapshot, initialize, deposit, release-precliff, release-partial, release-repeated, release-final y reconcile-final. Los pasos de transacción solo producen mensajes unsigned, nunca firman/envían. Con beneficiary/startUtc pendientes el wrapper falla cerrado.
+`npm run robusto:prepare-recycle -- --simulate` permite simular la devolución unsigned y guardar logs/balances simulados; no equivale a una transferencia ejecutada.

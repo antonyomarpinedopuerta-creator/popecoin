@@ -46,7 +46,11 @@
     "prepare:rehearsal-tx": "ts-node scripts/rehearsal-one-tx.ts",
     "prepare:rehearsal-spl": "ts-node scripts/rehearsal-spl-one-tx.ts",
     "prepare:rehearsal-vesting": "ts-node scripts/rehearsal-vesting-one-tx.ts",
-    "prepare:metadata": "ts-node scripts/prepare-metadata.ts"
+    "prepare:metadata": "ts-node scripts/prepare-metadata.ts",
+    "robusto:recover": "ts-node scripts/robusto-recovery.ts",
+    "robusto:prepare-recycle": "ts-node scripts/robusto-recycle.ts",
+    "robusto:prepare-metadata": "ts-node scripts/robusto-metadata.ts",
+    "robusto:prepare-vesting": "ts-node scripts/robusto-rehearsal.ts"
   },
   "private": true,
   "engines": {

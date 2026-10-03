@@ -71,3 +71,20 @@ test('final release and final reconciliation require exact balances, supply and 
  const after=mock(end+1n,{initialized:true,released:BigInt(total),vault:0n,beneficiary:BigInt(total),source:0n});const s=await readVestingSnapshot(after.c,input,undefined,deployment,candidateRoot);assert.equal(reconcileFinalSnapshot(s,input).status,'FINAL RECONCILIATION PASSED');
  const short=mock(end+1n,{initialized:true,released:BigInt(total)-1n,vault:0n,beneficiary:BigInt(total)-1n,source:0n});const ss=await readVestingSnapshot(short.c,input,undefined,deployment,candidateRoot);assert.throws(()=>reconcileFinalSnapshot(ss,input),/Final reconciliation mismatch/);
 });
+
+test('full local lifecycle covers pre-cliff, two partial releases, final reconciliation and duplicate final rejection',async()=>{
+ const pre=mock(start-2400n,{initialized:true,vault:BigInt(total)});
+ assert.equal((await prepareVestingOne(pre.c,'release-precliff',input,undefined,deployment,candidateRoot)).expectedAmountAtSnapshot,'0');
+ const first=mock(start+900n,{initialized:true,vault:BigInt(total)});
+ const one=await prepareVestingOne(first.c,'release-partial',input,undefined,deployment,candidateRoot);
+ assert.equal(one.expectedAmountAtSnapshot,'250000');
+ const second=mock(start+2100n,{initialized:true,released:250000n,vault:750000n,beneficiary:250000n});
+ const two=await prepareVestingOne(second.c,'release-repeated',input,undefined,deployment,candidateRoot);
+ assert.equal(two.expectedAmountAtSnapshot,'333333');
+ const final=mock(end,{initialized:true,released:583333n,vault:416667n,beneficiary:583333n});
+ assert.equal((await prepareVestingOne(final.c,'release-final',input,undefined,deployment,candidateRoot)).expectedAmountAtSnapshot,'416667');
+ const done=mock(end+1n,{initialized:true,released:1000000n,vault:0n,beneficiary:1000000n});
+ assert.equal(reconcileFinalSnapshot(await readVestingSnapshot(done.c,input,undefined,deployment,candidateRoot),input).shortfall,'0');
+ await assert.rejects(prepareVestingOne(done.c,'release-final',input,undefined,deployment,candidateRoot),/positive remaining/);
+ for(const m of [pre,first,second,final,done])assert.equal(m.calls.length,0);
+});

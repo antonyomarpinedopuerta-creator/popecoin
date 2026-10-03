@@ -1,0 +1,23 @@
+{
+  "status": "PROPOSAL_ONLY_NOT_AUTHORIZED",
+  "name": "ROBUSTO",
+  "symbol": "ROBUSTO",
+  "displaySymbol": "$ROBUSTO",
+  "decimals": 6,
+  "supplyTokens": "1000000000",
+  "supplyBaseUnits": "1000000000000000",
+  "freezeAuthority": null,
+  "fixedSupplyAfterFinalIssuance": true,
+  "mintAuthorityRevocationAuthorized": false,
+  "metadataMutable": true,
+  "metadataUpdateAuthority": null,
+  "mint": null,
+  "program": null,
+  "allocations": null,
+  "startUtc": null,
+  "imagePath": "metadata/robusto/robusto-logo.png",
+  "imageSha256": null,
+  "imageUri": null,
+  "metadataUri": null,
+  "mainnetAuthorized": false
+}
