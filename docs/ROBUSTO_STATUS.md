@@ -23,7 +23,7 @@ Un presupuesto real debe consultar rent para tamaños exactos, getFeeForMessage 
 
 ## Próximo paso on-chain
 
-Una única TransferChecked de devolución del supply de prueba al source, descrita en `ROBUSTO_REHEARSAL_2.md`, tras mostrar fee/cuentas y obtener autorización. No repetir el release final ya finalizado. El nuevo beneficiario ya se generó localmente con permisos privados; ATA/PDA/vault no existen on-chain. Fecha definitiva pendiente para evitar que expire esperando autorización.
+La devolución TransferChecked fue autorizada y FINALIZED el 2026-10-04; evidencia en `evidence/robusto/authorized-return-2026-10-04.json`. Source=10000000, beneficiario antiguo=0, supply intacto. Próximo paso: creación de ATA del nuevo beneficiario, pendiente de autorización independiente. No repetir el release final ya finalizado. El nuevo beneficiario ya se generó localmente con permisos privados; ATA/PDA/vault no existen on-chain. Fecha definitiva pendiente para evitar que expire esperando autorización.
 
 ## Revisión y negociación pública
 

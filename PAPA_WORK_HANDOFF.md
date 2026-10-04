@@ -708,3 +708,12 @@ Producción status NOT_AUTHORIZED_FOR_MAINNET; roles finales/distribución/custo
 
 Evidencia complementaria: docs/evidence/robusto/SESSION_2026-10-04.md. Deploy finalized 2BcNgT5ycdKHNC1CVw4C2vaPLGMNWiNCUNuEMaVG8Fb5H2zuydmTwHFRwZmHcX7jEZ1XU9tF42UmSuN9SLrn6uKe, slot 506212901, fee 15000, verificado por getTransaction. Pre-cliff histórico recuperado de stdout sin comandos/claves. CI 1706e77/run37131484384 completed/success; commits posteriores todavía no cubiertos por ese resultado.
 Nueva ATA simulada unsigned (fee5000/rent1488440), retorno simulado unsigned (fee10000/rent0), ambos err=null. Ninguna transacción enviada ni cuenta nueva on-chain. Config conserva startUtc=null; preview no es aprobación ni calendario definitivo. El lector web conserva PAPA para balances históricos. Actualizar metadata no equivale a mint adicional.
+
+
+## Retorno autorizado FINALIZED — 2026-10-04
+
+Se envió exactamente UNA TransferChecked con autorización explícita. Signature `u7vR528ZtF1TWFQJVLE43LXjpygxCf8RDFk6BrfxwDizCejK5ZgH9WAvSbCWdxza2f7LDqwEbWzBCzCaG7sAZqZ`, slot 507256074, fee 10000 lamports. Evidencia completa: docs/evidence/robusto/authorized-return-2026-10-04.json. Firma persistida con fsync antes del único envío (maxRetries=0); sin reenvío.
+
+Checkpoint posterior: beneficiario histórico ATA=0, source ATA=10000000, supply=10000000; released histórico=10000000, vault histórico=0. Payer=6305892880 lamports. Hashes de datos/owners/lamports de mint, vesting, vault, ProgramData y ausencia de metadata idénticos antes/después. No cambios de autoridades ni nuevo mint/metadata.
+
+NO repetir ni release final ni devolución. `robusto:recover`/`prepareRecycle` conservan las precondiciones del checkpoint ANTERIOR a devolución y ahora fallarán cerrado por balances; no interpretar eso como transferencia fallida ni forzar su reconciliación anterior. Leer el snapshot sin reconciliación antigua para futuras consultas. Siguiente operación pendiente de nueva autorización: creación de ATA del nuevo beneficiario, no Initialize ni Deposit.

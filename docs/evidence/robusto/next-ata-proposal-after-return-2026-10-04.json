@@ -1,0 +1,28 @@
+{
+  "status": "UNSIGNED SINGLE TRANSACTION — NOT SIMULATED, SIGNED OR SENT",
+  "cluster": "devnet",
+  "rpc": "https://api.devnet.solana.com",
+  "genesisHash": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+  "operation": "create beneficiary classic SPL associated token account",
+  "program": "6nLZrtmi9Uf3E3kJjGY9Po4KqNhvLDQqQAax5UKMAGVk",
+  "mint": "CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo",
+  "payer": "4nt7G7nXvBNvygsDjn4zS9vQCR1Zgn1GTpyh8Snh5N7m",
+  "authority": "EEbLZxtZ7hfruksSCG3iKd9CZ7fJ69tQE414Z78Kzt8p",
+  "beneficiary": "57nW7QndCphV2xqjAGR6EDHAAbraqyb7Un8GcgkUastM",
+  "decimals": 6,
+  "amount": "10000000",
+  "feeLamports": 5000,
+  "rentLamports": 1488440,
+  "maxImmediateLamports": 1493440,
+  "payerBalanceLamports": 6305892880,
+  "adequatelyFunded": true,
+  "unsignedTransactionBase64": "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAUHOFP8MO/S13fNVvi/yEZZF8fkzvnF7TMTbBk5FTHoj3yXmfh+lRtep6W7Gqolx8AzlUCVJob9PWQxM4VFaKmueAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPSuuhcE2hwuyXFDM7NN0FENvKjVJUK1ODgUCMN8asqKMlyWPTiSJ8bs9ECkUjg2DC1oTmdr/EIQEjnvY2+n4Wa0/Bvv13nboDRkuLZOwVU91IKhg0fg4ToE7QN/vmCkYBt324ddloZPZy+FGzut5rBy0he1fWzeROoz1hX7/AKl6z7NQHlH8UMYLm6X3rHv2JNTQM1lRt9qGDUxRwrTtvwEEBgABAwUCBgEB",
+  "transactionBytes": 336,
+  "messageSha256": "fcb7723fac6b2fbc198678abe9d70d86f3b3203177a98b2367c6bc1627c4ff69",
+  "requiredSigners": [
+    "4nt7G7nXvBNvygsDjn4zS9vQCR1Zgn1GTpyh8Snh5N7m"
+  ],
+  "tokenOwner": "57nW7QndCphV2xqjAGR6EDHAAbraqyb7Un8GcgkUastM",
+  "ata": "BCnjcusd1Vxzzda9tKoYog75tvdirNHHABN83smb6wuq",
+  "reversible": false
+}
