@@ -1,0 +1,24 @@
+{
+  "status": "PREPARATION_ONLY_NOT_AUTHORIZED",
+  "cluster": "devnet",
+  "program": "6nLZrtmi9Uf3E3kJjGY9Po4KqNhvLDQqQAax5UKMAGVk",
+  "mint": "CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo",
+  "payer": "4nt7G7nXvBNvygsDjn4zS9vQCR1Zgn1GTpyh8Snh5N7m",
+  "authority": "EEbLZxtZ7hfruksSCG3iKd9CZ7fJ69tQE414Z78Kzt8p",
+  "beneficiary": "GuKSMzTw7JZfAkh9A4hGYYysmQGpxTxXF2QdC1QHVFTF",
+  "amount": "10000000",
+  "startUtc": null,
+  "cliffSeconds": 43200,
+  "durationSeconds": 604800,
+  "durationPolicy": "extended-devnet-7-days",
+  "mintAdditionalTokens": false,
+  "schedulePolicy": {
+    "startDelayFromFreshChainTimeSeconds": 172800,
+    "firstReleaseAfterStartSeconds": 172800,
+    "secondReleaseAfterStartSeconds": 345600,
+    "finalReleaseAfterStartSeconds": 604800
+  },
+  "checkpoint": {
+    "state": "LOCAL_IDENTITY_ONLY_NO_TRANSACTIONS"
+  }
+}

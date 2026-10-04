@@ -19,6 +19,7 @@ export function validateSecondPlan(p:any){
 async function main(){
  const [step,...extra]=process.argv.slice(2);if(extra.length)throw Error('One operation only');
  const p=validateSecondPlan(JSON.parse(fs.readFileSync('config/robusto-rehearsal-2.json','utf8')));
+ if(p.checkpoint?.state==='ABANDONED_EMPTY_VAULT' && step!=='snapshot')throw Error('Second rehearsal abandoned: snapshot only; never deposit or reuse');
  const c=connection();if(await c.getGenesisHash()!==GENESIS)throw Error('Devnet genesis mismatch');
  let result:unknown;
  if(step==='schedule'){

@@ -1,3 +1,5 @@
+> Actualización 2026-10-04: segundo rehearsal abandonado con vault vacío y released=0; NO Deposit, cierre ni reutilización. Tercer rehearsal preparado sin transacciones, con nueva identidad y calendario relativo de 48h de margen + 7 días de duración. Ver docs/ROBUSTO_REHEARSAL_3.md (desde docs: ROBUSTO_REHEARSAL_3.md). Esta actualización sustituye cualquier siguiente paso Deposit del segundo indicado abajo. Estado: PENDING_AUTHORIZATION.
+
 # PAPA — handoff técnico actual
 
 Actualizado en la continuación del 28 de septiembre de 2026. Este documento describe el árbol actual;

@@ -21,6 +21,7 @@
   "checkpoint": {
     "initializeSignature": "5XH3ea3kgusAGTq61y26uuBdos8nkbc2q3zVv8TxiHugpxGSN6uyftmYDBhZ2bpcxVscS2vwf4GvozFsrNWgC43d",
     "initializeSlot": 507359680,
-    "state": "INITIALIZED_EMPTY_VAULT_NO_DEPOSIT_AUTHORIZED"
+    "state": "ABANDONED_EMPTY_VAULT",
+    "reason": "Immutable schedule missed; retain empty vault as historical evidence. No deposit, close or reuse."
   }
 }

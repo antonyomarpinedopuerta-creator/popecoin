@@ -53,3 +53,24 @@ test('protected identities and account collisions fail in every rehearsal role',
  assert.throws(()=>prepareRehearsal(input,idl,'invalid'));
  assert.throws(()=>prepareRehearsal(input,idl,''));
 });
+test('extended Devnet schedule requires explicit opt-in and preserves seven-day bound', () => {
+ const extended={...input,durationPolicy:'extended-devnet-7-days',cliffSeconds:43200,durationSeconds:604800};
+ const plan=prepareRehearsal(extended,idl);
+ assert.equal(BigInt(plan.end)-BigInt(plan.start),604800n);
+ assert.equal(BigInt(plan.cliff)-BigInt(plan.start),43200n);
+ const decoded=new BorshInstructionCoder(idl).decode(Buffer.from(plan.steps[0].dataHex,'hex'))!;
+ assert.equal((decoded.data as any).end_time.toString(),plan.end);
+ for(const change of [{durationPolicy:undefined},{durationPolicy:'unbounded'},{durationSeconds:604801},{cliffSeconds:604800},{cluster:'mainnet-beta'}])
+  assert.throws(()=>prepareRehearsal({...extended,...change},idl));
+});
+test('seven-day cycle reconciles pre-cliff, two partial claims and final dust', () => {
+ const {vestedAmount}=require('../scripts/rehearsal-vesting-one-tx');
+ const total=10000000n,start=2000000000n,cliff=start+43200n,end=start+604800n;
+ assert.equal(vestedAmount(total,start,cliff,end,cliff-1n),0n);
+ const first=vestedAmount(total,start,cliff,end,start+172800n);
+ const second=vestedAmount(total,start,cliff,end,start+345600n);
+ assert.equal(first,2857142n);assert.equal(second-first,2857143n);
+ assert.equal(total-second,4285715n);
+ assert.equal(vestedAmount(total,start,cliff,end,end),total);
+ assert.equal(vestedAmount(total,start,cliff,end,end+86400n)-total,0n);
+});

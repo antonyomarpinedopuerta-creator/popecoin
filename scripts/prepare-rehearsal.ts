@@ -8,7 +8,7 @@ import { DEVNET_MINT, DEVNET_PROGRAM_ID } from "./devnet-config";
 import { ALLOCATIONS, PRODUCTION_PROGRAM } from "./production-plan";
 
 export type RehearsalInput = { cluster: unknown; program: unknown; mint: unknown; payer: unknown;
-  authority: unknown; beneficiary: unknown; amount: unknown; startUtc: unknown; cliffSeconds: unknown; durationSeconds: unknown };
+  authority: unknown; beneficiary: unknown; amount: unknown; startUtc: unknown; cliffSeconds: unknown; durationSeconds: unknown; durationPolicy?: unknown };
 function address(value: unknown, signer = false) {
   if (typeof value !== "string") throw new Error("Public rehearsal addresses are pending");
   const key = new PublicKey(value);
@@ -31,8 +31,10 @@ export function prepareRehearsal(input: RehearsalInput, idl: Idl, protectedMint?
   if (typeof input.startUtc !== "string" || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(input.startUtc)) throw new Error("An explicit approved UTC start is required");
   const milliseconds = Date.parse(input.startUtc);
   if (!Number.isFinite(milliseconds) || milliseconds < 0 || new Date(milliseconds).toISOString().replace('.000Z','Z') !== input.startUtc) throw new Error("Invalid startUtc");
+  if (input.durationPolicy !== undefined && input.durationPolicy !== 'extended-devnet-7-days') throw new Error('Unknown duration policy');
+  const maxDuration = input.durationPolicy === 'extended-devnet-7-days' ? 604800 : 3600;
   if (typeof input.cliffSeconds !== "number" || !Number.isInteger(input.cliffSeconds) || input.cliffSeconds < 10 ||
-      typeof input.durationSeconds !== "number" || !Number.isInteger(input.durationSeconds) || input.durationSeconds <= input.cliffSeconds || input.durationSeconds > 3600) throw new Error("Use 10 <= cliff < duration <= 3600 seconds");
+      typeof input.durationSeconds !== "number" || !Number.isInteger(input.durationSeconds) || input.durationSeconds <= input.cliffSeconds || input.durationSeconds > maxDuration) throw new Error(`Use 10 <= cliff < duration <= ${maxDuration} seconds`);
   const start = BigInt(milliseconds / 1000), cliff = start + BigInt(input.cliffSeconds), end = start + BigInt(input.durationSeconds);
   const [vesting] = PublicKey.findProgramAddressSync([Buffer.from('vesting'), beneficiary.toBuffer(), mint.toBuffer()], program);
   const [vault] = PublicKey.findProgramAddressSync([Buffer.from('vault'), vesting.toBuffer()], program);

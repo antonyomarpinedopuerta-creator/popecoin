@@ -1,0 +1,12 @@
+{
+  "beneficiary": "GuKSMzTw7JZfAkh9A4hGYYysmQGpxTxXF2QdC1QHVFTF",
+  "ata": "9gSDUytN7u3tUk8B8h7Tmdtik8U3SScyXfHRHL2Swgby",
+  "vesting": "4A63yMPGnrH4XY8yFAAFK8TkRi7rJ3May1GW1DvX2tNN",
+  "vault": "CNJpJ3D9FUJcMnfpPQgxV6AxMoWbUwvGcUgtp2DmVuAT",
+  "source": "DHyysduG5SxsqiupB7Zvw32fLq14BUVBZbHKbXBqYcN6",
+  "privatePath": "target/rehearsal-identities/robusto-third-20261004/beneficiary-keypair.json",
+  "directoryMode": "0700",
+  "fileMode": "0600",
+  "protectedIdentitiesChecked": true,
+  "status": "PREPARATION_ONLY_NOT_AUTHORIZED"
+}

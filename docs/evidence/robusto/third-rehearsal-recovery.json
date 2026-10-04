@@ -1,0 +1,27 @@
+{
+  "commitment": "finalized",
+  "slot": 507375096,
+  "unixTime": 1791119459,
+  "program": "6nLZrtmi9Uf3E3kJjGY9Po4KqNhvLDQqQAax5UKMAGVk",
+  "programData": "3XmkEz8dhj5AkbPb1oMkyPEfnbtkiUaHc81awxdfh6Zm",
+  "mint": "CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo",
+  "decimals": 6,
+  "supply": "10000000",
+  "vesting": "7VYZB6pAfB1oa4NtyJUxMPQqsukWYrKbNSPCMuDdMYbm",
+  "vestingState": {
+    "authority": "EEbLZxtZ7hfruksSCG3iKd9CZ7fJ69tQE414Z78Kzt8p",
+    "beneficiary": "57nW7QndCphV2xqjAGR6EDHAAbraqyb7Un8GcgkUastM",
+    "mint": "CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo",
+    "total": "10000000",
+    "released": "0",
+    "start": "1791118216",
+    "cliff": "1791118276",
+    "end": "1791121816"
+  },
+  "vault": "4PYiXXdTtm8eJbocqZd2szg5H1xdnacq55tbuWdgXETZ",
+  "vaultAmount": "0",
+  "source": "DHyysduG5SxsqiupB7Zvw32fLq14BUVBZbHKbXBqYcN6",
+  "sourceAmount": "10000000",
+  "beneficiaryAta": "BCnjcusd1Vxzzda9tKoYog75tvdirNHHABN83smb6wuq",
+  "beneficiaryAmount": "0"
+}
