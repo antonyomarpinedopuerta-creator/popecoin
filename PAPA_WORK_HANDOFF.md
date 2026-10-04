@@ -724,3 +724,11 @@ NO repetir ni release final ni devolución. `robusto:recover`/`prepareRecycle` c
 Exactamente UNA creación ATA idempotente, firmante único payer. Signature 5idh6a8v4jR1eTx5EJsRCPq4ZeVmDMR7SDnDbv6xEVTfQoPNkUC9jPnxX8mCKot2sDR9k34CHzB4FLXS9Y7DUcMc, slot 507259224; fee=5000, rent=1488440, débito total=1493440 lamports verificado en transacción. Evidencia docs/evidence/robusto/authorized-ata-2026-10-04.json.
 ATA BCnjcusd1Vxzzda9tKoYog75tvdirNHHABN83smb6wuq existe, SPL Token clásico, token owner 57nW7QndCphV2xqjAGR6EDHAAbraqyb7Un8GcgkUastM, mint CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo, saldo0. Supply=source=10000000. Payer=6304399440 lamports. Mint/autoridades/ProgramData/metadata/vesting histórico invariantes por hashes. Nueva PDA/vault aún ausentes.
 No repetir creación ATA ni retorno previo. No Initialize/Deposit/release autorizado. Próxima única autorización: Initialize nueva PDA/vault, con calendario relativo a chain time fresco para conservar ventana pre-cliff. Config startUtc permanece null hasta autorización.
+
+
+## Segundo Initialize FINALIZED — 2026-10-04
+
+Signature 5XH3ea3kgusAGTq61y26uuBdos8nkbc2q3zVv8TxiHugpxGSN6uyftmYDBhZ2bpcxVscS2vwf4GvozFsrNWgC43d, slot 507359680. Fee15000; rent2875280 (vesting1386840+vault1488440); coste2890280. Payer6301509160 lamports. Registro completo docs/evidence/robusto/authorized-initialize-second-2026-10-04.json. Un primer intento de lecturas recibió429 ANTES de firma/envío y sin journal; consultas posteriores espaciadas. Solo un envío, firma persistida antes del envío y no reenviada.
+Nueva PDA 7VYZB6pAfB1oa4NtyJUxMPQqsukWYrKbNSPCMuDdMYbm creada; vault 4PYiXXdTtm8eJbocqZd2szg5H1xdnacq55tbuWdgXETZ creado/vacío. Total10000000, released0, source10000000, beneficiario nuevo0, supply10000000. Históricos/autoridades/metadata intactos por hashes.
+Calendario definitivo UTC: inicio 2026-10-04T12:50:16Z, cliff 2026-10-04T12:51:16Z, final 2026-10-04T13:50:16Z. Se persistió startUtc real en config/robusto-rehearsal-2.json. NO recalcular calendario de esta PDA ni repetir Initialize.
+Siguiente única autorización pendiente: Deposit10000000 desde source a nuevo vault. No Deposit ni release enviados/autorizados. Revalidar ventana pre-cliff antes de futuros pasos; no fingir prueba temporal si expira.

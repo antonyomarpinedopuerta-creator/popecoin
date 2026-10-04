@@ -1,0 +1,61 @@
+{
+  "status": "UNSIGNED DEPOSIT PROPOSAL ONLY — NOT SENT",
+  "snapshot": {
+    "slot": 507360640,
+    "unixTime": 1791116069,
+    "program": "6nLZrtmi9Uf3E3kJjGY9Po4KqNhvLDQqQAax5UKMAGVk",
+    "programData": "3XmkEz8dhj5AkbPb1oMkyPEfnbtkiUaHc81awxdfh6Zm",
+    "mint": "CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo",
+    "decimals": 6,
+    "supply": "10000000",
+    "vesting": "7VYZB6pAfB1oa4NtyJUxMPQqsukWYrKbNSPCMuDdMYbm",
+    "vestingState": {
+      "authority": "EEbLZxtZ7hfruksSCG3iKd9CZ7fJ69tQE414Z78Kzt8p",
+      "beneficiary": "57nW7QndCphV2xqjAGR6EDHAAbraqyb7Un8GcgkUastM",
+      "mint": "CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo",
+      "total": "10000000",
+      "released": "0",
+      "start": "1791118216",
+      "cliff": "1791118276",
+      "end": "1791121816"
+    },
+    "vault": "4PYiXXdTtm8eJbocqZd2szg5H1xdnacq55tbuWdgXETZ",
+    "vaultAmount": "0",
+    "source": "DHyysduG5SxsqiupB7Zvw32fLq14BUVBZbHKbXBqYcN6",
+    "sourceAmount": "10000000",
+    "beneficiaryAta": "BCnjcusd1Vxzzda9tKoYog75tvdirNHHABN83smb6wuq",
+    "beneficiaryAmount": "0"
+  },
+  "plan": {
+    "status": "UNSIGNED SINGLE TRANSACTION — NOT SIMULATED, SIGNED OR SENT",
+    "operation": "deposit",
+    "cluster": "devnet",
+    "rpc": "https://api.devnet.solana.com",
+    "genesisHash": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+    "slot": 507360654,
+    "chainTime": 1791116072,
+    "program": "6nLZrtmi9Uf3E3kJjGY9Po4KqNhvLDQqQAax5UKMAGVk",
+    "mint": "CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo",
+    "payer": "4nt7G7nXvBNvygsDjn4zS9vQCR1Zgn1GTpyh8Snh5N7m",
+    "authority": "EEbLZxtZ7hfruksSCG3iKd9CZ7fJ69tQE414Z78Kzt8p",
+    "beneficiary": "57nW7QndCphV2xqjAGR6EDHAAbraqyb7Un8GcgkUastM",
+    "expectedAmountAtSnapshot": "10000000",
+    "amountIsInstructionArgument": true,
+    "feeLamports": 10000,
+    "rentLamports": 0,
+    "maxImmediateLamports": 10000,
+    "payerBalanceLamports": 6301509160,
+    "adequatelyFunded": true,
+    "blockhash": "ChEFqB2df17NPdopwxrpP1G9bj4w2ZdaBXPwSi2DVCQA",
+    "lastValidBlockHeight": 494606592,
+    "transactionBytes": 447,
+    "unsignedTransactionBase64": "AgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgADCDhT/DDv0td3zVb4v8hGWRfH5M75xe0zE2wZORUx6I98xKNOU8TGxVcuPBGvG6X2s2YmmGUXuEtljJj+uAb90dkyWbMvZgzsmWlUMxyF1IsDVTnOjzKJX5/a7dA2fu5guGB2EDGAATcecOUQR7Y6VwA7fN4ERYda9HHBrp9NIe4ctqX21ZvEUyf2LJWjLr5FVerL9iggP9LQvn29/4BeYUtV57Hsf8m5o9XGMi+8sCS2yGIbjPJKiMD0FSUCzfkhR60/Bvv13nboDRkuLZOwVU91IKhg0fg4ToE7QN/vmCkYBt324ddloZPZy+FGzut5rBy0he1fWzeROoz1hX7/AKmtvsbdrSMidg92XEoTmuIgAIHV4UQINmf2J/PVeG9VSwEFBgMCAQYEBxDyI8aJUuHytoCWmAAAAAAA",
+    "messageSha256": "eb6c75f42a60c3643683fb004386f2d189ab960e3d504a795c9ac6d4329a584a",
+    "requiredSigners": [
+      "4nt7G7nXvBNvygsDjn4zS9vQCR1Zgn1GTpyh8Snh5N7m",
+      "EEbLZxtZ7hfruksSCG3iKd9CZ7fJ69tQE414Z78Kzt8p"
+    ],
+    "expectedEffect": "Only this listed transaction if separately approved, signed and submitted. No automatic next step."
+  },
+  "secondsUntilCliff": 2207
+}
