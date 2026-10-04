@@ -717,3 +717,10 @@ Se envió exactamente UNA TransferChecked con autorización explícita. Signatur
 Checkpoint posterior: beneficiario histórico ATA=0, source ATA=10000000, supply=10000000; released histórico=10000000, vault histórico=0. Payer=6305892880 lamports. Hashes de datos/owners/lamports de mint, vesting, vault, ProgramData y ausencia de metadata idénticos antes/después. No cambios de autoridades ni nuevo mint/metadata.
 
 NO repetir ni release final ni devolución. `robusto:recover`/`prepareRecycle` conservan las precondiciones del checkpoint ANTERIOR a devolución y ahora fallarán cerrado por balances; no interpretar eso como transferencia fallida ni forzar su reconciliación anterior. Leer el snapshot sin reconciliación antigua para futuras consultas. Siguiente operación pendiente de nueva autorización: creación de ATA del nuevo beneficiario, no Initialize ni Deposit.
+
+
+## ATA nueva autorizada FINALIZED — 2026-10-04
+
+Exactamente UNA creación ATA idempotente, firmante único payer. Signature 5idh6a8v4jR1eTx5EJsRCPq4ZeVmDMR7SDnDbv6xEVTfQoPNkUC9jPnxX8mCKot2sDR9k34CHzB4FLXS9Y7DUcMc, slot 507259224; fee=5000, rent=1488440, débito total=1493440 lamports verificado en transacción. Evidencia docs/evidence/robusto/authorized-ata-2026-10-04.json.
+ATA BCnjcusd1Vxzzda9tKoYog75tvdirNHHABN83smb6wuq existe, SPL Token clásico, token owner 57nW7QndCphV2xqjAGR6EDHAAbraqyb7Un8GcgkUastM, mint CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo, saldo0. Supply=source=10000000. Payer=6304399440 lamports. Mint/autoridades/ProgramData/metadata/vesting histórico invariantes por hashes. Nueva PDA/vault aún ausentes.
+No repetir creación ATA ni retorno previo. No Initialize/Deposit/release autorizado. Próxima única autorización: Initialize nueva PDA/vault, con calendario relativo a chain time fresco para conservar ventana pre-cliff. Config startUtc permanece null hasta autorización.
