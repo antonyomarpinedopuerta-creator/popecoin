@@ -1,0 +1,38 @@
+{
+  "provenance": "Recovered historical command stdout; not a new simulation or on-chain transaction",
+  "recordedAt": "2026-10-01T09:28:57.296Z",
+  "result": {
+    "status": "SIMULATION FAILED AS EXPECTED: NothingToRelease",
+    "simulation": {
+      "rpcMethod": "simulateTransaction",
+      "signature": null,
+      "signed": false,
+      "sent": false,
+      "err": {
+        "InstructionError": [
+          0,
+          {
+            "Custom": 6002
+          }
+        ]
+      },
+      "logs": [
+        "Program log: AnchorError thrown in programs/popecoin_vesting/src/instructions/release.rs:55. Error Code: NothingToRelease. Error Number: 6002. Error Message: Nothing is available to release yet.",
+        "Program 6nLZrtmi9Uf3E3kJjGY9Po4KqNhvLDQqQAax5UKMAGVk failed: custom program error: 0x1772"
+      ],
+      "observedNothingToRelease": true,
+      "contextSlot": 506226393
+    },
+    "chainTimeUtc": "2026-10-01T09:28:55.000Z",
+    "cliffUtc": "2026-10-01T10:14:32.000Z",
+    "secondsToCliff": "2737",
+    "state": {
+      "released": "0",
+      "source": "0",
+      "vault": "10000000",
+      "beneficiary": "0"
+    },
+    "genesisHash": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+    "payerBalanceLamports": 6305912880
+  }
+}

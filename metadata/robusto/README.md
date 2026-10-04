@@ -9,3 +9,5 @@ Estado: **PENDING_USER_ASSET**. Imagen exacta elegida: perro negro/gris con zona
 La metadata on-chain deberá tener isMutable=true y conservar una update authority bajo custodia aprobada. Poder actualizar metadata es independiente de dejar fijo el supply del mint. Cambios posteriores de nombre/logo requieren publicar nuevos bytes y actualizar la URI; no se revoca esa autoridad. Una URI content-addressed no implica que la cuenta on-chain sea inmutable.
 
 `metadata/metadata.json`, `papa-logo.png` y `popecoin-logo.png` son históricos e intactos. Los comandos antiguos de metadata siguen siendo para PAPA, no deben usarse para ROBUSTO.
+
+La configuración candidata se marca NOT_AUTHORIZED_FOR_MAINNET. Mint authority y metadata update authority tienen campos separados; el validador rechaza claves inválidas/default y la reutilización del mismo firmante de mint/upgrade para metadata. Custodia multisig/PDA requeriría revisión explícita; no se infiere de una dirección.

@@ -1,0 +1,272 @@
+{
+  "status": "UNSIGNED ATA SIMULATION PASSED — NO ACCOUNTS CREATED",
+  "observedAt": "2026-10-04T04:45:09.800Z",
+  "ataProposal": {
+    "status": "UNSIGNED SINGLE TRANSACTION — NOT SIMULATED, SIGNED OR SENT",
+    "cluster": "devnet",
+    "rpc": "https://api.devnet.solana.com",
+    "genesisHash": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+    "operation": "create beneficiary classic SPL associated token account",
+    "program": "6nLZrtmi9Uf3E3kJjGY9Po4KqNhvLDQqQAax5UKMAGVk",
+    "mint": "CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo",
+    "payer": "4nt7G7nXvBNvygsDjn4zS9vQCR1Zgn1GTpyh8Snh5N7m",
+    "authority": "EEbLZxtZ7hfruksSCG3iKd9CZ7fJ69tQE414Z78Kzt8p",
+    "beneficiary": "57nW7QndCphV2xqjAGR6EDHAAbraqyb7Un8GcgkUastM",
+    "decimals": 6,
+    "amount": "10000000",
+    "feeLamports": 5000,
+    "rentLamports": 1488440,
+    "maxImmediateLamports": 1493440,
+    "payerBalanceLamports": 6305902880,
+    "adequatelyFunded": true,
+    "unsignedTransactionBase64": "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAUHOFP8MO/S13fNVvi/yEZZF8fkzvnF7TMTbBk5FTHoj3yXmfh+lRtep6W7Gqolx8AzlUCVJob9PWQxM4VFaKmueAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPSuuhcE2hwuyXFDM7NN0FENvKjVJUK1ODgUCMN8asqKMlyWPTiSJ8bs9ECkUjg2DC1oTmdr/EIQEjnvY2+n4Wa0/Bvv13nboDRkuLZOwVU91IKhg0fg4ToE7QN/vmCkYBt324ddloZPZy+FGzut5rBy0he1fWzeROoz1hX7/AKlkWHobJVTT7TdlPWDpttq2U5MupCrRMklXsUP29ErjowEEBgABAwUCBgEB",
+    "transactionBytes": 336,
+    "messageSha256": "c812e9b5a8fc51321fba4fb0a3de8dbd51e476eec90d25998b6e609c7121b922",
+    "requiredSigners": [
+      "4nt7G7nXvBNvygsDjn4zS9vQCR1Zgn1GTpyh8Snh5N7m"
+    ],
+    "tokenOwner": "57nW7QndCphV2xqjAGR6EDHAAbraqyb7Un8GcgkUastM",
+    "ata": "BCnjcusd1Vxzzda9tKoYog75tvdirNHHABN83smb6wuq",
+    "reversible": false
+  },
+  "simulation": {
+    "context": {
+      "apiVersion": "4.4.0-beta.0",
+      "slot": 507245644
+    },
+    "value": {
+      "accounts": [
+        {
+          "data": [
+            "rT8G+/XedugNGS4tk7BVT3UgqGDR+DhOgTtA3++YKRg9K66FwTaHC7JcUMzs03QUQ28qNUlQrU4OBQIw3xqyogAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+            "base64"
+          ],
+          "executable": false,
+          "lamports": 1488440,
+          "owner": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "rentEpoch": 18446744073709552000,
+          "space": 165
+        }
+      ],
+      "err": null,
+      "fee": 5000,
+      "innerInstructions": null,
+      "loadedAccountsDataSize": 214193,
+      "loadedAddresses": {
+        "readonly": [],
+        "writable": []
+      },
+      "logs": [
+        "Program ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL invoke [1]",
+        "Program log: CreateIdempotent",
+        "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [2]",
+        "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 179 of 194571 compute units",
+        "Program return: TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA pQAAAAAAAAA=",
+        "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success",
+        "Program 11111111111111111111111111111111 invoke [2]",
+        "Program 11111111111111111111111111111111 success",
+        "Program log: Initialize the associated token account",
+        "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [2]",
+        "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 37 of 189482 compute units",
+        "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success",
+        "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [2]",
+        "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 233 of 187019 compute units",
+        "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success",
+        "Program ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL consumed 13518 of 200000 compute units",
+        "Program ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL success"
+      ],
+      "postBalances": [
+        6304409440,
+        1488440,
+        1,
+        0,
+        5938070540,
+        1066800,
+        20369267856
+      ],
+      "postTokenBalances": [
+        {
+          "accountIndex": 1,
+          "mint": "CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo",
+          "owner": "57nW7QndCphV2xqjAGR6EDHAAbraqyb7Un8GcgkUastM",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "uiTokenAmount": {
+            "amount": "0",
+            "decimals": 6,
+            "uiAmount": 0,
+            "uiAmountString": "0"
+          }
+        }
+      ],
+      "preBalances": [
+        6305902880,
+        0,
+        1,
+        0,
+        5938070540,
+        1066800,
+        20369267856
+      ],
+      "preTokenBalances": [],
+      "replacementBlockhash": null,
+      "returnData": null,
+      "unitsConsumed": 13518
+    }
+  },
+  "draftInstructions": {
+    "status": "UNSIGNED INSTRUCTIONS FOR REVIEW — NOT AUTHORIZED OR SIMULATED",
+    "cluster": "devnet",
+    "payer": "4nt7G7nXvBNvygsDjn4zS9vQCR1Zgn1GTpyh8Snh5N7m",
+    "program": "6nLZrtmi9Uf3E3kJjGY9Po4KqNhvLDQqQAax5UKMAGVk",
+    "mint": "CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo",
+    "authority": "EEbLZxtZ7hfruksSCG3iKd9CZ7fJ69tQE414Z78Kzt8p",
+    "beneficiary": "57nW7QndCphV2xqjAGR6EDHAAbraqyb7Un8GcgkUastM",
+    "amount": "10000000",
+    "start": "1791091508",
+    "cliff": "1791091568",
+    "end": "1791095108",
+    "vesting": "7VYZB6pAfB1oa4NtyJUxMPQqsukWYrKbNSPCMuDdMYbm",
+    "vault": "4PYiXXdTtm8eJbocqZd2szg5H1xdnacq55tbuWdgXETZ",
+    "source": "DHyysduG5SxsqiupB7Zvw32fLq14BUVBZbHKbXBqYcN6",
+    "destination": "BCnjcusd1Vxzzda9tKoYog75tvdirNHHABN83smb6wuq",
+    "steps": [
+      {
+        "name": "initialize",
+        "program": "6nLZrtmi9Uf3E3kJjGY9Po4KqNhvLDQqQAax5UKMAGVk",
+        "accounts": [
+          {
+            "address": "4nt7G7nXvBNvygsDjn4zS9vQCR1Zgn1GTpyh8Snh5N7m",
+            "signer": true,
+            "writable": true
+          },
+          {
+            "address": "EEbLZxtZ7hfruksSCG3iKd9CZ7fJ69tQE414Z78Kzt8p",
+            "signer": true,
+            "writable": false
+          },
+          {
+            "address": "57nW7QndCphV2xqjAGR6EDHAAbraqyb7Un8GcgkUastM",
+            "signer": true,
+            "writable": false
+          },
+          {
+            "address": "CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo",
+            "signer": false,
+            "writable": false
+          },
+          {
+            "address": "7VYZB6pAfB1oa4NtyJUxMPQqsukWYrKbNSPCMuDdMYbm",
+            "signer": false,
+            "writable": true
+          },
+          {
+            "address": "4PYiXXdTtm8eJbocqZd2szg5H1xdnacq55tbuWdgXETZ",
+            "signer": false,
+            "writable": true
+          },
+          {
+            "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "signer": false,
+            "writable": false
+          },
+          {
+            "address": "11111111111111111111111111111111",
+            "signer": false,
+            "writable": false
+          },
+          {
+            "address": "SysvarRent111111111111111111111111111111111",
+            "signer": false,
+            "writable": false
+          }
+        ],
+        "dataHex": "afaf6d1f0d989bed809698000000000034e3c16a0000000070e3c16a0000000044f1c16a00000000"
+      },
+      {
+        "name": "deposit",
+        "program": "6nLZrtmi9Uf3E3kJjGY9Po4KqNhvLDQqQAax5UKMAGVk",
+        "accounts": [
+          {
+            "address": "7VYZB6pAfB1oa4NtyJUxMPQqsukWYrKbNSPCMuDdMYbm",
+            "signer": false,
+            "writable": true
+          },
+          {
+            "address": "4PYiXXdTtm8eJbocqZd2szg5H1xdnacq55tbuWdgXETZ",
+            "signer": false,
+            "writable": true
+          },
+          {
+            "address": "EEbLZxtZ7hfruksSCG3iKd9CZ7fJ69tQE414Z78Kzt8p",
+            "signer": true,
+            "writable": true
+          },
+          {
+            "address": "CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo",
+            "signer": false,
+            "writable": false
+          },
+          {
+            "address": "DHyysduG5SxsqiupB7Zvw32fLq14BUVBZbHKbXBqYcN6",
+            "signer": false,
+            "writable": true
+          },
+          {
+            "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "signer": false,
+            "writable": false
+          }
+        ],
+        "dataHex": "f223c68952e1f2b68096980000000000"
+      },
+      {
+        "name": "release",
+        "program": "6nLZrtmi9Uf3E3kJjGY9Po4KqNhvLDQqQAax5UKMAGVk",
+        "accounts": [
+          {
+            "address": "7VYZB6pAfB1oa4NtyJUxMPQqsukWYrKbNSPCMuDdMYbm",
+            "signer": false,
+            "writable": true
+          },
+          {
+            "address": "4PYiXXdTtm8eJbocqZd2szg5H1xdnacq55tbuWdgXETZ",
+            "signer": false,
+            "writable": true
+          },
+          {
+            "address": "57nW7QndCphV2xqjAGR6EDHAAbraqyb7Un8GcgkUastM",
+            "signer": true,
+            "writable": true
+          },
+          {
+            "address": "CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo",
+            "signer": false,
+            "writable": false
+          },
+          {
+            "address": "BCnjcusd1Vxzzda9tKoYog75tvdirNHHABN83smb6wuq",
+            "signer": false,
+            "writable": true
+          },
+          {
+            "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "signer": false,
+            "writable": false
+          }
+        ],
+        "dataHex": "fdf90fce1c7fc1f1"
+      }
+    ],
+    "instructionsSha256": "1ea0fb8808a125a03ef2b696a0de42addfee5a7315eb9d7cfdf25920b949c149",
+    "prerequisites": [
+      "Verify Devnet genesis and candidate ProgramData/binary match",
+      "Use a dedicated classic SPL test mint with 6 decimals and no freeze authority",
+      "Confirm vesting/vault do not exist and source/destination ATAs have correct owners and mint",
+      "Source must hold the full amount; initialize creates an empty vault",
+      "Check current chain clock and fees/rent; obtain approval before wallet simulation, show its result and obtain separate approval before signing/sending",
+      "Release before cliff must fail; reconcile partial, repeated and final claims by chain time",
+      "These instructions contain no blockhash or signatures and must not be replayed blindly"
+    ]
+  },
+  "scheduleNote": "Illustration from this chain time only. Not stored as approved schedule; recompute before initialize. Initialize/deposit cannot pass live state preconditions before return transfer and ATA creation."
+}

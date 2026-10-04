@@ -5,7 +5,7 @@ Esta es la entrada actual de estado. Las referencias técnicas PAPA/popecoin y s
 | Estado | Alcance |
 |---|---|
 | IMPLEMENTED | Programa/planners históricos; recuperación RPC persistente de ROBUSTO; preparación unsigned de reciclaje; propuesta de producción separada; metadata ROBUSTO separada; runbook del segundo rehearsal |
-| TESTED | 70 tests cliente, 45 tests Python, TypeScript y metadata histórica PASS; ver evidence/robusto/VALIDATION_2026-10-03.md. Los mocks no prueban inclusión real de transacciones |
+| TESTED | 47 tests Rust (36 integración), 71 tests cliente, 45 tests Python, TypeScript, artefactos y metadata histórica PASS; ver evidence/robusto/SESSION_2026-10-04.md. Los mocks no prueban inclusión real de transacciones |
 | EXTERNALLY VERIFIED | Solo observaciones RPC de Devnet documentadas en `evidence/robusto/recovery-*.json`, con slot, firma y commitment. Esto no es auditoría independiente ni CI aprobado |
 | PENDING | Segundo rehearsal temporal real; imagen oficial, hosting y metadata; decisiones finales de producción/custodia/distribución; revisión independiente; autorización y financiación de lanzamiento |
 
@@ -23,4 +23,12 @@ Un presupuesto real debe consultar rent para tamaños exactos, getFeeForMessage 
 
 ## Próximo paso on-chain
 
-Una única TransferChecked de devolución del supply de prueba al source, descrita en `ROBUSTO_REHEARSAL_2.md`, tras mostrar fee/cuentas y obtener autorización. No repetir el release final ya finalizado. El segundo ensayo mantiene nuevo beneficiario/fecha pendientes hasta preparar su fase correspondiente.
+Una única TransferChecked de devolución del supply de prueba al source, descrita en `ROBUSTO_REHEARSAL_2.md`, tras mostrar fee/cuentas y obtener autorización. No repetir el release final ya finalizado. El nuevo beneficiario ya se generó localmente con permisos privados; ATA/PDA/vault no existen on-chain. Fecha definitiva pendiente para evitar que expire esperando autorización.
+
+## Revisión y negociación pública
+
+Ver ROBUSTO_SECURITY_REVIEW.md: mint authority rehearsal activa, programa actualizable, depósitos posteriores al primer release rechazados y excedentes sin rescue. No se cambió diseño. CI del commit 1706e77: success, run 37131484384; no atribuir ese resultado a commits posteriores.
+
+Para Mainnet-ready faltan completar el ensayo temporal real, revisión independiente, imagen exacta/URIs, parámetros finales de distribución/vesting, identidades/custodia de producción y aprobación de presupuesto/operaciones. Propuesta actual marcada NOT_AUTHORIZED_FOR_MAINNET.
+
+Para negociación pública, además de emitir/distribuir de forma autorizada el mint real y verificar metadata/autoridades, falta elegir y verificar un mecanismo de mercado (DEX/launchpad u otro), sus requisitos, par y condiciones, presupuesto y procedencia de liquidez, comisiones y autorización de las operaciones reales. Crear un mint no crea un mercado. No se eligió plataforma ni se asumió liquidez o coste; no hay readiness comercial implícita.
