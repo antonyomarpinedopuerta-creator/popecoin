@@ -1,0 +1,145 @@
+{
+  "status": "UNSIGNED_ONLY_NOT_SENT",
+  "simulation": {
+    "context": {
+      "apiVersion": "4.4.0-beta.0",
+      "slot": 507382089
+    },
+    "value": {
+      "accounts": null,
+      "err": {
+        "InstructionError": [
+          0,
+          {
+            "Custom": 6002
+          }
+        ]
+      },
+      "fee": 10000,
+      "innerInstructions": null,
+      "loadedAccountsDataSize": 342535,
+      "loadedAddresses": {
+        "readonly": [],
+        "writable": []
+      },
+      "logs": [
+        "Program 6nLZrtmi9Uf3E3kJjGY9Po4KqNhvLDQqQAax5UKMAGVk invoke [1]",
+        "Program log: Instruction: Release",
+        "Program log: AnchorError thrown in programs/popecoin_vesting/src/instructions/release.rs:55. Error Code: NothingToRelease. Error Number: 6002. Error Message: Nothing is available to release yet.",
+        "Program 6nLZrtmi9Uf3E3kJjGY9Po4KqNhvLDQqQAax5UKMAGVk consumed 10306 of 200000 compute units",
+        "Program 6nLZrtmi9Uf3E3kJjGY9Po4KqNhvLDQqQAax5UKMAGVk failed: custom program error: 0x1772"
+      ],
+      "postBalances": [
+        6297105440,
+        0,
+        1386840,
+        1488440,
+        1488440,
+        833120,
+        1066800,
+        20369267856
+      ],
+      "postTokenBalances": [
+        {
+          "accountIndex": 3,
+          "mint": "CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo",
+          "owner": "GuKSMzTw7JZfAkh9A4hGYYysmQGpxTxXF2QdC1QHVFTF",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "uiTokenAmount": {
+            "amount": "0",
+            "decimals": 6,
+            "uiAmount": 0,
+            "uiAmountString": "0"
+          }
+        },
+        {
+          "accountIndex": 4,
+          "mint": "CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo",
+          "owner": "4A63yMPGnrH4XY8yFAAFK8TkRi7rJ3May1GW1DvX2tNN",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "uiTokenAmount": {
+            "amount": "10000000",
+            "decimals": 6,
+            "uiAmount": 10,
+            "uiAmountString": "10"
+          }
+        }
+      ],
+      "preBalances": [
+        6297115440,
+        0,
+        1386840,
+        1488440,
+        1488440,
+        833120,
+        1066800,
+        20369267856
+      ],
+      "preTokenBalances": [
+        {
+          "accountIndex": 3,
+          "mint": "CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo",
+          "owner": "GuKSMzTw7JZfAkh9A4hGYYysmQGpxTxXF2QdC1QHVFTF",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "uiTokenAmount": {
+            "amount": "0",
+            "decimals": 6,
+            "uiAmount": 0,
+            "uiAmountString": "0"
+          }
+        },
+        {
+          "accountIndex": 4,
+          "mint": "CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo",
+          "owner": "4A63yMPGnrH4XY8yFAAFK8TkRi7rJ3May1GW1DvX2tNN",
+          "programId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+          "uiTokenAmount": {
+            "amount": "10000000",
+            "decimals": 6,
+            "uiAmount": 10,
+            "uiAmountString": "10"
+          }
+        }
+      ],
+      "replacementBlockhash": null,
+      "returnData": null,
+      "unitsConsumed": 10306
+    }
+  },
+  "after": {
+    "slot": 507382095,
+    "unixTime": 1791121101,
+    "program": "6nLZrtmi9Uf3E3kJjGY9Po4KqNhvLDQqQAax5UKMAGVk",
+    "programData": "3XmkEz8dhj5AkbPb1oMkyPEfnbtkiUaHc81awxdfh6Zm",
+    "mint": "CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo",
+    "decimals": 6,
+    "supply": "10000000",
+    "vesting": "4A63yMPGnrH4XY8yFAAFK8TkRi7rJ3May1GW1DvX2tNN",
+    "vestingState": {
+      "authority": "EEbLZxtZ7hfruksSCG3iKd9CZ7fJ69tQE414Z78Kzt8p",
+      "beneficiary": "GuKSMzTw7JZfAkh9A4hGYYysmQGpxTxXF2QdC1QHVFTF",
+      "mint": "CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo",
+      "total": "10000000",
+      "released": "0",
+      "start": "1791293572",
+      "cliff": "1791336772",
+      "end": "1791898372"
+    },
+    "vault": "CNJpJ3D9FUJcMnfpPQgxV6AxMoWbUwvGcUgtp2DmVuAT",
+    "vaultAmount": "10000000",
+    "source": "DHyysduG5SxsqiupB7Zvw32fLq14BUVBZbHKbXBqYcN6",
+    "sourceAmount": "0",
+    "beneficiaryAta": "9gSDUytN7u3tUk8B8h7Tmdtik8U3SScyXfHRHL2Swgby",
+    "beneficiaryAmount": "0"
+  },
+  "calendar": {
+    "T": 1791120772,
+    "slot": 507380689,
+    "start": 1791293572,
+    "cliff": 1791336772,
+    "end": 1791898372,
+    "firstPartial": 1791466372,
+    "secondPartial": 1791639172
+  },
+  "payerBalance": 6297115440
+}

@@ -1,3 +1,5 @@
+> Estado vigente: primera tanda del tercer rehearsal FINALIZED (ATA + Initialize + Deposit); simulación unsigned pre-cliff NothingToRelease verificada. Source=0, vault=10,000,000, beneficiario=released=0. Primer parcial objetivo 2026-10-08 13:32:52 UTC; NO autorizado aún. Evidencia: docs/evidence/robusto/third-first-batch.md. Las secciones de preparación anteriores son históricas y no deben repetirse.
+
 > Actualización 2026-10-04: segundo rehearsal abandonado con vault vacío y released=0; NO Deposit, cierre ni reutilización. Tercer rehearsal preparado sin transacciones, con nueva identidad y calendario relativo de 48h de margen + 7 días de duración. Ver docs/ROBUSTO_REHEARSAL_3.md (desde docs: ROBUSTO_REHEARSAL_3.md). Esta actualización sustituye cualquier siguiente paso Deposit del segundo indicado abajo. Estado: PENDING_AUTHORIZATION.
 
 # PAPA — handoff técnico actual

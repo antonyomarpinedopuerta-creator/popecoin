@@ -1,3 +1,5 @@
+> Estado vigente: primera tanda del tercer rehearsal FINALIZED (ATA + Initialize + Deposit); simulación unsigned pre-cliff NothingToRelease verificada. Source=0, vault=10,000,000, beneficiario=released=0. Primer parcial objetivo 2026-10-08 13:32:52 UTC; NO autorizado aún. Evidencia: docs/evidence/robusto/third-first-batch.md. Las secciones de preparación anteriores son históricas y no deben repetirse.
+
 # ROBUSTO — tercer rehearsal temporal, preparado, NO autorizado
 
 El segundo vesting queda ABANDONED_EMPTY_VAULT: no depositar, cerrar ni reutilizar.

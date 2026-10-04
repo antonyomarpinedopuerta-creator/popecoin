@@ -1,5 +1,5 @@
 {
-  "status": "PREPARATION_ONLY_NOT_AUTHORIZED",
+  "status": "FIRST_BATCH_FINALIZED_RELEASES_NOT_AUTHORIZED",
   "cluster": "devnet",
   "program": "6nLZrtmi9Uf3E3kJjGY9Po4KqNhvLDQqQAax5UKMAGVk",
   "mint": "CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo",
@@ -7,7 +7,7 @@
   "authority": "EEbLZxtZ7hfruksSCG3iKd9CZ7fJ69tQE414Z78Kzt8p",
   "beneficiary": "GuKSMzTw7JZfAkh9A4hGYYysmQGpxTxXF2QdC1QHVFTF",
   "amount": "10000000",
-  "startUtc": null,
+  "startUtc": "2026-10-06T13:32:52Z",
   "cliffSeconds": 43200,
   "durationSeconds": 604800,
   "durationPolicy": "extended-devnet-7-days",
@@ -19,6 +19,22 @@
     "finalReleaseAfterStartSeconds": 604800
   },
   "checkpoint": {
-    "state": "LOCAL_IDENTITY_ONLY_NO_TRANSACTIONS"
+    "state": "FUNDED_PRECLIFF_SIMULATION_VERIFIED_NO_REAL_RELEASE_AUTHORIZED",
+    "signature": "3LMuHs8Tv2uHyFUp1UBGeLkDW6jzHtZVEX8xcEuDmU6rf3FXoB3MQ9aSVMPvjas1pawGqj9tbyCuqfeGFz94W6Fj",
+    "slot": 507381934,
+    "signatures": {
+      "ata": "2VjZkKkQ1K8QLm3P4MQ2H2X4zirByNduYz1RDuQmMEpaf3uPVwv8RkPBtMyySajQkRK1zprZEeKkiYZ4i5JsDMTu",
+      "initialize": "25wwMHeceVhd9AN7eDp2Vho4FRFAkXpLCAVK5LauATFHkdRntsFSZDr5YkS4Cb8Goy98NQR5GhW7e9nEqrbcEi7o",
+      "deposit": "3LMuHs8Tv2uHyFUp1UBGeLkDW6jzHtZVEX8xcEuDmU6rf3FXoB3MQ9aSVMPvjas1pawGqj9tbyCuqfeGFz94W6Fj"
+    }
+  },
+  "calendar": {
+    "T": 1791120772,
+    "slot": 507380689,
+    "start": 1791293572,
+    "cliff": 1791336772,
+    "end": 1791898372,
+    "firstPartial": 1791466372,
+    "secondPartial": 1791639172
   }
 }
