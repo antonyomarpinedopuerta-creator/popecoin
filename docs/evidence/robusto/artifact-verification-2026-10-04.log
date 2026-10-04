@@ -1,0 +1,12 @@
+
+> popecoin_vesting@1.0.0 verify:release
+> ts-node scripts/verify-mainnet-release.ts
+
+=== PAPA MAINNET RELEASE IDENTITY CHECK ===
+Expected:    AYsgq7YWePj8zSHMznEQwtexDMAFqfXkPjDK6diHkHEn
+declare_id:  AYsgq7YWePj8zSHMznEQwtexDMAFqfXkPjDK6diHkHEn
+IDL:         AYsgq7YWePj8zSHMznEQwtexDMAFqfXkPjDK6diHkHEn
+
+Binary SHA-256: 1c3b71a2b792fa986b2a9264861d2bc58654e85370f2bb348cea4dcccaff8492
+PASS: local identities and build-record hashes match. No RPC or keypair was accessed.
+A local build record is not an independent reproducible-build attestation or deployment verification.

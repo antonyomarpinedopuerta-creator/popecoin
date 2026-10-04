@@ -45,3 +45,11 @@ test('recycle rejects changed balances, identities, network and unavailable fund
  await assert.rejects(prepareRecycle(mock(null),async()=>snapshot),/Fee/);
  await assert.rejects(prepareRecycle(mock(10000,0),async()=>snapshot),/payer/);
 });
+
+test('metadata authority stays separate from mint and upgrade authority; pending is explicit',()=>{
+ assert.equal(validateRobustoProposal(proposal).metadataUpdateAuthority,null);
+ assert.throws(()=>validateRobustoProposal({...proposal,metadataUpdateAuthority:'invalid'}),/public key/);
+ assert.throws(()=>validateRobustoProposal({...proposal,metadataUpdateAuthority:ROBUSTO.authority,mintAuthority:ROBUSTO.authority}),/separate/);
+ assert.throws(()=>validateRobustoProposal({...proposal,metadataUpdateAuthority:ROBUSTO.authority,upgradeAuthority:ROBUSTO.authority}),/separate/);
+ assert.throws(()=>validateRobustoProposal({...proposal,metadataUpdateAuthority:'11111111111111111111111111111111'}),/custody/);
+});

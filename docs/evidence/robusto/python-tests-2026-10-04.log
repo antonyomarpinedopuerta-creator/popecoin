@@ -1,0 +1,11 @@
+.............................................
+----------------------------------------------------------------------
+Ran 45 tests in 0.652s
+
+OK
+target/rc/papa-aaaaaaaaaaaa.tar.gz SHA-256 5b8c14acf1ae253590fe339652321c62b1c6e3c3c3eb40154ebb17af16e75367
+target/rc/papa-aaaaaaaaaaaa.tar.gz SHA-256 5b8c14acf1ae253590fe339652321c62b1c6e3c3c3eb40154ebb17af16e75367
+target/rc/papa-aaaaaaaaaaaa.tar.gz SHA-256 5b8c14acf1ae253590fe339652321c62b1c6e3c3c3eb40154ebb17af16e75367
+target/rc/papa-aaaaaaaaaaaa.tar.gz SHA-256 5b8c14acf1ae253590fe339652321c62b1c6e3c3c3eb40154ebb17af16e75367
+PASS: 19 public entries, current manifest and archive SHA-256 5b8c14acf1ae253590fe339652321c62b1c6e3c3c3eb40154ebb17af16e75367
+Local RC evidence: target/rc-check.json

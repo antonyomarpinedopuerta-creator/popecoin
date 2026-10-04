@@ -1,5 +1,5 @@
 {
-  "status": "PROPOSAL_ONLY_NOT_AUTHORIZED",
+  "status": "NOT_AUTHORIZED_FOR_MAINNET",
   "name": "ROBUSTO",
   "symbol": "ROBUSTO",
   "displaySymbol": "$ROBUSTO",
@@ -19,5 +19,15 @@
   "imageSha256": null,
   "imageUri": null,
   "metadataUri": null,
-  "mainnetAuthorized": false
+  "mainnetAuthorized": false,
+  "imageStatus": "PENDING_USER_ASSET",
+  "productionWallets": null,
+  "custody": null,
+  "mintAuthority": null,
+  "upgradeAuthority": null,
+  "vesting": null,
+  "liquidity": null,
+  "dex": null,
+  "launchpad": null,
+  "independentReview": null
 }

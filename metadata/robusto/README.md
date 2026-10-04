@@ -2,7 +2,7 @@
 
 Marca: ROBUSTO. Símbolo de metadata: ROBUSTO; representación pública: $ROBUSTO. Decimales del mint: 6.
 
-Imagen oficial pendiente: perro negro/gris abrazando un cohete. Ruta reservada: `metadata/robusto/robusto-logo.png`. No se encontró un archivo identificable como ROBUSTO en el repositorio ni en las carpetas habituales revisadas. No generar sustituto ni copiar los logos PAPA.
+Estado: **PENDING_USER_ASSET**. Imagen exacta elegida: perro negro/gris con zonas claras abrazando un cohete rojo/blanco sobre fondo amarillo/crema. Ruta reservada: `metadata/robusto/robusto-logo.png`. No se encontró un archivo identificable como ROBUSTO en el repositorio ni en las carpetas habituales revisadas. No generar sustituto ni copiar los logos PAPA.
 
 `metadata.template.json` es un borrador NO PUBLICABLE: image=null. La descripción queda para revisión editorial. Al recibir la imagen oficial, verificarla visualmente y registrar su SHA-256 aprobado en `config/robusto-production.json`; publicar solo tras autorización en almacenamiento duradero y registrar imageUri real. `npm run robusto:prepare-metadata` exige archivo/hash y URI válida y genera bytes separados en `target/robusto-metadata/`. No publica ni realiza transacciones.
 

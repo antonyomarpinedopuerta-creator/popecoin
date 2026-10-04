@@ -1,0 +1,14 @@
+{
+  "status": "PUBLIC_IDENTITY_ONLY — NO ONCHAIN ACCOUNT CREATED",
+  "beneficiary": "57nW7QndCphV2xqjAGR6EDHAAbraqyb7Un8GcgkUastM",
+  "beneficiaryAta": "BCnjcusd1Vxzzda9tKoYog75tvdirNHHABN83smb6wuq",
+  "vesting": "7VYZB6pAfB1oa4NtyJUxMPQqsukWYrKbNSPCMuDdMYbm",
+  "vault": "4PYiXXdTtm8eJbocqZd2szg5H1xdnacq55tbuWdgXETZ",
+  "mint": "CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo",
+  "program": "6nLZrtmi9Uf3E3kJjGY9Po4KqNhvLDQqQAax5UKMAGVk",
+  "keyLocation": "target/rehearsal-identities/robusto-second-20261004/beneficiary-keypair.json",
+  "directoryMode": "0700",
+  "fileMode": "0600",
+  "protectedIdentityChecks": "passed",
+  "schedule": "PENDING_FRESH_CHAIN_TIME_AND_APPROVAL"
+}

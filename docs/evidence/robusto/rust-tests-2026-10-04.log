@@ -1,0 +1,78 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.70s
+     Running unittests src/lib.rs (target/debug/deps/popecoin_vesting-21fc32f58c875daa)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/test_integration.rs (target/debug/deps/test_integration-2da675a8f5cd596c)
+
+running 36 tests
+test test_initialize_rejects_start_after_end ... ok
+test test_initialize_rejects_cliff_after_end ... ok
+test test_initialize_rejects_cliff_before_start ... ok
+test test_deposit_rejects_wrong_amount ... ok
+test test_initialize_rejects_equal_start_end ... ok
+test test_deposit_rejects_unauthorized_authority ... ok
+test test_deposit_rejects_prefunded_full_vault ... ok
+test test_failed_release_rolls_back_and_can_retry_after_funding ... ok
+test test_deposit_rejects_prefunded_excess_vault ... ok
+test test_duplicate_release_in_one_transaction_rolls_back_first_release ... ok
+test test_deposit_rejects_excess_amount ... ok
+test test_deposit_rejects_wrong_authority_token_owner ... ok
+test test_clock_regression_preserves_state_and_catches_up ... ok
+test test_initialize_rejects_zero_amount ... ok
+test test_initialize_requires_beneficiary_signature ... ok
+test test_lamport_prefunding_does_not_block_initialization ... ok
+test test_reinitialize_cannot_replace_funded_schedule ... ok
+test test_deposit_and_release_require_signer_bits ... ok
+test test_release_allows_authorized_beneficiary ... ok
+test test_release_at_exact_cliff ... ok
+test test_max_supply_full_timestamp_range_conserves_every_unit ... ok
+test test_release_full_i64_schedule_on_chain ... ok
+test test_release_at_end_cliff_blocks_every_earlier_claim ... ok
+test test_partial_funding_release_blocks_deposit_but_direct_funding_can_finish ... ok
+test test_initialize_rejects_substituted_pdas_before_creating_accounts ... ok
+test test_initialize_requires_authority_and_rent_payer_signatures ... ok
+test test_popecoin_integration_setup ... ok
+test test_release_partial_and_repeated ... ok
+test test_release_rejects_destination_with_wrong_mint ... ok
+test test_vesting_test_env_creates_valid_accounts ... ok
+test test_release_rejects_unauthorized_beneficiary ... ok
+test test_release_rejects_wrong_destination_owner ... ok
+test test_small_amount_rounding_releases_all_dust_at_end ... ok
+test test_frozen_token_cpi_rolls_back_then_recovers ... ok
+test test_deposit_rejects_substituted_accounts_and_preserves_balances ... ok
+test test_release_rejects_account_substitution_without_state_changes ... ok
+
+test result: ok. 36 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.36s
+
+     Running tests/test_program_load.rs (target/debug/deps/test_program_load-0a37793ecfef4488)
+
+running 1 test
+test test_program_loads ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+
+     Running tests/test_vesting.rs (target/debug/deps/test_vesting-0a01445483532e6d)
+
+running 10 tests
+test test_after_end ... ok
+test test_at_cliff ... ok
+test test_at_end ... ok
+test test_before_cliff ... ok
+test test_cliff_at_end ... ok
+test test_full_timestamp_range_and_max_amount ... ok
+test test_halfway_after_cliff ... ok
+test test_rounding_and_one_unit_final_release ... ok
+test test_monotonic_bounded_accrual ... ok
+test test_wide_deterministic_schedules_preserve_floor_bounds_and_monotonicity ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests popecoin_vesting
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
