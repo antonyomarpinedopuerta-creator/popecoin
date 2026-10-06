@@ -44,7 +44,9 @@ if(require.main===module){try{
  const stat=fs.lstatSync(p.imagePath);if(!stat.isFile()||stat.isSymbolicLink()||stat.size>4*1024*1024)throw Error('Official image must be a regular PNG file within 4 MiB');
  if(mode==='inspect-image'){
   const image=fs.readFileSync(p.imagePath),dimensions=validatePng(image);
-  console.log(JSON.stringify({status:'ASSET_VALIDATED_NOT_OWNER_APPROVED',path:p.imagePath,...dimensions,bytes:image.length,sha256:createHash('sha256').update(image).digest('hex'),note:'No approval/hash/config changed; owner must visually approve these exact bytes.'},null,2));
+  const sha256=createHash('sha256').update(image).digest('hex');
+  if(p.imageSha256!==null&&sha256!==p.imageSha256)throw Error('Official image hash mismatch');
+  console.log(JSON.stringify({status:p.imageStatus==='OFFICIAL_USER_ASSET_VALIDATED'&&p.imageSha256===sha256?'OFFICIAL_USER_ASSET_VALIDATED':'ASSET_VALIDATED_NOT_OWNER_APPROVED',path:p.imagePath,...dimensions,bytes:image.length,sha256,note:'Local verification only; no publication or configuration changes.'},null,2));
  }else{
  const result=prepareRobustoMetadata(p,JSON.parse(fs.readFileSync('metadata/robusto/metadata.template.json','utf8')),fs.readFileSync(p.imagePath));
  fs.mkdirSync('target/robusto-metadata',{recursive:true});fs.writeFileSync('target/robusto-metadata/metadata.json',result.bytes);

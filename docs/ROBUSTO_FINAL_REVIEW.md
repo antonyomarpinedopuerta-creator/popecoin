@@ -35,3 +35,5 @@ Decisiones/inputs externos: supply definitivo, allocations/vesting/start, imagen
 Para Mainnet: resolver esos inputs; build real/reproducible para ID aprobado, integración de firma probada, cotizaciones/simulación vigentes y revisión/autorización separada de cada transacción. El software actual no incluye executor Mainnet. Multisig/hardware requieren adaptación tras elegir custodia; no hay afirmación de soporte operativo probado.
 
 Para negociación pública: crear/verificar el token y además elegir/verificar DEX/launchpad/contrapartida, par, presupuesto y liquidez real; integrar y probar el mecanismo elegido, con aprobación previa a fondos/pool. TOKEN CREATED y TOKEN PUBLICLY TRADABLE permanecen distintos y pendientes. No se garantiza liquidez sin capital/contraparte.
+
+Actualización posterior: logo oficial recibido e incorporado con autorización del propietario. [Registro validado](../metadata/robusto/OFFICIAL_ASSET.md). Las menciones anteriores a imagen pendiente son históricas; contenido/hosting/URI siguen sin decidir.

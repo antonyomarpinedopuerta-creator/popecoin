@@ -62,19 +62,19 @@ Para equipo se propone, sin aprobar, cliff de 365 días y duración de 1.095 dí
 
 ### Imagen y contenido
 
-**PENDING_USER_ASSET**. El propietario debe aportar el PNG oficial exacto en **`metadata/robusto/robusto-logo.png`**. No existe sustituto generado ni parecido. Después ejecutar:
+**OFFICIAL_USER_ASSET_VALIDATED**. El PNG oficial exacto aportado por el propietario está incorporado en **`metadata/robusto/robusto-logo.png`**, sin cambios: 1254 × 1254, 1.496.214 bytes; SHA-256 `32c93f1971eb4a03f5c9b0fc6a5e87b1dc20f3028b5b73d01eeabd29cf5355ce` fijado en configuración. Validación PNG completa correcta. Para comprobar de nuevo:
 
 ```sh
 npm run robusto:prepare-metadata -- inspect-image
 ```
 
-Este comando comprueba archivo regular, tamaño máximo 4 MiB, estructura PNG, CRC, dimensiones y descompresión acotada; imprime SHA-256. No publica ni cambia configuración. El propietario confirma visualmente identidad y hash; decide descripción, enlaces, proveedor/URI estable, permanencia, costes y contenido final. Fijar hash/URI aprobados en la configuración y ejecutar `npm run robusto:prepare-metadata -- prepare`. Revisar manifiestos con las herramientas existentes de publicación antes de autorizar cualquier escritura externa; ningún comando de esta sección crea metadata on-chain.
+Este comando comprueba archivo regular, tamaño máximo 4 MiB, estructura PNG, CRC, dimensiones y descompresión acotada; imprime SHA-256. No publica ni cambia configuración. La incorporación del logo exacto ya está autorizada; falta decidir descripción, enlaces, proveedor/URI estable, permanencia, costes y contenido final. Fijar hash/URI aprobados en la configuración y ejecutar `npm run robusto:prepare-metadata -- prepare`. Revisar manifiestos con las herramientas existentes de publicación antes de autorizar cualquier escritura externa; ningún comando de esta sección crea metadata on-chain.
 
 También decidir identidad pública de programa y destino de deployment, necesidad real de vesting adicional, límite de presupuesto SOL, prioridad de transacciones, reserva para reintentos y mecanismo de lanzamiento. Ninguna aprobación queda inferida de leer este documento.
 
 ## 6. Antes de Mainnet
 
-Resolver asset/contenido/URI, distribución, direcciones/custodia, vesting/start, identidad de programa y presupuesto. Completar firma externa y revisión independiente; probar exactamente la configuración elegida sin fondos reales, verificar artefactos, hashes, loader y roles, conservar mint/update/upgrade y freeze=null. Actualizar lectura futura de app con mint/program/metadata reales solo después de autorización y verificación. Publicar documentación honesta de supply circulante, vesting y poderes retenidos.
+Resolver contenido/URI (logo oficial validado), distribución, direcciones/custodia, vesting/start, identidad de programa y presupuesto. Completar firma externa y revisión independiente; probar exactamente la configuración elegida sin fondos reales, verificar artefactos, hashes, loader y roles, conservar mint/update/upgrade y freeze=null. Actualizar lectura futura de app con mint/program/metadata reales solo después de autorización y verificación. Publicar documentación honesta de supply circulante, vesting y poderes retenidos.
 
 Cotizar inmediatamente antes de operar y revisar plan, genesis, cuentas, blockhash, destinatarios e instrucciones. Cualquier cambio invalida el plan anterior. No modificar los flags de autorización en esta preparación.
 
@@ -124,4 +124,4 @@ No se necesita Astra para ejecutar este proyecto. Otro desarrollador o agente pu
 
 Clonar repo y checkout del commit del manifest, o restaurar backup público en carpeta nueva usando extracción segura y verificando SHA-256/inventario. Instalar dependencias con lockfile y scripts deshabilitados, ejecutar pruebas/RC antes de modificar. El backup contiene software/evidencia pública, **no claves**, no custodia ni historial privado; recuperar signers por el procedimiento privado del propietario fuera de AI. No recrear identidades/PDA/vault ni resetear rehearsal.
 
-Tras cada commit estable: `npm run check:rc`, comprobar reproducción vigente de los mismos inputs Rust, `npm run audit:dependencies`, `npm run verify:rc`, `npm run package:rc`, `npm run verify:package`, `npm run backup:public`. Guardar archivo y sidecar fuera de esta cuenta y comprobar restauración. Ante transacción de resultado incierto, reconciliar firma finalized/cuentas antes de cualquier reenvío. El siguiente paso del propietario es entregar el PNG y decisiones de la sección 5; no ejecutar Mainnet.
+Tras cada commit estable: `npm run check:rc`, comprobar reproducción vigente de los mismos inputs Rust, `npm run audit:dependencies`, `npm run verify:rc`, `npm run package:rc`, `npm run verify:package`, `npm run backup:public`. Guardar archivo y sidecar fuera de esta cuenta y comprobar restauración. Ante transacción de resultado incierto, reconciliar firma finalized/cuentas antes de cualquier reenvío. El siguiente paso del propietario es resolver las decisiones restantes de la sección 5; no ejecutar Mainnet.
