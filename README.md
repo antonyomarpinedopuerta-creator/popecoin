@@ -23,7 +23,7 @@ El lifecycle rápido completo ejecuta SBF/SPL en LiteSVM con Clock aislado; no e
 
 ## Validación local
 
-Herramientas verificadas: Rust/Cargo 1.89.0, Solana CLI 3.1.10, Anchor CLI 1.1.2, Node 24.10.0, npm 11.6.1, Yarn 1.22.22. `Cargo.lock` resuelve Anchor Rust 1.2.0 y LiteSVM 0.10.0; el cliente usa Anchor TS 0.32.1. Las pruebas de cliente comprueban la construcción de las tres instrucciones con el IDL generado.
+Herramientas verificadas: Rust/Cargo 1.92.0, Solana CLI 3.1.10, Anchor CLI 1.1.2, Node 24.10.0, npm 11.6.1, Yarn 1.22.22. `Cargo.lock` resuelve Anchor Rust 1.2.0 y LiteSVM 0.10.0; el cliente usa Anchor TS 0.32.1. Las pruebas de cliente comprueban la construcción de las tres instrucciones con el IDL generado.
 
 ```sh
 yarn install --frozen-lockfile --ignore-scripts
@@ -145,7 +145,7 @@ aprobar lanzamiento ni sustituir la auditoría externa.
 Después de un CI hospedado exitoso del HEAD local, ejecutar
 `npm run collect:ci -- <run-id>` antes de `npm run prepare:audit`. Se comprueban
 los dos paquetes hospedados y sus seis artefactos contra el RC local. La instalación
-de herramientas host usa Rust 1.91.0; el programa conserva Rust 1.89.0.
+de herramientas host usa Rust 1.91.0; el programa conserva Rust 1.92.0.
 
 Preparación sin claves: `npm run prepare:rehearsal` emite instrucciones para revisión
 usando config/rehearsal-plan.json; no simula, firma ni envía. `npm run prepare:metadata`

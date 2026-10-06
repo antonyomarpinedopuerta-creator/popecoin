@@ -99,3 +99,11 @@ no es una supresión del informe ni certifica ausencia de riesgo. CI instala
 cargo-audit 0.22.2 y aplica esta política antes del RC. La ejecución del 27 de
 septiembre de 2026 pasó con 4 rutas Yarn y 6 avisos Rust retenidos, cero
 vulnerabilidades Rust, base RustSec e2111519ba6d14a5da59a7b2e5c8083ae8a37c01.
+
+## ROBUSTO cierre — revisión adicional 2026-10-06
+
+La última consulta detectó dos advisories adicionales y el gate falló antes de modificar la política. GHSA-mjw6-4jj6-33hc afecta realmente a Assembler 1.9.1: asignar `__proto__` alteraba el prototipo del objeto parseado. Se conserva la API CommonJS requerida por Jayson y se aplica el backport del mantenedor en ambos caminos (normal y reviver), creando una propiedad propia mediante Object.defineProperty. vendor/stream-json conserva licencia BSD, versión original, procedencia y hashes; no se afirma que upstream 1.9.1 esté corregido. Tres regresiones prueban el parser real usado por Jayson con chunks de un byte, objetos anidados/arrays/reviver y bytes instalados.
+
+GHSA-hqr4-qq8f-hg3x afecta al parser JSONC, ausente de esta versión 1.9.1. Se verifica su ausencia y el rechazo de comentarios por el parser JSON. El advisory de filtros previamente revisado sigue retenido: no se usan esos filtros. Registro esperado: nueve rutas moderate de stream-json y una high de bigint-buffer, cuatro advisories distintos, con mitigaciones/alcance documentados; no equivale a cero findings. No se añadió ningún poder on-chain ni se cambió el contrato.
+
+Fuentes: https://github.com/uhop/stream-json/security/advisories/GHSA-mjw6-4jj6-33hc y https://github.com/uhop/stream-json/security/advisories/GHSA-hqr4-qq8f-hg3x. La actualización directa a 3.6 cambia API/módulos y no sustituye de forma compatible los imports CommonJS de Jayson.

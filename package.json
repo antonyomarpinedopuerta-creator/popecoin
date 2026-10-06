@@ -64,7 +64,8 @@
   "resolutions": {
     "uuid": "11.1.1",
     "toml": "4.2.0",
-    "bigint-buffer": "file:vendor/bigint-buffer"
+    "bigint-buffer": "file:vendor/bigint-buffer",
+    "stream-json": "file:vendor/stream-json"
   },
   "packageManager": "yarn@1.22.22"
 }
