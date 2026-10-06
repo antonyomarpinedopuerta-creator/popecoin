@@ -6,6 +6,7 @@ from pathlib import Path
 import tarfile
 import tempfile
 import unittest
+from unittest.mock import patch
 
 spec = importlib.util.spec_from_file_location('public_backup', Path(__file__).resolve().parents[1] / 'scripts/backup-public.py')
 backup = importlib.util.module_from_spec(spec)
@@ -13,6 +14,14 @@ spec.loader.exec_module(backup)
 
 
 class PublicBackupTests(unittest.TestCase):
+    def test_backup_rejects_failed_dirty_or_stale_dependency_audit(self):
+        report = {'head': 'a' * 40, 'sourceHashes': {'README.md': 'b' * 64}}
+        audit = {**report, 'status': 'reviewed-findings-only', 'dirty': False}
+        backup.validate_audit(audit, report)
+        for change in [{'status': 'failed'}, {'dirty': True}, {'head': 'c' * 40}, {'sourceHashes': {}}, {'sourceHashes': None}]:
+            with self.assertRaisesRegex(ValueError, 'exact clean'):
+                backup.validate_audit({**audit, **change}, report)
+
     def archive(self, folder, content=b'public source', corrupt=False, duplicate=False, symlink=False):
         out = io.BytesIO()
         manifest = {'files': {'README.md': hashlib.sha256(b'public source').hexdigest()}}
@@ -47,6 +56,18 @@ class PublicBackupTests(unittest.TestCase):
         data = json.dumps({'private': list(range(64))}).encode()
         self.assertTrue(scanner.suspect(data))
         self.assertFalse(scanner.suspect(b'public source only'))
+
+    def test_failed_scan_invalidates_previous_success(self):
+        scanner = backup.load('security-scan')
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            output = root / 'target/security-scan.json'
+            output.parent.mkdir()
+            output.write_text('{"status":"passed"}')
+            with patch.object(scanner, 'scan', side_effect=ValueError('synthetic failure')):
+                with self.assertRaises(ValueError):
+                    scanner.write_scan(root)
+            self.assertEqual(json.loads(output.read_text())['status'], 'failed')
 
 
 if __name__ == '__main__':

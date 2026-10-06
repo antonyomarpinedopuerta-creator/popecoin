@@ -101,3 +101,9 @@ test("reader rejects noncanonical mint flags from RPC", async () => {
   assert.equal(result.mintAuthorityActive, true);
   assert.equal(result.freezeAuthorityActive, true);
 });
+test('reader rejects noncanonical delegate, native and close-authority flags',async()=>{
+ for(const offset of [72,109,129])for(const invalid of [2,255,256,0xffffffff]){
+  const f=await fixture();f.values[1].data.writeUInt32LE(invalid,offset);
+  await assert.rejects(readVesting(f.beneficiary,f.connection),/Invalid classic SPL account/);
+ }
+});

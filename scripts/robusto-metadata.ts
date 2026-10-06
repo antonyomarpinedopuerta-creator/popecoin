@@ -19,7 +19,9 @@ export function validateRobustoProposal(p:any){
    if(key.equals(PublicKey.default)||!PublicKey.isOnCurve(key.toBytes()))throw Error('Authority requires approved signer custody; PDA/multisig policy is pending');
   }
  }
- if(p.metadataUpdateAuthority!==null&&[p.mintAuthority,p.upgradeAuthority].includes(p.metadataUpdateAuthority))throw Error('Metadata update authority must be separate');
+ const authorities=[p.mintAuthority,p.metadataUpdateAuthority,p.upgradeAuthority].filter(v=>v!==null);
+ if(new Set(authorities).size!==authorities.length)throw Error('Mint, metadata update and upgrade authorities must be separate');
+ if(p.mainnetMode!=='MAINNET_DISABLED'||p.distributionStatus!=='PROPOSED_NOT_APPROVED')throw Error('Proposal must remain MAINNET_DISABLED / PROPOSED_NOT_APPROVED');
  return p;
 }
 export function prepareRobustoMetadata(p:any,template:any,image:Buffer){

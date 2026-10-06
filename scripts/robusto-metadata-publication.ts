@@ -11,6 +11,7 @@ export function publicationManifest(p:any,template:any,image:Buffer){
  bytes:metadata.bytes,mutable:true,updateAuthority:p.metadataUpdateAuthority};
 }
 export function verifyPublishedRobusto(p:any,template:any,official:Buffer,publishedImage:Buffer,publishedJson:Buffer){
+ durableUri(p.metadataUri);
  const manifest=publicationManifest(p,template,official);
  if(!publishedImage.equals(official)||!publishedJson.equals(Buffer.from(manifest.bytes)))throw Error('Published bytes differ from approved ROBUSTO artifacts');
  if(p.metadataSha256!==sha(publishedJson))throw Error('Published metadata SHA-256 not pinned in production candidate');

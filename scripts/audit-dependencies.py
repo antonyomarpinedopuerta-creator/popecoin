@@ -3,6 +3,7 @@
 from collections import Counter
 from pathlib import Path
 import argparse
+import importlib.util
 import json
 import subprocess
 
@@ -71,6 +72,10 @@ def main():
 
     save()
     try:
+        spec = importlib.util.spec_from_file_location('audit_sources', root / 'scripts/check-rc.py')
+        sources = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(sources)
+        record['sourceHashes'] = sources.source_hashes(root)
         record['head'] = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip()
         record['dirty'] = bool(subprocess.check_output(['git', 'status', '--porcelain'], cwd=root))
         policy = json.loads((root / 'config/dependency-policy.json').read_text())
@@ -81,7 +86,7 @@ def main():
         rust_report = json.loads(rust.stdout)
         record['rustWarnings'] = evaluate_rust(rust_report, rust.returncode, policy)
         record['rustDatabase'] = rust_report['database']
-        if subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip() != record['head'] or bool(subprocess.check_output(['git', 'status', '--porcelain'], cwd=root)) != record['dirty']:
+        if sources.source_hashes(root) != record['sourceHashes'] or subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=root, text=True).strip() != record['head'] or bool(subprocess.check_output(['git', 'status', '--porcelain'], cwd=root)) != record['dirty']:
             raise ValueError('Repository changed during audit')
         record['status'] = 'reviewed-findings-only'
         save()

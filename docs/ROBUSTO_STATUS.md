@@ -2,7 +2,7 @@
 
 NOT_AUTHORIZED_FOR_MAINNET · MAINNET_DISABLED. Código de preparación cerrado dentro del alcance seguro; no token, mercado ni metadata ROBUSTO de producción creados. Candidato: 1.000.000.000 ROBUSTO, seis decimales = **1.000.000.000.000.000 unidades base**, freeze=null. Distribución sin decidir; PROPOSED_NOT_APPROVED.
 
-El tercer rehearsal está financiado y se conserva. Última observación RPC finalized: slot 507915315, cadena 2026-10-06 00:40:38 UTC; supply/vault=10000000, source/beneficiario/released=0. Evidencia: [third-status](evidence/robusto/third-status-2026-10-06T00-40-40-568Z.json). No hubo ninguna nueva firma/transacción en este cierre.
+El tercer rehearsal está financiado y se conserva. Última observación RPC finalized: slot 508089055, cadena 2026-10-06 12:12:53 UTC; supply/vault=10000000, source/beneficiario/released=0. Evidencia: [third-status](evidence/robusto/third-status-2026-10-06T12-12-53-249Z.json). La consulta validó identidad, calendario y reconciliación; el Clock observado sigue anterior al start y al cliff. No hubo ninguna nueva firma/transacción en esta actualización.
 
 Calendario inmutable UTC:
 

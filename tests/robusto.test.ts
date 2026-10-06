@@ -52,5 +52,7 @@ test('metadata authority stays separate from mint and upgrade authority; pending
  assert.throws(()=>validateRobustoProposal({...proposal,metadataUpdateAuthority:'invalid'}),/public key/);
  assert.throws(()=>validateRobustoProposal({...proposal,metadataUpdateAuthority:ROBUSTO.authority,mintAuthority:ROBUSTO.authority}),/separate/);
  assert.throws(()=>validateRobustoProposal({...proposal,metadataUpdateAuthority:ROBUSTO.authority,upgradeAuthority:ROBUSTO.authority}),/separate/);
+ assert.throws(()=>validateRobustoProposal({...proposal,mintAuthority:ROBUSTO.authority,upgradeAuthority:ROBUSTO.authority}),/separate/);
+ assert.throws(()=>validateRobustoProposal({...proposal,mainnetMode:'MAINNET_ENABLED'}),/MAINNET_DISABLED/);
  assert.throws(()=>validateRobustoProposal({...proposal,metadataUpdateAuthority:'11111111111111111111111111111111'}),/custody/);
 });

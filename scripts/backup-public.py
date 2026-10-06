@@ -22,6 +22,8 @@ def load(name):
 def make_backup(root=ROOT):
     package = load('package-rc')
     report = package.verify(root)
+    audit = json.loads(package.public_bytes(root, 'target/dependency-audit.json'))
+    validate_audit(audit, report)
     load('check-public').check(root)
     security = load('security-scan').scan(root)
     if security['status'] != 'passed':
@@ -58,6 +60,12 @@ def make_backup(root=ROOT):
     verify_backup(destination)
     print(json.dumps({'archive': str(destination), 'sha256': digest, 'head': report['head'], 'entries': len(data)}, indent=2))
     return destination
+
+
+def validate_audit(audit, report):
+    if (audit.get('status') != 'reviewed-findings-only' or audit.get('dirty') is not False or
+            audit.get('head') != report['head'] or audit.get('sourceHashes') != report['sourceHashes']):
+        raise ValueError('Dependency audit must validate the exact clean backup candidate')
 
 
 def verify_backup(path):

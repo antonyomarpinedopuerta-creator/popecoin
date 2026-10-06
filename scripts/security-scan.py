@@ -73,10 +73,24 @@ def scan(root=ROOT, history_limit=20):
             'limits': 'Heuristic, not a universal guarantee; no credential values printed, private key files never read. All historical filenames checked by public gate; byte scan limited to most recent 20 commits.'}
 
 
-if __name__ == '__main__':
-    report = scan()
-    output = ROOT / 'target/security-scan.json'
+def write_scan(root=ROOT):
+    output = root / 'target/security-scan.json'
     output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(json.dumps(report, indent=2) + '\n')
+    def save(report):
+        temporary = output.with_suffix('.tmp')
+        temporary.write_text(json.dumps(report, indent=2) + '\n')
+        temporary.replace(output)
+    save({'status': 'incomplete'})
+    try:
+        report = scan(root)
+        save(report)
+        return report
+    except BaseException:
+        save({'status': 'failed', 'reason': 'Scan did not complete; no credential values recorded'})
+        raise
+
+
+if __name__ == '__main__':
+    report = write_scan()
     print(json.dumps({k: v for k, v in report.items() if k not in {'historyCommits', 'privateIdentityMetadataOnly'}}, indent=2))
     raise SystemExit(0 if report['status'] == 'passed' else 1)

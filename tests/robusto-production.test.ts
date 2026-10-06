@@ -1,4 +1,4 @@
-import {pngFixture} from './png-fixture';
+import {pngFixture,pngChunk} from './png-fixture';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -102,6 +102,7 @@ test('offline deployment chunks reconstruct exact ELF and keep upgrade authority
  assert.equal(verifyProductionBuffer({owner:LOADER,executable:false,data:buffer},elf,p,1500),elf.length);
  buffer[buffer.length-1]=1;assert.throws(()=>verifyProductionBuffer({owner:LOADER,executable:false,data:buffer},elf,p,1500));
  assert.throws(()=>buildProgramDeployment(p,elf,key(),1449,rents));
+ for(const role of ['buffer','program','programData']){const missing:any={...rents};delete missing[role];assert.throws(()=>buildProgramDeployment(p,elf,key(),1500,missing),/rents/);}
 });
 test('metadata publication adapter detects altered downloads and never selects a provider',()=>{
  const {p}=fixture();const image=pngFixture();
@@ -111,6 +112,7 @@ test('metadata publication adapter detects altered downloads and never selects a
  assert.equal(verifyPublishedRobusto(p,template,image,image,json).status,'PUBLISHED_BYTES_VERIFIED_NOT_ON_CHAIN');
  assert.throws(()=>verifyPublishedRobusto(p,template,image,Buffer.from('wrong'),json));
  assert.throws(()=>verifyPublishedRobusto(p,template,image,image,Buffer.concat([json,Buffer.from(' ')])));
+ assert.throws(()=>verifyPublishedRobusto({...p,metadataUri:null},template,image,image,json),/URI/);
 });
 test('reader configuration preserves historical PAPA and denies unconfigured Mainnet',()=>{
  const p=JSON.parse(fs.readFileSync('config/app-reader.json','utf8'));assert.equal(validateReaderConfig(p).symbol,'PAPA');
@@ -124,6 +126,20 @@ test('official PNG preparation rejects truncation, damaged chunks and unapproved
  const png=pngFixture();assert.deepEqual(validatePng(png),{width:1,height:1});
  assert.throws(()=>validatePng(png.subarray(0,24)));const altered=Buffer.from(png);altered[16]^=1;assert.throws(()=>validatePng(altered),/CRC/);
  assert.throws(()=>validatePng(Buffer.concat([png,Buffer.from('extra')])));
+});
+test('PNG asset validator rejects invalid compressed pixels, filters, palette and critical chunks',()=>{
+ assert.deepEqual(validatePng(pngFixture(undefined,6,1)),{width:1,height:1});
+ for(const raw of [Buffer.alloc(0),Buffer.alloc(4),Buffer.alloc(6),Buffer.from([5,0,0,0,0])])assert.throws(()=>validatePng(pngFixture(raw)));
+ assert.throws(()=>validatePng(pngFixture(Buffer.from([0,0]),3)),/palette/);
+ const indexed=pngFixture(Buffer.from([0,255]),3);
+ assert.throws(()=>validatePng(Buffer.concat([indexed.subarray(0,33),pngChunk('PLTE',Buffer.from([255,0,0])),indexed.subarray(33)])),/palette index/);
+ const png=pngFixture(),header=png.subarray(0,33),end=png.subarray(-12);
+ assert.throws(()=>validatePng(Buffer.concat([header,pngChunk('IDAT',Buffer.from('invalid zlib')),end])));
+ assert.throws(()=>validatePng(Buffer.concat([header,pngChunk('ABCD',Buffer.alloc(0)),png.subarray(33)])),/critical/);
+ const idat=png.subarray(33,-12);
+ assert.throws(()=>validatePng(Buffer.concat([header,idat,pngChunk('tEXt',Buffer.alloc(0)),idat,end])),/order/);
+ const packed=png.subarray(41,png.length-16);
+ assert.throws(()=>validatePng(Buffer.concat([header,pngChunk('IDAT',Buffer.concat([packed,Buffer.from('extra')])),end])));
 });
 
 import {verifyProductionSnapshot} from '../scripts/robusto-network-verification';
@@ -171,9 +187,26 @@ test('future owner-approved name/URI update retains mutable account and update a
  assert.deepEqual(decoded.newUpdateAuthority,{__option:'None'});
  assert.deepEqual(decoded.isMutable,{__option:'Some',value:true});
  assert.throws(()=>buildMetadataUpdate(p,{name:'X'.repeat(33),symbol:'ROBUSTO',uri:p.metadataUri,metadataSha256:'c'.repeat(64)}),/limits/);
+ assert.throws(()=>buildMetadataUpdate(p,{name:'ROBUSTO',symbol:'ROBUSTO',uri:p.metadataUri+'/'+ 'x'.repeat(200),metadataSha256:'c'.repeat(64)}),/URI/);
 });
 
 import {preflightStage} from '../scripts/robusto-preflight';
+import {validatePreparedStage} from '../scripts/robusto-preflight';
+test('production preflight binds amounts, destinations, signers and stage to canonical instructions',async()=>{
+ const {p,idl}=fixture(),steps=buildProductionSteps(p,idl,1461600),original=steps[2];
+ validatePreparedStage(p,idl,Buffer.alloc(0),original);
+ const changed={...original,instructions:original.instructions.map(ix=>new (require('@solana/web3.js').TransactionInstruction)({programId:ix.programId,keys:ix.keys.map(k=>({...k})),data:Buffer.from(ix.data)}))};
+ changed.instructions[0].data.writeBigUInt64LE(SUPPLY+1n,1);
+ assert.throws(()=>validatePreparedStage(p,idl,Buffer.alloc(0),changed),/canonical/);
+ let calls=0;const network={mainnetMode:'MAINNET_DISABLED',cluster:'mainnet-beta',rpc:'https://api.mainnet-beta.solana.com'};
+ const c={rpcEndpoint:network.rpc,getGenesisHash:async()=>{calls++;return MAINNET_GENESIS;}} as any;
+ await assert.rejects(preflightStage(c,p,idl,Buffer.alloc(0),changed,network,`READ_ONLY:${MAINNET_GENESIS}`),/canonical/);assert.equal(calls,0);
+ const direct=steps.find(s=>s.kind==='transfer')!;
+ const ix=direct.instructions[0],saved=ix.keys[2].pubkey;ix.keys[2].pubkey=new PublicKey(key());
+ assert.throws(()=>validatePreparedStage(p,idl,Buffer.alloc(0),direct),/canonical/);ix.keys[2].pubkey=saved;
+ ix.keys[3].isSigner=false;assert.throws(()=>validatePreparedStage(p,idl,Buffer.alloc(0),direct),/canonical/);
+ assert.throws(()=>validatePreparedStage(p,idl,Buffer.alloc(0),{...original,label:'unknown'}),/canonical/);
+});
 test('stage preflight blocks Mainnet by default before making any request',async()=>{
  const {p,idl}=fixture();let calls=0;const c={getGenesisHash:async()=>{calls++;return MAINNET_GENESIS;}} as any;
  await assert.rejects(preflightStage(c,p,idl,Buffer.alloc(0),{label:'mint',kind:'mint',rentSizes:[],instructions:[]},{mainnetMode:'MAINNET_DISABLED'},undefined),/MAINNET_DISABLED/);assert.equal(calls,0);

@@ -51,6 +51,9 @@ export async function readVesting(beneficiary: PublicKey, connection = createDev
   if (!vaultInfo || !mintInfo || vaultInfo.executable || mintInfo.executable ||
       vaultInfo.data.length !== AccountLayout.span || mintInfo.data.length !== MintLayout.span ||
       ![1, 2].includes(vaultInfo.data[108]) || mintInfo.data[45] !== 1 ||
+      ![0, 1].includes(vaultInfo.data.readUInt32LE(72)) ||
+      ![0, 1].includes(vaultInfo.data.readUInt32LE(109)) ||
+      ![0, 1].includes(vaultInfo.data.readUInt32LE(129)) ||
       ![0, 1].includes(mintInfo.data.readUInt32LE(0)) ||
       ![0, 1].includes(mintInfo.data.readUInt32LE(46))) throw new Error("Invalid classic SPL account");
   const token = unpackAccount(vault, vaultInfo);

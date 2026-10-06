@@ -7,7 +7,7 @@ export function buildProgramDeployment(p:any,elf:Buffer,bufferAddress:string,max
  validateProduction(p);
  if(!Number.isSafeInteger(maxBytes)||maxBytes<elf.length||maxBytes>10*1024*1024||elf.length<4||!elf.subarray(0,4).equals(Buffer.from([127,69,76,70]))||
  createHash('sha256').update(elf).digest('hex')!==p.programElfSha256||!elf.includes(address(p.program).toBuffer()))throw Error('Approved ELF identity/hash/capacity required');
- for(const n of Object.values(rents))if(!Number.isSafeInteger(n)||n<=0)throw Error('Exact deployment rents required');
+ for(const role of ['buffer','program','programData'] as const)if(!Number.isSafeInteger(rents?.[role])||rents[role]<=0)throw Error('Exact deployment rents required');
  const buffer=address(bufferAddress),payer=address(p.payer),program=address(p.program),authority=address(p.upgradeAuthority);
  if(protectedAddresses().has(bufferAddress)||!PublicKey.isOnCurve(buffer.toBytes())||[p.payer,p.program,p.mint,p.mintAuthority,p.metadataUpdateAuthority,p.upgradeAuthority].includes(bufferAddress))throw Error('Fresh separate buffer signer address required');
  const meta=(pubkey:PublicKey,isSigner=false,isWritable=false)=>({pubkey,isSigner,isWritable});

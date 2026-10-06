@@ -6,11 +6,34 @@ import {createUmi} from '@metaplex-foundation/umi-bundle-defaults';
 import {publicKey} from '@metaplex-foundation/umi';
 import {Idl,BorshAccountsCoder} from '@coral-xyz/anchor';
 import {LOADER} from './rehearsal-one-tx';
-import {verifyProductionBuffer} from './robusto-program-deployment';
-import {address,Step,SUPPLY,validateProduction,requireMainnetReadOnly,assertMainnet,verifyProgramAccounts} from './robusto-production';
+import {verifyProductionBuffer,buildProgramDeployment} from './robusto-program-deployment';
+import {address,Step,SUPPLY,validateProduction,requireMainnetReadOnly,assertMainnet,verifyProgramAccounts,buildProductionSteps,describeSteps} from './robusto-production';
+/** Bind the reviewed stage to canonical instructions before consulting any RPC. */
+export function validatePreparedStage(p:any,idl:Idl,elf:Buffer,step:Step,maxProgramBytes?:number){
+ let candidates:Step[];
+ if(step.kind.startsWith('program-')){
+  let buffer:string,rent=1,capacity=maxProgramBytes;
+  if(step.kind==='program-buffer'){
+   const create=SystemProgram.programId.equals(step.instructions[0]?.programId)?step.instructions[0]:undefined;
+   if(!create||create.data.length!==52||create.data.readUInt32LE(0)!==0)throw Error('Invalid buffer creation stage');
+   buffer=create.keys[1].pubkey.toBase58();rent=Number(create.data.readBigUInt64LE(4));capacity=Number(create.data.readBigUInt64LE(12))-37;
+   if(maxProgramBytes!==undefined&&capacity!==maxProgramBytes)throw Error('Program capacity mismatch');
+  }else{
+   const ix=step.instructions.at(-1);if(!ix)throw Error('Missing program instruction');
+   buffer=ix.keys[step.kind==='program-write'?0:3].pubkey.toBase58();
+   if(step.kind==='program-deploy')rent=Number(step.instructions[0].data.readBigUInt64LE(4));
+  }
+  candidates=buildProgramDeployment(p,elf,buffer,capacity!,{buffer:step.kind==='program-buffer'?rent:1,program:step.kind==='program-deploy'?rent:1,programData:1});
+ }else{
+  const rent=step.kind==='mint'&&step.instructions[0]?.data.length===52?Number(step.instructions[0].data.readBigUInt64LE(4)):1;
+  candidates=buildProductionSteps(p,idl,rent);
+ }
+ const expected=candidates.find(s=>s.label===step.label&&s.kind===step.kind);
+ if(!expected||JSON.stringify(describeSteps([expected]))!==JSON.stringify(describeSteps([step])))throw Error('Prepared stage differs from canonical approved candidate');
+}
 export async function preflightStage(c:Connection,p:any,idl:Idl,elf:Buffer,step:Step,network:any,optIn:unknown,maxProgramBytes?:number){
  requireMainnetReadOnly(network,optIn);if(c.rpcEndpoint!==network.rpc||idl.address!==p.program)throw Error('Preflight RPC/IDL mismatch');
- const allocations=validateProduction(p);await assertMainnet(c);
+ const allocations=validateProduction(p);validatePreparedStage(p,idl,elf,step,maxProgramBytes);await assertMainnet(c);
  const program=address(p.program),mint=address(p.mint),authority=address(p.mintAuthority),payer=address(p.payer);
  const [pd]=PublicKey.findProgramAddressSync([program.toBuffer()],LOADER),source=getAssociatedTokenAddressSync(mint,authority);
  const umi=createUmi('http://127.0.0.1:8899').use(mplTokenMetadata()),[metadata]=findMetadataPda(umi,{mint:publicKey(p.mint)});
