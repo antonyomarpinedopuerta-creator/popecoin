@@ -1,5 +1,7 @@
 # ROBUSTO — continuidad y restauración pública
 
+Preparación Meteora posterior: leer [ROBUSTO_METEORA_LOCAL_REHEARSAL](ROBUSTO_METEORA_LOCAL_REHEARSAL.md). `config/robusto-meteora-local.json` es APPROVED_FOR_LOCAL_REHEARSAL_ONLY; validar con `npm run robusto:meteora-local -- validate`. No ejecutar bytes unsigned ni interpretar los public fixtures como wallets utilizables. No reutilizar identidades Devnet. Cotización sintética, programa instalado localmente, cuentas y autorización de ejecución siguen pendientes.
+
 Documento vigente para el propietario y continuidad sin Astra: [ROBUSTO_READY_FOR_OWNER_DECISIONS](ROBUSTO_READY_FOR_OWNER_DECISIONS.md). Las propuestas nuevas no aprueban allocations ni operaciones.
 Entrada para otra sesión Codex: leer README, ROBUSTO_STATUS, ROBUSTO_CLOSURE, evidencia closure-validation y config/robusto-rehearsal-3.json. Comprobar `git status`, HEAD y origin/master. No seguir pasos antiguos de Deposit del segundo ensayo. No regenerar identidades, modificar horarios, repetir operaciones finalizadas ni asumir autorización para releases futuros.
 

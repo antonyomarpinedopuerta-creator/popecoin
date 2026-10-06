@@ -27,3 +27,4 @@ import "./robusto-production.test";
 import "./robusto-owner-preparation.test";
 
 import "./robusto-launch-policy.test";
+import "./robusto-meteora-local.test";

@@ -58,7 +58,8 @@
     "robusto:metadata-publication": "ts-node scripts/robusto-metadata-publication.ts",
     "check:security": "python3 scripts/security-scan.py",
     "backup:public": "python3 scripts/backup-public.py",
-    "robusto:launch-policy": "ts-node scripts/robusto-launch-policy.ts"
+    "robusto:launch-policy": "ts-node scripts/robusto-launch-policy.ts",
+    "robusto:meteora-local": "ts-node scripts/robusto-meteora-local.ts"
   },
   "private": true,
   "engines": {

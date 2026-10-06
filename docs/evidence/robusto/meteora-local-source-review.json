@@ -1,0 +1,16 @@
+{
+  "status": "OFFICIAL_PUBLIC_SOURCE_REVIEW_NOT_CHAIN_VERIFICATION",
+  "programCommit": "a85c926607433f23f0ea60f4ca7b1ae92f4156cb",
+  "sdkCommit": "79ebbfe59a225e641a2f37cd03404f26de1b0c8e",
+  "sourceSha256": {
+    "sdkIdl": "7f5e5f5e9cab57cd208575dc53359676550e41ee0c19fc822560fe1062fd3ac5",
+    "sdkConcentratedMath": "238f3b84fcc02d34b057d54fadade17a610d9e4c213840cb3dd26e8b763a3941",
+    "programFeeParameters": "c0f79163f5b37cf01a2dba0e8da3021f0301b4eb69268ed39aa5ced197e2a3ff",
+    "programFeeScheduler": "be06c96f5ea29c254c05f26bc88a93976aa21f47bd1a58ecde96c1abc2f0cea2",
+    "programConstants": "caed4458c4103b5eaa788c2d1e3477df107a7eb6f93dce9453c9f276c348c276"
+  },
+  "idlSubsetSha256": "e476ace8abaf90b70660c7a9bca39e604bb606880a865625bb31cfb3857b4d0d",
+  "rpcReads": false,
+  "signatures": false,
+  "transactionsSent": false
+}
