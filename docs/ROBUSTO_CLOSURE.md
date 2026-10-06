@@ -40,3 +40,5 @@ No se encontró una nueva ruta de retiro no autorizado en el contrato. Deposit q
 Mint con freeze authority o Token-2022 no es política ROBUSTO: los controles de producción exigen SPL clásico, seis decimales y freeze=null. El contrato genérico no impone esas decisiones del mint. Pérdida de la firma del beneficiario/custodia, congelación de otros mints y ausencia de cierre son límites del diseño.
 
 La auditoría de dependencias conserva bigint-buffer/stream-json y warnings Rust ya revisados: ver DEPENDENCY_REVIEW.md. Vendor evita binding nativo afectado; no se declara parche upstream. Una búsqueda heurística no garantiza ausencia universal de secretos.
+
+Revisión final de dependencias: se corrigió localmente GHSA-mjw6-4jj6-33hc en Assembler (dos caminos) con tres regresiones sobre el parser real; 92 cliente PASS. JSONC ausente y filtros no utilizados documentados en DEPENDENCY_REVIEW.md. El gate detectó los dos advisories no revisados antes de actualizar política; conserva diez rutas visibles.

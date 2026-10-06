@@ -85,7 +85,7 @@ npm run audit:dependencies
 Hashes conocidos:
 
 - Release SBF: `1c3b71a2b792fa986b2a9264861d2bc58654e85370f2bb348cea4dcccaff8492`.
-- Devnet SBF local: `e2afff5bdf90e1879ef08d8fd5bec4a84b14921b23e12617eb86e4e53b7b93fb`.
+- Devnet SBF local: `e2afff5bdf90e1879ef08d8fd5bec4a84b14891b23e12617eb86e4e53b7b93fb`.
 - Logo: `7be34ed33f6fd2fe52946d43a4eccfd8e41055190bbc29d46a3e285858ee55eb`.
 
 ## Seguridad revisada
@@ -121,7 +121,7 @@ del vault afirma que una transacción pueda ejecutarse.
 
 ## Dependencias y herramientas
 
-Rust/Cargo 1.92.0, Solana CLI 3.1.10, Anchor CLI 1.1.2; Cargo.lock resuelve
+Rust/Cargo 1.89.0, Solana CLI 3.1.10, Anchor CLI 1.1.2; Cargo.lock resuelve
 Anchor Rust 1.2.0. Cliente Anchor TS 0.32.1/web3.js 1.99.0; Node 24.10.0,
 Yarn 1.22.22, TypeScript 5.9.3. Las diferencias de versiones están probadas en
 estos flujos, no se afirma compatibilidad universal. Usar Yarn frozen-lockfile
@@ -202,9 +202,9 @@ continuar con pendientes técnicos seguros cuando CI esté verde.
 
 HEAD probado c556eeff170b830a003d2f4bb924b44a856e3bf1. Ambos jobs fallaron
 antes de las pruebas al compilar anchor-cli 1.1.2: cargo-platform 0.3.3 exige
-rustc 1.91, mientras el override del repositorio activaba 1.92.0. La instalación
+rustc 1.91, mientras el override del repositorio activaba 1.89.0. La instalación
 ahora selecciona explícitamente cargo +1.91.0 para Anchor y cargo-audit. El
-programa, tests, Clippy y SBF conservan 1.92.0; no se cambia el lockfile ni el ABI.
+programa, tests, Clippy y SBF conservan 1.89.0; no se cambia el lockfile ni el ABI.
 Las pruebas locales no sustituyen la comprobación del siguiente run hospedado.
 
 ## CI verde y evidencia cruzada
@@ -302,8 +302,8 @@ workflow debe verificarse contra el SHA del commit publicado.
   del build histórico; 8 tests TypeScript del cliente histórico; 3 del rehearsal;
   tsc --noEmit, check-public y diff check. Compilación local única con fixture público
   fijo (sin identidad/keypair creado), platform-tools v1.52, completada en 1m15s.
-  SHA-256 ELF: e932987ffdb686dcffd3563ca2bbccdfcf51dc92debefb6d6cb046e5f5bf7ecb.
-  Manifiesto: 9f78de101708a4925aa1bb6d23f0cdef8ddd71928e95e12a76b5117dbc1f2be5.
+  SHA-256 ELF: e932987ffdb686dcffd3563ca2bbccdfcf51dc89debefb6d6cb046e5f5bf7ecb.
+  Manifiesto: 9f78de101708a4895aa1bb6d23f0cdef8ddd71898e95e12a76b5117dbc1f2be5.
   Evidencia ignorada: target/rehearsal-builds/YMN9Qj5jPNp7j14VPcML1B6xGgcPWVZUGLFU3Mnyfaf-w76xispf.
   Verificación local pasó y no hay archivos keypair en ese workspace. El resultado
   se marca built-not-runtime-verified, nunca como deployment/ensayo firmado.
@@ -341,7 +341,7 @@ confiables. El nuevo binario no está agregado al paquete RC histórico automát
 - **TESTED:** 4 tests offline de plan/ABI + 4 de rent/transporte; 10 tests Python
   del builder con compilador mock; tsc --noEmit. Plantilla null rechazada con código
   1. Verificado el workspace fixture existente con --verify (sin build): mismo ELF
-  e932987ffdb686dcffd3563ca2bbccdfcf51dc92debefb6d6cb046e5f5bf7ecb.
+  e932987ffdb686dcffd3563ca2bbccdfcf51dc89debefb6d6cb046e5f5bf7ecb.
   El fixture no es una identidad de deploy ni prueba runtime del candidato real.
 - **RPC READ ONLY:** 2026-09-30T00:20:53.083Z, genesis Devnet completo correcto;
   ELF fixture 232528 bytes, capacidad supuesta 232528, loader v3. Rent consultado:
@@ -616,7 +616,7 @@ estado vesting en transacciones individuales. El preparador SPL se añadió desp
 según la sección más reciente debajo. El plan `prepare:rehearsal` sigue siendo ABI
 offline únicamente. No repetir el airdrop rechazado; payer 0 SOL. Ninguna operación
 irreversible queda autorizada por CI/test/documentación.
-Coda / continuación 2026-09-29: consultado una sola vez workflow 36663921675,
+Coda / continuación 2026-09-29: consultado una sola vez workflow 36663891675,
 SHA `44652e592fc75c9b5206e6824a5f2aaeb263edc6`; completed/failure. Ambos jobs
 `validate (first)` y `validate (second)` fallaron en step “Validate local release
 candidate and isolated Devnet build”; `compare` quedó skipped. No consultar de nuevo
@@ -651,9 +651,9 @@ Validación de esta tanda: `tests/rehearsal-spl-one-tx.test.ts` 7/7; `tsc --noEm
 `npm run test:client` 58/58, `scripts/check-public.py` PASS (124 ficheros),
 `git diff --check` PASS. Ningún build Rust/SBF ni operación Devnet. Debe ejecutarse
 el control externo del nuevo SHA y diagnosticar por separado el fallo previo del
-workflow 36663921675 antes de tratar CI como verde.
+workflow 36663891675 antes de tratar CI como verde.
 
-## Diagnóstico y corrección del CI 36663921675
+## Diagnóstico y corrección del CI 36663891675
 
 Logs de ambos jobs leídos una vez por API de Actions. Causa idéntica en first y
 second: `npm run check:rc` llegó a `npm run check`, el cual reportó 51 client tests,
@@ -732,7 +732,7 @@ Nueva ATA simulada unsigned (fee5000/rent1488440), retorno simulado unsigned (fe
 
 Se envió exactamente UNA TransferChecked con autorización explícita. Signature `u7vR528ZtF1TWFQJVLE43LXjpygxCf8RDFk6BrfxwDizCejK5ZgH9WAvSbCWdxza2f7LDqwEbWzBCzCaG7sAZqZ`, slot 507256074, fee 10000 lamports. Evidencia completa: docs/evidence/robusto/authorized-return-2026-10-04.json. Firma persistida con fsync antes del único envío (maxRetries=0); sin reenvío.
 
-Checkpoint posterior: beneficiario histórico ATA=0, source ATA=10000000, supply=10000000; released histórico=10000000, vault histórico=0. Payer=6305922880 lamports. Hashes de datos/owners/lamports de mint, vesting, vault, ProgramData y ausencia de metadata idénticos antes/después. No cambios de autoridades ni nuevo mint/metadata.
+Checkpoint posterior: beneficiario histórico ATA=0, source ATA=10000000, supply=10000000; released histórico=10000000, vault histórico=0. Payer=6305892880 lamports. Hashes de datos/owners/lamports de mint, vesting, vault, ProgramData y ausencia de metadata idénticos antes/después. No cambios de autoridades ni nuevo mint/metadata.
 
 NO repetir ni release final ni devolución. `robusto:recover`/`prepareRecycle` conservan las precondiciones del checkpoint ANTERIOR a devolución y ahora fallarán cerrado por balances; no interpretar eso como transferencia fallida ni forzar su reconciliación anterior. Leer el snapshot sin reconciliación antigua para futuras consultas. Siguiente operación pendiente de nueva autorización: creación de ATA del nuevo beneficiario, no Initialize ni Deposit.
 
@@ -746,7 +746,7 @@ No repetir creación ATA ni retorno previo. No Initialize/Deposit/release autori
 
 ## Segundo Initialize FINALIZED — 2026-10-04
 
-Signature 5XH3ea3kgusAGTq61y26uuBdos8nkbc2q3zVv8TxiHugpxGSN6uyftmYDBhZ2bpcxVscS2vwf4GvozFsrNWgC43d, slot 507359680. Fee15000; rent2875280 (vesting1386840+vault1488440); coste2920280. Payer6301509160 lamports. Registro completo docs/evidence/robusto/authorized-initialize-second-2026-10-04.json. Un primer intento de lecturas recibió429 ANTES de firma/envío y sin journal; consultas posteriores espaciadas. Solo un envío, firma persistida antes del envío y no reenviada.
+Signature 5XH3ea3kgusAGTq61y26uuBdos8nkbc2q3zVv8TxiHugpxGSN6uyftmYDBhZ2bpcxVscS2vwf4GvozFsrNWgC43d, slot 507359680. Fee15000; rent2875280 (vesting1386840+vault1488440); coste2890280. Payer6301509160 lamports. Registro completo docs/evidence/robusto/authorized-initialize-second-2026-10-04.json. Un primer intento de lecturas recibió429 ANTES de firma/envío y sin journal; consultas posteriores espaciadas. Solo un envío, firma persistida antes del envío y no reenviada.
 Nueva PDA 7VYZB6pAfB1oa4NtyJUxMPQqsukWYrKbNSPCMuDdMYbm creada; vault 4PYiXXdTtm8eJbocqZd2szg5H1xdnacq55tbuWdgXETZ creado/vacío. Total10000000, released0, source10000000, beneficiario nuevo0, supply10000000. Históricos/autoridades/metadata intactos por hashes.
 Calendario definitivo UTC: inicio 2026-10-04T12:50:16Z, cliff 2026-10-04T12:51:16Z, final 2026-10-04T13:50:16Z. Se persistió startUtc real en config/robusto-rehearsal-2.json. NO recalcular calendario de esta PDA ni repetir Initialize.
 Siguiente única autorización pendiente: Deposit10000000 desde source a nuevo vault. No Deposit ni release enviados/autorizados. Revalidar ventana pre-cliff antes de futuros pasos; no fingir prueba temporal si expira.

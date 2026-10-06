@@ -456,3 +456,7 @@ disclaimer and pinned logo and hashes deterministic JSON bytes. Download verific
 rejects even whitespace changes to the approved JSON. Hosting permanence, URI
 provenance and authority approval remain external. No on-chain program behavior,
 account layout, dependency version or signer custody changed in this batch.
+
+## ROBUSTO dependency regression closure
+
+stream-json Assembler prototype replacement (GHSA-mjw6-4jj6-33hc) is fixed locally in both save paths without changing its CommonJS API. Three actual-parser regressions pass; total client suite: 92 PASS. JSONC advisory scope is absent in this runtime; path filters remain unused. See DEPENDENCY_REVIEW.md and vendored provenance. Registry findings remain visible; this is not an independent audit.
