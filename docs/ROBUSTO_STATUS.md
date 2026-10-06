@@ -21,8 +21,10 @@ No esperar activo ni alterar reloj. Llegar a una fecha no autoriza firmar. Los r
 
 Revisión adicional completada: [cierre autónomo del 6 de octubre](ROBUSTO_FINAL_REVIEW.md). Suite de código: 95 cliente, 49 Python y 48 Rust por identidad; PNG con descompresión acotada, preflight de instrucciones canónicas, autoridades separadas y backup ligado a auditoría exacta. Las verificaciones finales del commit limpio se conservan en target; el backup se identifica mediante su manifest y sidecar, sin autorreferencias de hash en las fuentes.
 
-Pendientes exclusivos de propietario/externos: descripción/enlaces finales, distribución/vesting/start aprobados, signers y custodia separados, integración de firma, revisión independiente, autorización y presupuesto. Ninguna distribución histórica PAPA ha sido escalada o aprobada para ROBUSTO. Mint authority, metadata update authority y program upgrade authority siguen conservadas y separadas en el diseño.
+Pendientes exclusivos de propietario/externos: distribución/vesting/start aprobados, signers y custodia separados, integración de firma, revisión independiente, autorización y presupuesto. Ninguna distribución histórica PAPA ha sido escalada o aprobada para ROBUSTO. Mint authority, metadata update authority y program upgrade authority siguen conservadas y separadas en el diseño.
 
 TOKEN CREATED y TOKEN PUBLICLY TRADABLE son estados distintos. No hay DEX/launchpad/contraparte/liquidez elegido ni costes actuales de mercado verificados. Un mercado líquido necesita un mecanismo real de liquidez/contrapartida; minimizar capital no elimina ese requisito. No se selecciona proveedor sin decisión y verificación actuales.
 
 Logo oficial incorporado: **OFFICIAL_USER_ASSET_VALIDATED**, PNG 1254 × 1254; hash y registro en [OFFICIAL_ASSET](../metadata/robusto/OFFICIAL_ASSET.md). Hosting/URI y contenido final siguen pendientes; no publicado.
+
+Metadata pública: nombre/símbolo ROBUSTO, descripción final y omisión de web aprobados en [CONTENT_APPROVAL](../metadata/robusto/CONTENT_APPROVAL.json). Preferencia Arweave aprobada; proveedor, coste, URI y autorización de publicación/pagos pendientes. Metadata mutable y autoridad retenida. Supply/distribución siguen propuestas.

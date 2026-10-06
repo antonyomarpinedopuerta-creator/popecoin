@@ -1,12 +1,12 @@
 # ROBUSTO — cierre pre-Mainnet y decisiones del propietario
 
-Estado: **READY_FOR_OWNER_DECISIONS**, **NOT_AUTHORIZED_FOR_MAINNET**. Todas las propuestas son **PROPOSED_NOT_APPROVED**. MAINNET_DISABLED permanece activo. TOKEN READY FOR MAINNET sigue pendiente de las decisiones y verificaciones siguientes; PUBLICLY TRADABLE = NO. No se ha creado el token de producción ni un mercado.
+Estado: **READY_FOR_OWNER_DECISIONS**, **NOT_AUTHORIZED_FOR_MAINNET**. Supply, distribución, vesting y custodia siguen **PROPOSED_NOT_APPROVED**; contenido público de metadata y preferencia Arweave aprobados por separado, sin autorización de publicar. MAINNET_DISABLED permanece activo. TOKEN READY FOR MAINNET sigue pendiente de las decisiones y verificaciones siguientes; PUBLICLY TRADABLE = NO. No se ha creado el token de producción ni un mercado.
 
 ## 1. Qué está terminado
 
 Programa de vesting existente, cliente, validadores, preparación de instrucciones de producción, comprobación de supply exacto, autoridades separadas, metadata mutable, PNG acotado, planes de publicación/actualización/verificación, lector futuro de app, herramientas de deployment/verificación, security scan, auditoría, CI y backup público. No se reinició el programa ni se alteró su ABI.
 
-Se añadieron propuestas aritméticas separadas de la configuración operativa, planners sin firma para las tres ventanas existentes y cotización futura de costes por RPC/simulación. No hay ejecutor automático Mainnet. `config/robusto-production.json` conserva direcciones, allocations e imagen sin aprobar. Scripts y planes no equivalen a aprobación, integración de firmantes o revisión independiente.
+Se añadieron propuestas aritméticas separadas de la configuración operativa, planners sin firma para las tres ventanas existentes y cotización futura de costes por RPC/simulación. No hay ejecutor automático Mainnet. `config/robusto-production.json` conserva direcciones y allocations sin aprobar; logo oficial validado y contenido de metadata aprobado. Scripts y planes no equivalen a aprobación, integración de firmantes o revisión independiente.
 
 Candidato: nombre/símbolo ROBUSTO; decimales 6; supply 1.000.000.000 tokens = **1.000.000.000.000.000 base units**; freeze authority ninguna; metadata actualizable; ninguna autoridad revocada.
 
@@ -40,6 +40,8 @@ Llegar a la fecha no autoriza firmar. Leer `npm run robusto:third-status`, revis
 
 ### Distribución: escoger o modificar una propuesta
 
+[Comparación detallada de distribución y circulación inicial](ROBUSTO_DISTRIBUTION_DECISION.md); ninguna opción aprobada.
+
 `config/robusto-distribution-proposal.json` valida ambas alternativas, sin poblar allocations operativas. Comando seguro: `npm run robusto:production -- distribution`.
 
 | Destino | Principal | Tokens | Base units | Alternativa de lanzamiento escalonado |
@@ -68,13 +70,13 @@ Para equipo se propone, sin aprobar, cliff de 365 días y duración de 1.095 dí
 npm run robusto:prepare-metadata -- inspect-image
 ```
 
-Este comando comprueba archivo regular, tamaño máximo 4 MiB, estructura PNG, CRC, dimensiones y descompresión acotada; imprime SHA-256. No publica ni cambia configuración. La incorporación del logo exacto ya está autorizada; falta decidir descripción, enlaces, proveedor/URI estable, permanencia, costes y contenido final. Fijar hash/URI aprobados en la configuración y ejecutar `npm run robusto:prepare-metadata -- prepare`. Revisar manifiestos con las herramientas existentes de publicación antes de autorizar cualquier escritura externa; ningún comando de esta sección crea metadata on-chain.
+Este comando comprueba archivo regular, tamaño máximo 4 MiB, estructura PNG, CRC, dimensiones y descompresión acotada; imprime SHA-256. No publica ni cambia configuración. La incorporación del logo exacto ya está autorizada; nombre ROBUSTO, símbolo ROBUSTO y descripción final están aprobados; web omitida por ahora. Descripción: «ROBUSTO es un token en Solana inspirado en un perro decidido y su cohete, creado alrededor de una comunidad con carácter, energía y espíritu de aventura.». Arweave es la preferencia aprobada; faltan proveedor, cotización, autorización de subida/publicación y URI verificadas. [Registro de aprobación limitada](../metadata/robusto/CONTENT_APPROVAL.json). Fijar hash/URI aprobados en la configuración y ejecutar `npm run robusto:prepare-metadata -- prepare`. Revisar manifiestos con las herramientas existentes de publicación antes de autorizar cualquier escritura externa; ningún comando de esta sección crea metadata on-chain.
 
 También decidir identidad pública de programa y destino de deployment, necesidad real de vesting adicional, límite de presupuesto SOL, prioridad de transacciones, reserva para reintentos y mecanismo de lanzamiento. Ninguna aprobación queda inferida de leer este documento.
 
 ## 6. Antes de Mainnet
 
-Resolver contenido/URI (logo oficial validado), distribución, direcciones/custodia, vesting/start, identidad de programa y presupuesto. Completar firma externa y revisión independiente; probar exactamente la configuración elegida sin fondos reales, verificar artefactos, hashes, loader y roles, conservar mint/update/upgrade y freeze=null. Actualizar lectura futura de app con mint/program/metadata reales solo después de autorización y verificación. Publicar documentación honesta de supply circulante, vesting y poderes retenidos.
+Resolver proveedor/coste/autorización de publicación y URI (logo y contenido aprobados), distribución, direcciones/custodia, vesting/start, identidad de programa y presupuesto. Completar firma externa y revisión independiente; probar exactamente la configuración elegida sin fondos reales, verificar artefactos, hashes, loader y roles, conservar mint/update/upgrade y freeze=null. Actualizar lectura futura de app con mint/program/metadata reales solo después de autorización y verificación. Publicar documentación honesta de supply circulante, vesting y poderes retenidos.
 
 Cotizar inmediatamente antes de operar y revisar plan, genesis, cuentas, blockhash, destinatarios e instrucciones. Cualquier cambio invalida el plan anterior. No modificar los flags de autorización en esta preparación.
 

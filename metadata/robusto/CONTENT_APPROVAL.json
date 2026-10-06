@@ -1,0 +1,22 @@
+{
+  "status": "APPROVED_CONTENT_ONLY",
+  "name": "ROBUSTO",
+  "symbol": "ROBUSTO",
+  "description": "ROBUSTO es un token en Solana inspirado en un perro decidido y su cohete, creado alrededor de una comunidad con carácter, energía y espíritu de aventura.",
+  "imagePath": "metadata/robusto/robusto-logo.png",
+  "imageSha256": "32c93f1971eb4a03f5c9b0fc6a5e87b1dc20f3028b5b73d01eeabd29cf5355ce",
+  "websiteDecision": "OMIT_FOR_NOW",
+  "hostingPreference": "ARWEAVE",
+  "hostingPreferenceStatus": "APPROVED_PREFERENCE_ONLY",
+  "metadataMutable": true,
+  "retainMetadataUpdateAuthority": true,
+  "authorityRevocationAuthorized": false,
+  "uploadAuthorized": false,
+  "externalPublicationAuthorized": false,
+  "paymentsAuthorized": false,
+  "onChainMetadataAuthorized": false,
+  "mainnetAuthorized": false,
+  "imageUri": null,
+  "metadataUri": null,
+  "note": "Owner-approved public content and hosting preference only. Provider, quote, uploads and definitive URIs remain pending. Supply/distribution/vesting/custody are separate proposed decisions."
+}
