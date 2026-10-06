@@ -45,5 +45,5 @@
   "paymentsAuthorized": false,
   "signingAuthorized": false,
   "authorityRevocationAuthorized": false,
-  "note": "Owner approval covers target supply, decimals, no freeze authority and bucket percentages only. The 500M market bucket is not initial circulation. Wallets, release schedules, liquidity, custody and issuance require separate decisions."
+  "note": "Owner approval here covers target supply, decimals, no freeze authority and bucket percentages only. Approved caps, vesting durations and role separation are in config/robusto-launch-policy-approved.json; effective amounts, dates, identities and operations remain pending. The 500M market bucket is not initial circulation."
 }

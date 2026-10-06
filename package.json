@@ -57,7 +57,8 @@
     "robusto:cost": "ts-node scripts/robusto-cost-estimator.ts",
     "robusto:metadata-publication": "ts-node scripts/robusto-metadata-publication.ts",
     "check:security": "python3 scripts/security-scan.py",
-    "backup:public": "python3 scripts/backup-public.py"
+    "backup:public": "python3 scripts/backup-public.py",
+    "robusto:launch-policy": "ts-node scripts/robusto-launch-policy.ts"
   },
   "private": true,
   "engines": {

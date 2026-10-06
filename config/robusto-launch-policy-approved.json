@@ -1,0 +1,70 @@
+{
+  "status": "APPROVED_PREPARATION_POLICY_ONLY",
+  "mainnetStatus": "NOT_AUTHORIZED_FOR_MAINNET",
+  "economicsApprovalPath": "config/robusto-economics-approved.json",
+  "initialCirculation": {
+    "maximumTokens": "5000000",
+    "maximumBaseUnits": "5000000000000",
+    "basisPoints": 50,
+    "marketMaximumTokens": "3000000",
+    "marketMaximumBaseUnits": "3000000000000",
+    "communityMaximumTokens": "2000000",
+    "communityMaximumBaseUnits": "2000000000000",
+    "reserveMaximumTokens": "0",
+    "teamMaximumTokens": "0",
+    "automaticTransfers": false,
+    "effectiveMarketTokens": null,
+    "effectiveCommunityTokens": null
+  },
+  "teamVesting": {
+    "totalTokens": "50000000",
+    "totalBaseUnits": "50000000000000",
+    "waitDays": 365,
+    "linearDays": 730,
+    "baseUtc": null,
+    "beneficiary": null,
+    "accrualDuringWait": false
+  },
+  "reserveVesting": {
+    "totalTokens": "300000000",
+    "totalBaseUnits": "300000000000000",
+    "waitDays": 180,
+    "linearDays": 1095,
+    "baseUtc": null,
+    "beneficiary": null,
+    "accrualDuringWait": false,
+    "technicalLockRequired": true
+  },
+  "community": {
+    "initialMaximumTokens": "2000000",
+    "outsideInitialCirculationTokens": "148000000",
+    "outsideInitialCirculationBaseUnits": "148000000000000",
+    "automaticFutureDisbursements": false,
+    "separateCampaignDecisionRequired": true
+  },
+  "custody": {
+    "rolesSeparate": true,
+    "wallets": {
+      "market": null,
+      "community": null,
+      "reserve": null,
+      "team": null,
+      "payer": null,
+      "mintAuthority": null,
+      "metadataUpdateAuthority": null,
+      "upgradeAuthority": null
+    },
+    "definitiveIdentityCreationAuthorized": false
+  },
+  "mintAuthorityPolicy": "ISSUE_EXACT_TOTAL_RECONCILE_THEN_SEPARATE_REVOCATION_DECISION",
+  "metadataMutable": true,
+  "retainMetadataUpdateAuthority": true,
+  "mainnetAuthorized": false,
+  "mintAuthorized": false,
+  "transfersAuthorized": false,
+  "publicationAuthorized": false,
+  "paymentsAuthorized": false,
+  "signingAuthorized": false,
+  "authorityRevocationAuthorized": false,
+  "note": "Caps are not automatic allocations. Effective market amount, dates, public identities, custody implementation, provider and costs require separate decisions. No on-chain activity authorized."
+}
