@@ -1,6 +1,6 @@
 # ROBUSTO — continuación vigente del cierre de octubre 2026
 
-Leer primero [ROBUSTO_STATUS](docs/ROBUSTO_STATUS.md), [cierre y clasificación](docs/ROBUSTO_CLOSURE.md), [validación](docs/evidence/robusto/closure-validation.md), [Mainnet](docs/ROBUSTO_MAINNET_CHECKLIST.md), [autoridades](docs/ROBUSTO_AUTHORITIES.md) y [recuperación/backup](docs/ROBUSTO_RECOVERY.md).
+Leer primero [decisiones finales del propietario](docs/ROBUSTO_READY_FOR_OWNER_DECISIONS.md) y [ROBUSTO_STATUS](docs/ROBUSTO_STATUS.md), [cierre y clasificación](docs/ROBUSTO_CLOSURE.md), [validación](docs/evidence/robusto/closure-validation.md), [Mainnet](docs/ROBUSTO_MAINNET_CHECKLIST.md), [autoridades](docs/ROBUSTO_AUTHORITIES.md) y [recuperación/backup](docs/ROBUSTO_RECOVERY.md).
 
 Tercer rehearsal FINANCIADO, fechas fijas. Mint CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo; beneficiario GuKSMzTw7JZfAkh9A4hGYYysmQGpxTxXF2QdC1QHVFTF; ATA9gSDUytN7u3tUk8B8h7Tmdtik8U3SScyXfHRHL2Swgby; vesting4A63yMPGnrH4XY8yFAAFK8TkRi7rJ3May1GW1DvX2tNN; vaultCNJpJ3D9FUJcMnfpPQgxV6AxMoWbUwvGcUgtp2DmVuAT. Slot508092917 finalized, Clock2026-10-06 12:28:16 UTC: supply/vault10000000; source/beneficiario/released0. Start2026-10-06 13:32:52, cliff2026-10-07 01:32:52, end2026-10-13 13:32:52 UTC. Objetivos parciales8 y10 octubre a13:32:52 UTC. Sin nuevas firmas, releases NO autorizados. No reloj alterado ni depósito/mint nuevo.
 
@@ -8,7 +8,7 @@ Tercer rehearsal FINANCIADO, fechas fijas. Mint CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6
 
 Preparación producción unsigned y validaciones listas; flags MAINNET_DISABLED / NOT_AUTHORIZED_FOR_MAINNET; supply candidato1e15 raw; allocationsnull / PROPOSED_NOT_APPROVED; metadata mutable, autoridades retenidas/separadas; imagen exacta PENDING_USER_ASSET. La firma/custodia/plataforma/revisión independiente y decisiones económicas siguen externas. No hay executor Mainnet ni release automático.
 
-Próxima acción: lectura de estado sin firmas; al primer objetivo2026-10-08 13:32:52 UTC comprobar Clock y preparar UN release parcial para revisión y autorización NUEVA. No realizarlo por haber llegado la fecha. Abajo se conserva el handoff histórico, no instrucciones vigentes.
+Próxima acción del propietario: aportar PNG oficial exacto y resolver distribución, custodia, vesting, presupuesto y mecanismo de lanzamiento según el documento único. El cierre ya incluye 100 tests cliente y planners offline; no depende de esperar fechas. Para Devnet: lectura de estado sin firmas; al primer objetivo2026-10-08 13:32:52 UTC comprobar Clock y preparar UN release parcial para revisión y autorización NUEVA. No realizarlo por haber llegado la fecha. Abajo se conserva el handoff histórico, no instrucciones vigentes.
 
 ---
 
