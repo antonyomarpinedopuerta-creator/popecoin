@@ -36,6 +36,16 @@ export function validateDistributionProposal(p:any){
  };
  return {status:p.status,mainnetStatus:p.mainnetStatus,primary:check(p.primary),stagedAlternative:check(p.stagedAlternative)};
 }
+/** Owner-approved economic parameters only; never operational transaction approval. */
+export function validateApprovedEconomics(p:any){
+ if(p?.status!=='APPROVED_ECONOMIC_PARAMETERS_ONLY'||p.mainnetStatus!=='NOT_AUTHORIZED_FOR_MAINNET'||p.name!=='ROBUSTO'||p.symbol!=='ROBUSTO'||p.freezeAuthority!==null||p.distributionId!=='50/15/30/5')throw Error('Limited economic approval required');
+ for(const key of ['mainnetAuthorized','mintAuthorized','transfersAuthorized','publicationAuthorized','paymentsAuthorized','signingAuthorized','authorityRevocationAuthorized'])if(p[key]!==false)throw Error('Economic approval cannot authorize operations');
+ for(const key of ['initialCirculation','beneficiaries','vesting','custody'])if(p[key]!==null)throw Error('Separate owner decisions must remain pending');
+ const result=validateDistributionProposal({status:'PROPOSED_NOT_APPROVED',mainnetStatus:p.mainnetStatus,decimals:p.decimals,supplyTokens:p.supplyTokens,supplyBaseUnits:p.supplyBaseUnits,primary:p.buckets,stagedAlternative:p.buckets}).primary;
+ const expected=new Map([['market_ecosystem_launch',5000],['community_marketing',1500],['reserve',3000],['team_founder',500]]);
+ if(result.rows.some((row:any)=>expected.get(row.label)!==row.basisPoints))throw Error('Approved 50/15/30/5 buckets mismatch');
+ return {status:p.status,mainnetStatus:p.mainnetStatus,freezeAuthority:null,distributionId:p.distributionId,...result,initialCirculation:'PENDING_SEPARATE_OWNER_APPROVAL',operationsAuthorized:false};
+}
 export function integer(value:unknown, maximum=2n**64n-1n):bigint {
  if(typeof value!=='string'||! /^(0|[1-9][0-9]*)$/.test(value))throw Error('Canonical unsigned decimal string required');
  const n=BigInt(value);if(n>maximum)throw Error('Integer out of range');return n;
@@ -191,15 +201,16 @@ export function prepareMintRevocation(p:any,approval:unknown,snapshot:any){
  return createSetAuthorityInstruction(address(p.mint),address(p.mintAuthority),AuthorityType.MintTokens,null);
 }
 if(require.main===module){try{
- const [mode='validate',file=mode==='distribution'?'config/robusto-distribution-proposal.json':'config/robusto-production.json']=process.argv.slice(2);const p=JSON.parse(fs.readFileSync(file,'utf8'));
- if(mode==='validate'){validateRobustoProposal(p);console.log(JSON.stringify({status:p.status,mainnetMode:p.mainnetMode,supplyBaseUnits:SUPPLY.toString(),distribution:p.allocations===null?'PENDING_OWNER_DECISION':validateDistribution(p.allocations)},null,2));}
+ const [mode='validate',file=mode==='economics'?'config/robusto-economics-approved.json':mode==='distribution'?'config/robusto-distribution-proposal.json':'config/robusto-production.json']=process.argv.slice(2);const p=JSON.parse(fs.readFileSync(file,'utf8'));
+ if(mode==='validate'){validateRobustoProposal(p);console.log(JSON.stringify({status:p.status,mainnetMode:p.mainnetMode,supplyBaseUnits:SUPPLY.toString(),distribution:p.allocations===null?'PENDING_OPERATIONAL_ALLOCATIONS':validateDistribution(p.allocations)},null,2));}
+ else if(mode==='economics')console.log(JSON.stringify(validateApprovedEconomics(p),null,2));
  else if(mode==='distribution')console.log(JSON.stringify(validateDistributionProposal(p),null,2));
  else if(mode==='instructions'){
   const idl=JSON.parse(fs.readFileSync('target/robusto-production/idl.json','utf8'));
   // Offline estimate supplied separately; refresh from authorized RPC before signing.
   const mintRent=Number(process.env.ROBUSTO_OFFLINE_MINT_RENT);
   console.log(JSON.stringify({status:'OFFLINE_UNSIGNED_NOT_AUTHORIZED',steps:describeSteps(buildProductionSteps(p,idl,mintRent))},null,2));
- }else throw Error('Only validate/instructions/distribution modes supported. MAINNET_DISABLED; no executor installed.');
+ }else throw Error('Only validate/instructions/distribution/economics modes supported. MAINNET_DISABLED; no executor installed.');
 }catch(e){console.error((e as Error).message);process.exitCode=1;}}
 
 /** Optional future name/symbol/URI update using the retained metadata authority. */

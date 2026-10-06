@@ -5,7 +5,7 @@ Estado obligatorio actual: MAINNET_DISABLED / NOT_AUTHORIZED_FOR_MAINNET. Ningú
 ## Preparación completada en software
 
 - Supply exacto con bigint y límites u64; 1e15 raw, SPL clásico, decimals=6, freeze=null.
-- Validación de distribución exactamente 10000 basis points y 1e15 raw; beneficiarios únicos y claves protegidas excluidas. Conservar allocations=null hasta decisión.
+- Validación de distribución exactamente 10000 basis points y 1e15 raw; beneficiarios únicos y claves protegidas excluidas. Supply y buckets 50/15/30/5 aprobados solo como parámetros en config/robusto-economics-approved.json. Conservar allocations=null hasta direcciones, condiciones y autorización operativa separadas.
 - Construcción unsigned de mint, ATA source/destinos, emisión exacta única, transferencias, Initialize/Deposit de vesting y metadata mutable.
 - Buffer/create/write/deploy unsigned y verificación de loader/ProgramData/upgrade authority/ELF exacto/padding.
 - `validatePreparedStage` compara etapa, programa, cuentas, flags de firma/escritura y bytes de instrucciones con los builders canónicos antes de RPC. No sustituye aprobación del mensaje final, actualización de rent ni simulación.

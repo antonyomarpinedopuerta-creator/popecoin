@@ -1,0 +1,49 @@
+{
+  "status": "APPROVED_ECONOMIC_PARAMETERS_ONLY",
+  "mainnetStatus": "NOT_AUTHORIZED_FOR_MAINNET",
+  "name": "ROBUSTO",
+  "symbol": "ROBUSTO",
+  "supplyTokens": "1000000000",
+  "supplyBaseUnits": "1000000000000000",
+  "decimals": 6,
+  "freezeAuthority": null,
+  "distributionId": "50/15/30/5",
+  "buckets": [
+    {
+      "label": "market_ecosystem_launch",
+      "basisPoints": 5000,
+      "tokens": "500000000",
+      "baseUnits": "500000000000000"
+    },
+    {
+      "label": "community_marketing",
+      "basisPoints": 1500,
+      "tokens": "150000000",
+      "baseUnits": "150000000000000"
+    },
+    {
+      "label": "reserve",
+      "basisPoints": 3000,
+      "tokens": "300000000",
+      "baseUnits": "300000000000000"
+    },
+    {
+      "label": "team_founder",
+      "basisPoints": 500,
+      "tokens": "50000000",
+      "baseUnits": "50000000000000"
+    }
+  ],
+  "initialCirculation": null,
+  "beneficiaries": null,
+  "vesting": null,
+  "custody": null,
+  "mainnetAuthorized": false,
+  "mintAuthorized": false,
+  "transfersAuthorized": false,
+  "publicationAuthorized": false,
+  "paymentsAuthorized": false,
+  "signingAuthorized": false,
+  "authorityRevocationAuthorized": false,
+  "note": "Owner approval covers target supply, decimals, no freeze authority and bucket percentages only. The 500M market bucket is not initial circulation. Wallets, release schedules, liquidity, custody and issuance require separate decisions."
+}

@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import {createHash} from 'node:crypto';
 import {PublicKey,SystemProgram,Transaction,SYSVAR_CLOCK_PUBKEY} from '@solana/web3.js';
 import {MPL_TOKEN_METADATA_PROGRAM_ID} from '@metaplex-foundation/mpl-token-metadata';
-import {validateDistributionProposal,MAINNET_GENESIS} from '../scripts/robusto-production';
+import {validateDistributionProposal,validateApprovedEconomics,MAINNET_GENESIS} from '../scripts/robusto-production';
 import {offlineThirdReleases,thirdReleaseAmount,prepareThirdRelease,THIRD_RELEASE_WINDOWS} from '../scripts/robusto-third-release';
 import {offlineCostChecklist,quoteProductionCosts} from '../scripts/robusto-cost-estimator';
 import {VestingSnapshot} from '../scripts/rehearsal-vesting-one-tx';
@@ -27,6 +27,14 @@ test('owner distribution proposals reconcile exact tokens, raw units and 100% wi
   assert.throws(()=>validateDistributionProposal(p));
  }
  assert.equal(JSON.parse(fs.readFileSync('config/robusto-production.json','utf8')).allocations,null);
+});
+test('approved economics reconcile exact 50/15/30/5 without operational or circulation authorization',()=>{
+ const approval=JSON.parse(fs.readFileSync('config/robusto-economics-approved.json','utf8'));
+ const result=validateApprovedEconomics(approval);assert.equal(result.baseUnits,'1000000000000000');assert.equal(result.basisPoints,10000);assert.equal(result.operationsAuthorized,false);
+ for(const key of ['mainnetAuthorized','mintAuthorized','transfersAuthorized','publicationAuthorized','paymentsAuthorized','signingAuthorized','authorityRevocationAuthorized'])assert.throws(()=>validateApprovedEconomics({...approval,[key]:true}));
+ for(const key of ['initialCirculation','beneficiaries','vesting','custody'])assert.throws(()=>validateApprovedEconomics({...approval,[key]:'approved-by-default'}));
+ for(const patch of [{decimals:9},{freezeAuthority:'wallet'},{supplyTokens:'1000000001'},{buckets:proposal.primary},{buckets:approval.buckets.slice(1)},{status:'APPROVED_FOR_MAINNET'}])assert.throws(()=>validateApprovedEconomics({...approval,...patch}));
+ const production=JSON.parse(fs.readFileSync('config/robusto-production.json','utf8'));assert.equal(production.allocations,null);assert.equal(production.mainnetMode,'MAINNET_DISABLED');assert.equal(production.mintAuthorityRevocationAuthorized,false);
 });
 const third=JSON.parse(fs.readFileSync('config/robusto-rehearsal-3.json','utf8'));
 function snapshot(released=0n):VestingSnapshot{return {slot:123,unixTime:1791289696,program:third.program,programData:'unused',mint:third.mint,decimals:6,supply:10000000n,

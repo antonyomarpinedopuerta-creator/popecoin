@@ -18,5 +18,5 @@
   "mainnetAuthorized": false,
   "imageUri": null,
   "metadataUri": null,
-  "note": "Owner-approved public content and hosting preference only. Provider, quote, uploads and definitive URIs remain pending. Supply/distribution/vesting/custody are separate proposed decisions."
+  "note": "Owner-approved public content and hosting preference only. Provider, quote, uploads and definitive URIs remain pending. Economic approval is separate in config/robusto-economics-approved.json; circulation, vesting, custody and all operations remain unapproved."
 }

@@ -1,6 +1,6 @@
 # ROBUSTO — cierre pre-Mainnet y decisiones del propietario
 
-Estado: **READY_FOR_OWNER_DECISIONS**, **NOT_AUTHORIZED_FOR_MAINNET**. Supply, distribución, vesting y custodia siguen **PROPOSED_NOT_APPROVED**; contenido público de metadata y preferencia Arweave aprobados por separado, sin autorización de publicar. MAINNET_DISABLED permanece activo. TOKEN READY FOR MAINNET sigue pendiente de las decisiones y verificaciones siguientes; PUBLICLY TRADABLE = NO. No se ha creado el token de producción ni un mercado.
+Estado: **READY_FOR_OWNER_DECISIONS**, **NOT_AUTHORIZED_FOR_MAINNET**. Supply y distribución 50/15/30/5 están **APPROVED_ECONOMIC_PARAMETERS_ONLY**; circulación inicial, liquidez, vesting, reserva operativa, custodia y autoridades finales siguen **PROPOSED_NOT_APPROVED**; contenido público de metadata y preferencia Arweave aprobados por separado, sin autorización de publicar. MAINNET_DISABLED permanece activo. TOKEN READY FOR MAINNET sigue pendiente de las decisiones y verificaciones siguientes; PUBLICLY TRADABLE = NO. No se ha creado el token de producción ni un mercado.
 
 ## 1. Qué está terminado
 
@@ -8,11 +8,11 @@ Programa de vesting existente, cliente, validadores, preparación de instruccion
 
 Se añadieron propuestas aritméticas separadas de la configuración operativa, planners sin firma para las tres ventanas existentes y cotización futura de costes por RPC/simulación. No hay ejecutor automático Mainnet. `config/robusto-production.json` conserva direcciones y allocations sin aprobar; logo oficial validado y contenido de metadata aprobado. Scripts y planes no equivalen a aprobación, integración de firmantes o revisión independiente.
 
-Candidato: nombre/símbolo ROBUSTO; decimales 6; supply 1.000.000.000 tokens = **1.000.000.000.000.000 base units**; freeze authority ninguna; metadata actualizable; ninguna autoridad revocada.
+Parámetros aprobados sin autorización operativa: nombre/símbolo ROBUSTO; decimales 6; supply 1.000.000.000 tokens = **1.000.000.000.000.000 base units**; freeze authority ninguna; metadata actualizable; ninguna autoridad revocada.
 
 ## 2. Qué está probado
 
-La suite de cliente contiene 100 pruebas, incluyendo distribución exacta, ventanas congeladas, Clock on-chain, bloqueo Mainnet, transacciones unsigned y cotización con RPC simulado. TypeScript compila. La suite RC reconstruye SBF/IDL y ejecuta Rust, Python y cliente con dos identidades; los informes verificables son `target/rc-check.json`, `target/reproducibility.json`, `target/security-scan.json` y `target/dependency-audit.json` del commit limpio empaquetado. El backup exige coincidencia de hashes.
+La suite de cliente contiene 101 pruebas, incluyendo distribución exacta, ventanas congeladas, Clock on-chain, bloqueo Mainnet, transacciones unsigned y cotización con RPC simulado. TypeScript compila. La suite RC reconstruye SBF/IDL y ejecuta Rust, Python y cliente con dos identidades; los informes verificables son `target/rc-check.json`, `target/reproducibility.json`, `target/security-scan.json` y `target/dependency-audit.json` del commit limpio empaquetado. El backup exige coincidencia de hashes.
 
 Los tests locales del ciclo completo utilizan cuentas temporales y simulación local; no son transacciones Devnet nuevas ni evidencia Mainnet. Los casos Mainnet nuevos usan mocks, nunca RPC Mainnet. Resultados históricos y vulnerabilidades: [revisión completa](ROBUSTO_FINAL_REVIEW.md). Avisos transitivos conocidos de Yarn y Rust permanecen documentados: un scan aprobado no significa ausencia de todo riesgo. La revisión externa del contrato y de la custodia sigue pendiente.
 
@@ -38,11 +38,11 @@ Llegar a la fecha no autoriza firmar. Leer `npm run robusto:third-status`, revis
 
 ## 5. Decisiones exactas del propietario
 
-### Distribución: escoger o modificar una propuesta
+### Supply y distribución aprobados, ejecución no autorizada
 
-[Comparación detallada de distribución y circulación inicial](ROBUSTO_DISTRIBUTION_DECISION.md); ninguna opción aprobada.
+El propietario aprobó 1.000.000.000 ROBUSTO, 6 decimales, freeze=None y 50/15/30/5: 500M mercado, 150M comunidad, 300M reserva, 50M equipo. [Registro validable](../config/robusto-economics-approved.json); `npm run robusto:production -- economics`. No mint, transferencias ni circulación inicial autorizados. [Siguiente propuesta pendiente](ROBUSTO_PROGRESSIVE_LAUNCH_PROPOSAL.md). [Comparación histórica](ROBUSTO_DISTRIBUTION_DECISION.md).
 
-`config/robusto-distribution-proposal.json` valida ambas alternativas, sin poblar allocations operativas. Comando seguro: `npm run robusto:production -- distribution`.
+`config/robusto-distribution-proposal.json` conserva ambas alternativas históricas; la selección vigente es 50/15/30/5 y el registro aprobado es separado, sin poblar allocations operativas. Comando seguro: `npm run robusto:production -- distribution`.
 
 | Destino | Principal | Tokens | Base units | Alternativa de lanzamiento escalonado |
 |---|---:|---:|---:|---:|
@@ -60,7 +60,7 @@ Tres autoridades públicas distintas, controladas mediante firma fuera de este r
 
 Decidir quién controla cada rol, recuperación privada, revisión y límites. Para dos o más custodios independientes puede evaluarse multisig 2-de-3: no está integrada en estos builders y requiere adaptación y pruebas antes de escogerla. Los builders actuales requieren firmantes individuales on-curve. No configurar una dirección multisig como si fuera compatible sin comprobarlo. Se conservan mint, update y upgrade authorities; retenerlas también conserva riesgos de emisión adicional, cambios de metadata y upgrades, que deben divulgarse.
 
-Para equipo se propone, sin aprobar, cliff de 365 días y duración de 1.095 días desde un start UTC aún sin definir. El contrato acumula linealmente desde start: al cliff ya existe aproximadamente un tercio adquirido; no es un año sin acumulación. Decidir start, cliff, duración, beneficiario y política de divulgación. Si se exige acumulación solo después del cliff, esta propuesta no cumple y necesita revisión específica del diseño antes de producción.
+El candidato histórico de equipo acumula desde S con cliff S+365 días y end S+1.095; al cliff existe aproximadamente un tercio adquirido. La nueva propuesta pendiente recomienda espera de365 días y después730 días lineales sin anticipo: start=cliff=S+365, end=S+1.095, compatible con el programa existente. Ningún modelo está aprobado; ver [propuesta progresiva](ROBUSTO_PROGRESSIVE_LAUNCH_PROPOSAL.md) y decidir fechas, términos y beneficiario antes de configurar.
 
 ### Imagen y contenido
 
@@ -76,7 +76,7 @@ También decidir identidad pública de programa y destino de deployment, necesid
 
 ## 6. Antes de Mainnet
 
-Resolver proveedor/coste/autorización de publicación y URI (logo y contenido aprobados), distribución, direcciones/custodia, vesting/start, identidad de programa y presupuesto. Completar firma externa y revisión independiente; probar exactamente la configuración elegida sin fondos reales, verificar artefactos, hashes, loader y roles, conservar mint/update/upgrade y freeze=null. Actualizar lectura futura de app con mint/program/metadata reales solo después de autorización y verificación. Publicar documentación honesta de supply circulante, vesting y poderes retenidos.
+Resolver proveedor/coste/autorización de publicación y URI (logo y contenido aprobados), circulación/desbloqueos (supply y buckets aprobados), direcciones/custodia, vesting/start, identidad de programa y presupuesto. Completar firma externa y revisión independiente; probar exactamente la configuración elegida sin fondos reales, verificar artefactos, hashes, loader y roles, conservar mint/update/upgrade y freeze=null. Actualizar lectura futura de app con mint/program/metadata reales solo después de autorización y verificación. Publicar documentación honesta de supply circulante, vesting y poderes retenidos.
 
 Cotizar inmediatamente antes de operar y revisar plan, genesis, cuentas, blockhash, destinatarios e instrucciones. Cualquier cambio invalida el plan anterior. No modificar los flags de autorización en esta preparación.
 

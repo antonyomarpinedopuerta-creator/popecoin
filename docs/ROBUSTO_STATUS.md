@@ -1,7 +1,7 @@
 # ROBUSTO — estado vigente
 
-Documento vigente para el propietario y continuidad sin Astra: [ROBUSTO_READY_FOR_OWNER_DECISIONS](ROBUSTO_READY_FOR_OWNER_DECISIONS.md). Las propuestas nuevas no aprueban allocations ni operaciones.
-NOT_AUTHORIZED_FOR_MAINNET · MAINNET_DISABLED. Código de preparación cerrado dentro del alcance seguro; no token, mercado ni metadata ROBUSTO de producción creados. Candidato: 1.000.000.000 ROBUSTO, seis decimales = **1.000.000.000.000.000 unidades base**, freeze=null. Distribución sin decidir; PROPOSED_NOT_APPROVED.
+Documento vigente para el propietario y continuidad sin Astra: [ROBUSTO_READY_FOR_OWNER_DECISIONS](ROBUSTO_READY_FOR_OWNER_DECISIONS.md). Los parámetros económicos aprobados no autorizan allocations operativas ni transacciones.
+NOT_AUTHORIZED_FOR_MAINNET · MAINNET_DISABLED. Código de preparación cerrado dentro del alcance seguro; no token, mercado ni metadata ROBUSTO de producción creados. Supply objetivo aprobado: 1.000.000.000 ROBUSTO, seis decimales = **1.000.000.000.000.000 unidades base**, freeze=null. Distribución 50/15/30/5 aprobada únicamente como parámetros económicos; 500M mercado NO es circulación inicial.
 
 El tercer rehearsal está financiado y se conserva. Última observación RPC finalized: slot 508092917, cadena 2026-10-06 12:28:16 UTC; supply/vault=10000000, source/beneficiario/released=0. Evidencia: [third-status](evidence/robusto/third-status-2026-10-06T12-28-16-613Z.json). Se conserva también la observación anterior de las 12:12:53 UTC. La consulta validó identidad, calendario y reconciliación; el Clock observado sigue anterior al start y al cliff. No hubo ninguna nueva firma/transacción en esta actualización.
 
@@ -21,10 +21,12 @@ No esperar activo ni alterar reloj. Llegar a una fecha no autoriza firmar. Los r
 
 Revisión adicional completada: [cierre autónomo del 6 de octubre](ROBUSTO_FINAL_REVIEW.md). Suite de código: 95 cliente, 49 Python y 48 Rust por identidad; PNG con descompresión acotada, preflight de instrucciones canónicas, autoridades separadas y backup ligado a auditoría exacta. Las verificaciones finales del commit limpio se conservan en target; el backup se identifica mediante su manifest y sidecar, sin autorreferencias de hash en las fuentes.
 
-Pendientes exclusivos de propietario/externos: distribución/vesting/start aprobados, signers y custodia separados, integración de firma, revisión independiente, autorización y presupuesto. Ninguna distribución histórica PAPA ha sido escalada o aprobada para ROBUSTO. Mint authority, metadata update authority y program upgrade authority siguen conservadas y separadas en el diseño.
+Pendientes exclusivos de propietario/externos: circulación inicial, desbloqueos y vesting/start aprobados, signers y custodia separados, integración de firma, revisión independiente, autorización y presupuesto. Ninguna distribución histórica PAPA ha sido escalada o aprobada para ROBUSTO. Mint authority, metadata update authority y program upgrade authority siguen conservadas y separadas en el diseño.
 
 TOKEN CREATED y TOKEN PUBLICLY TRADABLE son estados distintos. No hay DEX/launchpad/contraparte/liquidez elegido ni costes actuales de mercado verificados. Un mercado líquido necesita un mecanismo real de liquidez/contrapartida; minimizar capital no elimina ese requisito. No se selecciona proveedor sin decisión y verificación actuales.
 
-Logo oficial incorporado: **OFFICIAL_USER_ASSET_VALIDATED**, PNG 1254 × 1254; hash y registro en [OFFICIAL_ASSET](../metadata/robusto/OFFICIAL_ASSET.md). Hosting/URI y contenido final siguen pendientes; no publicado.
+Logo oficial incorporado: **OFFICIAL_USER_ASSET_VALIDATED**, PNG 1254 × 1254; hash y registro en [OFFICIAL_ASSET](../metadata/robusto/OFFICIAL_ASSET.md). Hosting/URI y autorización de publicación siguen pendientes; no publicado.
 
-Metadata pública: nombre/símbolo ROBUSTO, descripción final y omisión de web aprobados en [CONTENT_APPROVAL](../metadata/robusto/CONTENT_APPROVAL.json). Preferencia Arweave aprobada; proveedor, coste, URI y autorización de publicación/pagos pendientes. Metadata mutable y autoridad retenida. Supply/distribución siguen propuestas.
+Metadata pública: nombre/símbolo ROBUSTO, descripción final y omisión de web aprobados en [CONTENT_APPROVAL](../metadata/robusto/CONTENT_APPROVAL.json). Preferencia Arweave aprobada; proveedor, coste, URI y autorización de publicación/pagos pendientes. Metadata mutable y autoridad retenida. Supply/distribución están aprobados como parámetros únicamente; consultar config/robusto-economics-approved.json.
+
+Siguiente decisión pendiente: [lanzamiento progresivo](ROBUSTO_PROGRESSIVE_LAUNCH_PROPOSAL.md). allocations=null y guard operacional distributionStatus=PROPOSED_NOT_APPROVED permanecen hasta direcciones, condiciones y autorización específicas; no contradicen la aprobación económica separada.

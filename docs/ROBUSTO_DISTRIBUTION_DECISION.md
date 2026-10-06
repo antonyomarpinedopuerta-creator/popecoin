@@ -1,6 +1,6 @@
-# ROBUSTO — decisión pendiente de supply y distribución
+# ROBUSTO — comparación histórica de supply y distribución
 
-**PROPOSED_NOT_APPROVED / NOT_AUTHORIZED_FOR_MAINNET.** Ninguna distribución seleccionada. Candidato: 1.000.000.000 ROBUSTO, 6 decimales, freeze authority ninguna; 1 token = 1.000.000 base units, total 1.000.000.000.000.000. No emisión real ni transferencias. Retener mint authority permite técnicamente emisión futura: el candidato no es un límite inmutable impuesto por el mint.
+**Comparación histórica.** El propietario posteriormente aprobó supply/decimales/freeze y B (50/15/30/5) solo como parámetros económicos; registro vigente en config/robusto-economics-approved.json. Los análisis siguientes describen la comparación previa; no autorizan circulación ni ejecución. Candidato: 1.000.000.000 ROBUSTO, 6 decimales, freeze authority ninguna; 1 token = 1.000.000 base units, total 1.000.000.000.000.000. No emisión real ni transferencias. Retener mint authority permite técnicamente emisión futura: el candidato no es un límite inmutable impuesto por el mint.
 
 | Categoría | A: 70/15/10/5 | Tokens A | Base units A | B: 50/15/30/5 | Tokens B | Base units B |
 |---|---:|---:|---:|---:|---:|---:|
