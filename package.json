@@ -53,6 +53,8 @@
     "robusto:prepare-vesting": "ts-node scripts/robusto-rehearsal.ts",
     "robusto:production": "ts-node scripts/robusto-production.ts",
     "robusto:third-status": "ts-node scripts/robusto-third-status.ts",
+    "robusto:third-release": "ts-node scripts/robusto-third-release.ts",
+    "robusto:cost": "ts-node scripts/robusto-cost-estimator.ts",
     "robusto:metadata-publication": "ts-node scripts/robusto-metadata-publication.ts",
     "check:security": "python3 scripts/security-scan.py",
     "backup:public": "python3 scripts/backup-public.py"

@@ -1,0 +1,9 @@
+{
+  "status":"PROPOSED_NOT_APPROVED",
+  "network":{"mainnetMode":"MAINNET_DISABLED","cluster":"mainnet-beta","rpc":null},
+  "deployProgram":null,
+  "bufferAddress":null,
+  "maxProgramBytes":null,
+  "payerReserveLamports":null,
+  "feePolicy":"PENDING_OWNER_DECISION"
+}

@@ -1,0 +1,28 @@
+{
+  "status": "PROPOSED_NOT_APPROVED",
+  "mainnetStatus": "NOT_AUTHORIZED_FOR_MAINNET",
+  "decimals": 6,
+  "supplyTokens": "1000000000",
+  "supplyBaseUnits": "1000000000000000",
+  "primary": [
+    {"label":"market_ecosystem_launch","basisPoints":7000,"tokens":"700000000","baseUnits":"700000000000000"},
+    {"label":"community_marketing","basisPoints":1500,"tokens":"150000000","baseUnits":"150000000000000"},
+    {"label":"reserve","basisPoints":1000,"tokens":"100000000","baseUnits":"100000000000000"},
+    {"label":"team_founder","basisPoints":500,"tokens":"50000000","baseUnits":"50000000000000"}
+  ],
+  "stagedAlternative": [
+    {"label":"market_ecosystem_launch","basisPoints":5000,"tokens":"500000000","baseUnits":"500000000000000"},
+    {"label":"community_marketing","basisPoints":1500,"tokens":"150000000","baseUnits":"150000000000000"},
+    {"label":"reserve","basisPoints":3000,"tokens":"300000000","baseUnits":"300000000000000"},
+    {"label":"team_founder","basisPoints":500,"tokens":"50000000","baseUnits":"50000000000000"}
+  ],
+  "beneficiaries": null,
+  "teamVesting": {
+    "status":"PROPOSED_NOT_APPROVED",
+    "startUtc":null,
+    "cliffSeconds":31536000,
+    "durationSeconds":94608000,
+    "note":"Candidate only: 365-day cliff, 1095-day linear accrual from start; the cliff unlocks accrued tokens, not a zero-accrual first year. Owner must approve dates and terms."
+  },
+  "note":"Neither proposal selects a market or provides SOL/liquidity. Operational allocations remain null until addresses, custody and vesting are decided."
+}

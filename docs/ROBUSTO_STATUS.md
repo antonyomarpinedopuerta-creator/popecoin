@@ -1,5 +1,6 @@
 # ROBUSTO — estado vigente
 
+Documento vigente para el propietario y continuidad sin Astra: [ROBUSTO_READY_FOR_OWNER_DECISIONS](ROBUSTO_READY_FOR_OWNER_DECISIONS.md). Las propuestas nuevas no aprueban allocations ni operaciones.
 NOT_AUTHORIZED_FOR_MAINNET · MAINNET_DISABLED. Código de preparación cerrado dentro del alcance seguro; no token, mercado ni metadata ROBUSTO de producción creados. Candidato: 1.000.000.000 ROBUSTO, seis decimales = **1.000.000.000.000.000 unidades base**, freeze=null. Distribución sin decidir; PROPOSED_NOT_APPROVED.
 
 El tercer rehearsal está financiado y se conserva. Última observación RPC finalized: slot 508092917, cadena 2026-10-06 12:28:16 UTC; supply/vault=10000000, source/beneficiario/released=0. Evidencia: [third-status](evidence/robusto/third-status-2026-10-06T12-28-16-613Z.json). Se conserva también la observación anterior de las 12:12:53 UTC. La consulta validó identidad, calendario y reconciliación; el Clock observado sigue anterior al start y al cliff. No hubo ninguna nueva firma/transacción en esta actualización.

@@ -24,3 +24,4 @@ import "./metadata-production.test";
 import "./robusto.test";
 
 import "./robusto-production.test";
+import "./robusto-owner-preparation.test";

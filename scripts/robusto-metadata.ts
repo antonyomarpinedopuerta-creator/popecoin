@@ -37,9 +37,17 @@ export function prepareRobustoMetadata(p:any,template:any,image:Buffer){
  return {bytes,imageSha256:sha256,metadataSha256:createHash('sha256').update(bytes).digest('hex'),isMutable:true,metadataUpdateAuthority:p.metadataUpdateAuthority,authorityStatus:p.metadataUpdateAuthority===null?'PENDING':'PUBLIC_KEY_VALIDATED_NOT_CUSTODY_APPROVED'};
 }
 if(require.main===module){try{
+ const [mode='prepare',...extra]=process.argv.slice(2);
+ if(extra.length||!['prepare','inspect-image'].includes(mode))throw Error('Use prepare or inspect-image; local files only');
  const p=validateRobustoProposal(JSON.parse(fs.readFileSync('config/robusto-production.json','utf8')));
  if(!fs.existsSync(p.imagePath))throw Error('PENDING_USER_ASSET: official dog/rocket image at '+p.imagePath);
+ const stat=fs.lstatSync(p.imagePath);if(!stat.isFile()||stat.isSymbolicLink()||stat.size>4*1024*1024)throw Error('Official image must be a regular PNG file within 4 MiB');
+ if(mode==='inspect-image'){
+  const image=fs.readFileSync(p.imagePath),dimensions=validatePng(image);
+  console.log(JSON.stringify({status:'ASSET_VALIDATED_NOT_OWNER_APPROVED',path:p.imagePath,...dimensions,bytes:image.length,sha256:createHash('sha256').update(image).digest('hex'),note:'No approval/hash/config changed; owner must visually approve these exact bytes.'},null,2));
+ }else{
  const result=prepareRobustoMetadata(p,JSON.parse(fs.readFileSync('metadata/robusto/metadata.template.json','utf8')),fs.readFileSync(p.imagePath));
  fs.mkdirSync('target/robusto-metadata',{recursive:true});fs.writeFileSync('target/robusto-metadata/metadata.json',result.bytes);
  console.log(JSON.stringify({status:'PREPARED_NOT_PUBLISHED',...result},null,2));
+ }
 }catch(e){console.error((e as Error).message);process.exitCode=1;}}

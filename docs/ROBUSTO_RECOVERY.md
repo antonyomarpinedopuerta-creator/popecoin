@@ -1,5 +1,6 @@
 # ROBUSTO — continuidad y restauración pública
 
+Documento vigente para el propietario y continuidad sin Astra: [ROBUSTO_READY_FOR_OWNER_DECISIONS](ROBUSTO_READY_FOR_OWNER_DECISIONS.md). Las propuestas nuevas no aprueban allocations ni operaciones.
 Entrada para otra sesión Codex: leer README, ROBUSTO_STATUS, ROBUSTO_CLOSURE, evidencia closure-validation y config/robusto-rehearsal-3.json. Comprobar `git status`, HEAD y origin/master. No seguir pasos antiguos de Deposit del segundo ensayo. No regenerar identidades, modificar horarios, repetir operaciones finalizadas ni asumir autorización para releases futuros.
 
 ## Backup público

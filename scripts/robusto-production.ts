@@ -19,6 +19,23 @@ export const SUPPLY=1_000_000_000_000_000n;
 const digest=(b:Buffer)=>createHash('sha256').update(b).digest('hex');
 export type Allocation={label:string;beneficiary:string;basisPoints:number;baseUnits:string;
  vesting?:{start:string;cliff:string;end:string}};
+/** Arithmetic proposal only: no addresses, custody, signing or adoption of allocations. */
+export function validateDistributionProposal(p:any){
+ if(p?.status!=='PROPOSED_NOT_APPROVED'||p.mainnetStatus!=='NOT_AUTHORIZED_FOR_MAINNET'||p.decimals!==6||p.supplyTokens!=='1000000000'||p.supplyBaseUnits!==SUPPLY.toString())throw Error('Unauthorized distribution proposal required');
+ const check=(rows:any)=>{
+  if(!Array.isArray(rows)||rows.length!==4)throw Error('Four proposed buckets required');
+  let bps=0,total=0n;const labels=new Set<string>();
+  for(const row of rows){
+   if(!row||!['market_ecosystem_launch','community_marketing','reserve','team_founder'].includes(row.label)||labels.has(row.label)||!Number.isInteger(row.basisPoints)||row.basisPoints<=0||row.basisPoints>10000)throw Error('Invalid proposed bucket');
+   labels.add(row.label);const raw=integer(row.baseUnits),tokens=integer(row.tokens);
+   if(raw!==SUPPLY*BigInt(row.basisPoints)/10000n||tokens*1_000_000n!==raw)throw Error('Proposed tokens/base units/percentage disagree');
+   bps+=row.basisPoints;total+=raw;
+  }
+  if(bps!==10000||total!==SUPPLY)throw Error('Proposal must sum to exactly 100%');
+  return {rows,basisPoints:bps,tokens:'1000000000',baseUnits:total.toString()};
+ };
+ return {status:p.status,mainnetStatus:p.mainnetStatus,primary:check(p.primary),stagedAlternative:check(p.stagedAlternative)};
+}
 export function integer(value:unknown, maximum=2n**64n-1n):bigint {
  if(typeof value!=='string'||! /^(0|[1-9][0-9]*)$/.test(value))throw Error('Canonical unsigned decimal string required');
  const n=BigInt(value);if(n>maximum)throw Error('Integer out of range');return n;
@@ -174,14 +191,15 @@ export function prepareMintRevocation(p:any,approval:unknown,snapshot:any){
  return createSetAuthorityInstruction(address(p.mint),address(p.mintAuthority),AuthorityType.MintTokens,null);
 }
 if(require.main===module){try{
- const [mode='validate',file='config/robusto-production.json']=process.argv.slice(2);const p=JSON.parse(fs.readFileSync(file,'utf8'));
+ const [mode='validate',file=mode==='distribution'?'config/robusto-distribution-proposal.json':'config/robusto-production.json']=process.argv.slice(2);const p=JSON.parse(fs.readFileSync(file,'utf8'));
  if(mode==='validate'){validateRobustoProposal(p);console.log(JSON.stringify({status:p.status,mainnetMode:p.mainnetMode,supplyBaseUnits:SUPPLY.toString(),distribution:p.allocations===null?'PENDING_OWNER_DECISION':validateDistribution(p.allocations)},null,2));}
+ else if(mode==='distribution')console.log(JSON.stringify(validateDistributionProposal(p),null,2));
  else if(mode==='instructions'){
   const idl=JSON.parse(fs.readFileSync('target/robusto-production/idl.json','utf8'));
   // Offline estimate supplied separately; refresh from authorized RPC before signing.
   const mintRent=Number(process.env.ROBUSTO_OFFLINE_MINT_RENT);
   console.log(JSON.stringify({status:'OFFLINE_UNSIGNED_NOT_AUTHORIZED',steps:describeSteps(buildProductionSteps(p,idl,mintRent))},null,2));
- }else throw Error('Only validate/instructions modes supported. MAINNET_DISABLED; no executor installed.');
+ }else throw Error('Only validate/instructions/distribution modes supported. MAINNET_DISABLED; no executor installed.');
 }catch(e){console.error((e as Error).message);process.exitCode=1;}}
 
 /** Optional future name/symbol/URI update using the retained metadata authority. */
