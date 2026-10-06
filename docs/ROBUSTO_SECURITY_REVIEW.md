@@ -1,4 +1,4 @@
-> Cierre posterior: [ROBUSTO_CLOSURE](ROBUSTO_CLOSURE.md) y [validación](evidence/robusto/closure-validation.md). Contrato/ABI/binary del ensayo intactos; genesis guards de metadata históricos añadidos; 48 Rust/88 cliente/47 Python en pruebas del cierre. Limitaciones Deposit/exceso y avisos de dependencias conservados. No auditoría independiente.
+> Cierre posterior: [ROBUSTO_CLOSURE](ROBUSTO_CLOSURE.md) y [validación](evidence/robusto/closure-validation.md). Contrato/ABI/binary del ensayo intactos; genesis guards de metadata históricos añadidos; 48 Rust/89 cliente/47 Python en pruebas del cierre. Limitaciones Deposit/exceso y avisos de dependencias conservados. No auditoría independiente.
 
 # ROBUSTO — revisión interna de seguridad 2026-10-04 UTC
 

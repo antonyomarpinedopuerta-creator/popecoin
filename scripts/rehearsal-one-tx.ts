@@ -59,8 +59,10 @@ export function assertBufferAddress(p:Deployment,key:PublicKey,roles:{program:Pu
  if(p.buffer!==null&&p.buffer!==key.toBase58())throw Error('Derived buffer differs from pinned public buffer address');
 }
 
-export function findCandidate(p:Deployment, candidateRoot=path.join(ROOT,'target/rehearsal-builds')) {
- const base=path.resolve(candidateRoot);
+export function findCandidate(p:Deployment, candidateRoot?:string) {
+ const requested=candidateRoot??path.join(ROOT,'target/rehearsal-builds');
+ // Restorable public historical evidence; never accepts a different hash or signer.
+ const base=path.resolve(candidateRoot===undefined&&!fs.existsSync(requested)?path.join(ROOT,'docs/evidence/rehearsal-builds'):requested);
  let baseInfo:fs.Stats;try{baseInfo=fs.lstatSync(base);}catch{throw Error('Candidate directory is absent or invalid');}
  if(!baseInfo.isDirectory())throw Error('Candidate directory is absent, a symlink or invalid');
  for(let cur=base;;){if(fs.lstatSync(cur).isSymbolicLink())throw Error('Symlink in candidate path');const parent=path.dirname(cur);if(parent===cur)break;cur=parent;}

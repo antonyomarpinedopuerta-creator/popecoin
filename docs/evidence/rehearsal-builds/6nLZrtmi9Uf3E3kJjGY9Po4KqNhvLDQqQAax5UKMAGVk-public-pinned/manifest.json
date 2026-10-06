@@ -1,0 +1,66 @@
+{
+  "binarySha256": "034d073f1d400f27e941525f9b18406bd643374c69d22903aac3af52ad085061",
+  "builderSha256": "32ca2823a996837c342ac740d6d5e9c74ce60e71878f04cf977277afffec888b",
+  "cluster": "devnet",
+  "commands": [
+    [
+      "/home/antony/.cache/solana/v1.52/platform-tools/rust/bin/cargo",
+      "build",
+      "--release",
+      "--target",
+      "sbpf-solana-solana",
+      "--lib",
+      "--frozen",
+      "--manifest-path",
+      "/home/antony/popecoin_vesting/target/rehearsal-builds/6nLZrtmi9Uf3E3kJjGY9Po4KqNhvLDQqQAax5UKMAGVk-eadtrh7r/programs/popecoin_vesting/Cargo.toml"
+    ],
+    [
+      "/home/antony/.cache/solana/v1.52/platform-tools/llvm/bin/llvm-objcopy",
+      "--strip-all",
+      "/home/antony/popecoin_vesting/target/rehearsal-builds/6nLZrtmi9Uf3E3kJjGY9Po4KqNhvLDQqQAax5UKMAGVk-eadtrh7r/target/sbpf-solana-solana/release/popecoin_vesting.so",
+      "/home/antony/popecoin_vesting/target/rehearsal-builds/6nLZrtmi9Uf3E3kJjGY9Po4KqNhvLDQqQAax5UKMAGVk-eadtrh7r/program.so"
+    ]
+  ],
+  "idlOrigin": "Release ABI adapted to explicit ID; not independently generated",
+  "preparedHashes": {
+    "Cargo.lock": "8c1846de05807b6060ed09ec300192b2e8c2ec1d765d1934db3b9238192c92b5",
+    "Cargo.toml": "1d92d53c62df8f99c76b6d7309471a455f828c39d973e8830d08eff1ce30a046",
+    "idl.json": "2524801c5c4cfd81405c5c534eddd0e2bb251bc5afc9f29f62520c51a91ad95f",
+    "programs/popecoin_vesting/Cargo.toml": "3afdb67250698c614360130c7bae27e79b1c56cfd21793776d54df60ed70062b",
+    "programs/popecoin_vesting/src/constants.rs": "d50c0d0e9b123a8a5c2c25e592be957cfee765c12002d90fe563d2b940c4b7f9",
+    "programs/popecoin_vesting/src/error.rs": "02f9bb96cefe4e419e688c8d3a34560b3d0e19ae2b21c5df83ea7dbd7b25be9e",
+    "programs/popecoin_vesting/src/instructions.rs": "f1cd4acdc4184e86157ffc9747f5061fa2d87894b113b3cf701f0c094aef8632",
+    "programs/popecoin_vesting/src/instructions/deposit.rs": "0c512a0d2fc56b03cf798acd898672f4c6a9acd937278705bc35e20a1555f63b",
+    "programs/popecoin_vesting/src/instructions/initialize.rs": "6ab91ba8fbb4164f1cddd7197155e361f91c7c38695ef0d3c2c883dde556a63f",
+    "programs/popecoin_vesting/src/instructions/release.rs": "0b16922ff71612f088139e02790b92b271589c8dd5529b5d3055c8c568bab87f",
+    "programs/popecoin_vesting/src/lib.rs": "b7f3016a83c9f0563440b5383460484bfcfaf3c67a8aed84f522b84347280894",
+    "programs/popecoin_vesting/src/state.rs": "d14db9aa0dfb7672a00100f1bd4ad636b8166ecda0f70c082ef502727ca9b5a1",
+    "rust-toolchain.toml": "72659cbb160b72a6a69202329be51728d0dd1d2acd3e234928cb369786b0a760"
+  },
+  "programId": "6nLZrtmi9Uf3E3kJjGY9Po4KqNhvLDQqQAax5UKMAGVk",
+  "releaseIdlSha256": "bdd866c6853977ca05943b1961753850082eb91818a606d0dce117b78e0abb42",
+  "schemaVersion": 1,
+  "sourceHashes": {
+    "Cargo.lock": "8c1846de05807b6060ed09ec300192b2e8c2ec1d765d1934db3b9238192c92b5",
+    "Cargo.toml": "1d92d53c62df8f99c76b6d7309471a455f828c39d973e8830d08eff1ce30a046",
+    "programs/popecoin_vesting/Cargo.toml": "3afdb67250698c614360130c7bae27e79b1c56cfd21793776d54df60ed70062b",
+    "programs/popecoin_vesting/src/constants.rs": "d50c0d0e9b123a8a5c2c25e592be957cfee765c12002d90fe563d2b940c4b7f9",
+    "programs/popecoin_vesting/src/error.rs": "02f9bb96cefe4e419e688c8d3a34560b3d0e19ae2b21c5df83ea7dbd7b25be9e",
+    "programs/popecoin_vesting/src/instructions.rs": "f1cd4acdc4184e86157ffc9747f5061fa2d87894b113b3cf701f0c094aef8632",
+    "programs/popecoin_vesting/src/instructions/deposit.rs": "0c512a0d2fc56b03cf798acd898672f4c6a9acd937278705bc35e20a1555f63b",
+    "programs/popecoin_vesting/src/instructions/initialize.rs": "6ab91ba8fbb4164f1cddd7197155e361f91c7c38695ef0d3c2c883dde556a63f",
+    "programs/popecoin_vesting/src/instructions/release.rs": "0b16922ff71612f088139e02790b92b271589c8dd5529b5d3055c8c568bab87f",
+    "programs/popecoin_vesting/src/lib.rs": "41b7af435ef12a40ae716cd6daa51526bb4f8752b249af8962cca279832d6b07",
+    "programs/popecoin_vesting/src/state.rs": "d14db9aa0dfb7672a00100f1bd4ad636b8166ecda0f70c082ef502727ca9b5a1",
+    "rust-toolchain.toml": "72659cbb160b72a6a69202329be51728d0dd1d2acd3e234928cb369786b0a760"
+  },
+  "status": "built-not-runtime-verified",
+  "toolHashes": {
+    "ar": "df9691e1c8d64b8daf6557d2e80e8a8c7e3cc75cfef7c2a9b3185b06e92efc9c",
+    "cargo": "b4171a5b807c0d54cd02fe2ca2ae9505d6bd1c9c8d1d8b23e5189de9abdd4f98",
+    "clang": "76e4fab466de587cea7d0bf864b96a7047235303ee48570b10eaba0e2e4820ca",
+    "objcopy": "673b3b86f0b1b8eadd755e29e2f66a7582248ef3bda7a267fbb370b733c1cb69",
+    "rustc": "d95c95b68e321ad76634e1fd26b0a7c20ccdbae9ad9ca733f3ae2f2b4a0b6002"
+  },
+  "validation": "No deployment, simulation, signature or runtime lifecycle validation"
+}

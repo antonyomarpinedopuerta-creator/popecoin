@@ -1,6 +1,6 @@
 # ROBUSTO — validación del cierre
 
-Resultados durante implementación: 48 Rust (37 SBF/LiteSVM, 1 carga, 10 aritmética), 88 cliente TypeScript, 47 Python PASS; tsc PASS. RC completo del árbol de trabajo PASS: SBF/IDL + Rust de ambas identidades, tsc, clientes, Python, Clippy y verificación de artefactos. Se reejecutará sobre el commit limpio para empaquetado; no atribuir resultados a CI remoto aún.
+Resultados durante implementación: 48 Rust (37 SBF/LiteSVM, 1 carga, 10 aritmética), 89 cliente TypeScript, 47 Python PASS; tsc PASS. RC completo del árbol de trabajo PASS: SBF/IDL + Rust de ambas identidades, tsc, clientes, Python, Clippy y verificación de artefactos. Se reejecutará sobre el commit limpio para empaquetado; no atribuir resultados a CI remoto aún.
 
 RPC Devnet finalized slot507915315: estado inmutable de tercer rehearsal validado; evidencia third-status-2026-10-06T00-40-40-568Z.json. No firma/envío ni modificación de cuentas. No lectura Mainnet. Dos parciales y final siguen pendientes de fechas Y autorización independiente.
 
@@ -20,6 +20,10 @@ Export limpio de15204ff: PASS, nuevo Yarn cache/node_modules/build caches; ambos
 
 Push de15204ff confirmado. CI37397023485 en curso al consultar; CI37206428474 del commit324e5ba success. El resultado del workflow anterior no prueba este cierre. Último estado/archivo de backup se consulta por HEAD y manifest actual; no fijar una referencia recursiva a su propio hash dentro de fuentes.
 
-Logs públicos preservados: closure-client.log(88PASS), closure-python.log(47PASS), closure-rc-clean.log(RC de15204ff limpio, 48 Rust por identidad/Clippy/artefactos), closure-baseline-inventory.json(175archivos de324e5ba). La app aparece en closure-app.png. El ajuste posterior del inventario incluye.prettierignore y se valida otra vez en RC/backup final.
+Logs públicos preservados: closure-client.log(89PASS), closure-python.log(47PASS), closure-rc-clean.log(RC de15204ff limpio, 48 Rust por identidad/Clippy/artefactos), closure-baseline-inventory.json(175archivos de324e5ba). La app aparece en closure-app.png. El ajuste posterior del inventario incluye.prettierignore y se valida otra vez en RC/backup final.
 
 Reproducción en workspace/cache nuevos: PASS, SBF/IDL/tipos idénticos byte a byte y48tests Rust repetidos sobre el artefacto reconstruido. HashSBF release1c3b71a2b792fa986b2a9264861d2bc58654e85370f2bb348cea4dcccaff8492; identidadDevnet histórica e2afff5bdf90e1879ef08d8fd5bec4a84b14891b23e12617eb86e4e53b7b93fb. Reproducción en la misma máquina, no atestación independiente/hermética. Estado final verificable en target/rc-check.json, target/clean-check.json, target/reproducibility.json, target/backups/ y sus manifests/sidecars.
+
+Restauración del lector tercer rehearsal: ELF/IDL/manifest históricos públicos copiados byte a byte bajo docs/evidence/rehearsal-builds/; hashes exactos034d073f1d400f27e941525f9b18406bd643374c69d22903aac3af52ad085061 /2524801c5c4cfd81405c5c534eddd0e2bb251bc5afc9f29f62520c51a91ad95f /5366c6012833ff968a3822ba6030d9f420cd331a4e8eba9008cfdeae9457babd. Fallback únicamente si no existe caché local; no omite comprobaciones de hash/IDL/owner/ELF, no incluye signers privados y no cambia ningún binario on-chain. Se valida restauración real del backup sin target/rehearsal-builds.
+
+Una comprobación de export limpio del commit539e6bd quedó invalidada al añadir el fallback público de artifacts de rehearsal; nunca se usa evidencia de un árbol cambiado para empaquetar. Se repite sobre el commit definitivo limpio y se verifica el archivo restaurado real.

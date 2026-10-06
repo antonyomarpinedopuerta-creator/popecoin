@@ -178,3 +178,11 @@ test('stage preflight blocks Mainnet by default before making any request',async
  const {p,idl}=fixture();let calls=0;const c={getGenesisHash:async()=>{calls++;return MAINNET_GENESIS;}} as any;
  await assert.rejects(preflightStage(c,p,idl,Buffer.alloc(0),{label:'mint',kind:'mint',rentSizes:[],instructions:[]},{mainnetMode:'MAINNET_DISABLED'},undefined),/MAINNET_DISABLED/);assert.equal(calls,0);
 });
+
+import path from 'node:path';
+import {findCandidate,readDeployment} from '../scripts/rehearsal-one-tx';
+test('public pinned rehearsal artifact survives a source-only restoration without private identities',()=>{
+ const deployment=readDeployment();const candidate=findCandidate(deployment,path.resolve('docs/evidence/rehearsal-builds'));
+ assert.equal(createHash('sha256').update(candidate.elf).digest('hex'),deployment.elfSha256);
+ assert.equal(JSON.parse(candidate.idlBytes.toString()).address,deployment.program);
+});

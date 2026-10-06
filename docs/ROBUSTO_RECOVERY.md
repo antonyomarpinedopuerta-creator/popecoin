@@ -4,7 +4,7 @@ Entrada para otra sesión Codex: leer README, ROBUSTO_STATUS, ROBUSTO_CLOSURE, e
 
 ## Backup público
 
-`npm run backup:public` crea `target/backups/robusto-public-<commit12>.tar.gz` y `.tar.sha256` solo si RC actual limpio y reproducción verifican. Incluye inputs públicos completos, manifest de hashes, evidencia y artefactos SBF/IDL explícitos. Excluye .git, node_modules, target pesado, identidades privadas y keypairs. Los avisos de dependencias no desaparecen porque exista backup.
+`npm run backup:public` crea `target/backups/robusto-public-<commit12>.tar.gz` y `.tar.sha256` solo si RC actual limpio y reproducción verifican. Incluye inputs públicos completos, manifest de hashes, evidencia y artefactos SBF/IDL explícitos. Las tres piezas públicas del programa rehearsal ya desplegado se conservan bajo docs/evidence/rehearsal-builds/, con hashes fijados en config/rehearsal-deployment.json; el lector utiliza esa evidencia si no existe la caché target/rehearsal-builds. No requiere recompilar ni recrear el manifiesto histórico para hacer una lectura. Excluye .git, node_modules, target pesado, identidades privadas y keypairs. Los avisos de dependencias no desaparecen porque exista backup.
 
 Verificar antes de restaurar:
 
