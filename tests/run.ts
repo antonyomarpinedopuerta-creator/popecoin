@@ -22,3 +22,5 @@ import "./rehearsal-vesting-one-tx.test";
 import "./metadata-production.test";
 
 import "./robusto.test";
+
+import "./robusto-production.test";

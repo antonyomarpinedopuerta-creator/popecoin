@@ -15,7 +15,9 @@ ROOT_INPUTS = ['Cargo.toml', 'Cargo.lock', 'Anchor.toml', 'rust-toolchain.toml',
 
 COMMANDS = [
     ['python3', 'scripts/check-public.py'],
+    ['python3', 'scripts/security-scan.py'],
     ['python3', 'scripts/check-metadata.py'],
+    ['node', '--require', 'ts-node/register', 'scripts/robusto-production.ts'],
     ['python3', '-m', 'unittest', 'discover', '-s', 'tests', '-p', 'test_*.py'],
     ['npm', 'run', 'check'],
     ['cargo', 'clippy', '--locked', '--all-targets', '--', '-D', 'warnings'],

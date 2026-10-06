@@ -1,6 +1,7 @@
 import { Program, Idl } from "@coral-xyz/anchor";
 import { Connection, PublicKey, SYSVAR_CLOCK_PUBKEY } from "@solana/web3.js";
 import { AccountLayout, MintLayout, unpackAccount, unpackMint } from "@solana/spl-token";
+import { ReaderConfig, loadReaderConfig } from "../app/config";
 import { DEVNET_MINT, DEVNET_PROGRAM_ID, DEVNET_RPC, devnetIdl } from "./devnet-config";
 
 export const BENEFICIARIES = {
@@ -24,24 +25,27 @@ export function createDevnetConnection() {
   });
 }
 
-export async function readVesting(beneficiary: PublicKey, connection = createDevnetConnection()) {
+export async function readVesting(beneficiary: PublicKey, connection = createDevnetConnection(), config:ReaderConfig = loadReaderConfig()) {
+  if (connection.rpcEndpoint !== config.rpc && !(config.cluster === "devnet" && connection.rpcEndpoint === "http://127.0.0.1:8899")) throw new Error("Reader RPC endpoint mismatch");
+  if (await connection.getGenesisHash() !== config.genesisHash) throw new Error("Reader genesis mismatch");
+  const mintKey=new PublicKey(config.mint), programKey=new PublicKey(config.program);
   const idl: Idl = require("../target/idl/popecoin_vesting.json");
-  const program = new Program(devnetIdl(idl), { connection });
+  const program = new Program({...idl,address:config.program}, { connection });
   const [vesting, bump] = PublicKey.findProgramAddressSync(
-    [Buffer.from("vesting"), beneficiary.toBuffer(), DEVNET_MINT.toBuffer()], DEVNET_PROGRAM_ID,
+    [Buffer.from("vesting"), beneficiary.toBuffer(), mintKey.toBuffer()], programKey,
   );
-  const [vault] = PublicKey.findProgramAddressSync([Buffer.from("vault"), vesting.toBuffer()], DEVNET_PROGRAM_ID);
+  const [vault] = PublicKey.findProgramAddressSync([Buffer.from("vault"), vesting.toBuffer()], programKey);
   // One context for all balances and the chain clock; never calculate from the PC clock.
   const { context, value } = await connection.getMultipleAccountsInfoAndContext(
-    [vesting, vault, DEVNET_MINT, SYSVAR_CLOCK_PUBKEY], "confirmed",
+    [vesting, vault, mintKey, SYSVAR_CLOCK_PUBKEY], "confirmed",
   );
   const [stateInfo, vaultInfo, mintInfo, clockInfo] = value;
   if (!stateInfo) throw new Error("Vesting not found on Devnet");
-  if (stateInfo.executable || !stateInfo.owner.equals(DEVNET_PROGRAM_ID) || stateInfo.data.length !== 145) {
+  if (stateInfo.executable || !stateInfo.owner.equals(programKey) || stateInfo.data.length !== 145) {
     throw new Error("Invalid vesting owner or size");
   }
   const state = program.coder.accounts.decode("vestingAccount", stateInfo.data);
-  if (!state.beneficiary.equals(beneficiary) || !state.mint.equals(DEVNET_MINT) || state.bump !== bump) {
+  if (!state.beneficiary.equals(beneficiary) || !state.mint.equals(mintKey) || state.bump !== bump) {
     throw new Error("Vesting identity mismatch");
   }
   if (!vaultInfo || !mintInfo || vaultInfo.executable || mintInfo.executable ||
@@ -50,9 +54,9 @@ export async function readVesting(beneficiary: PublicKey, connection = createDev
       ![0, 1].includes(mintInfo.data.readUInt32LE(0)) ||
       ![0, 1].includes(mintInfo.data.readUInt32LE(46))) throw new Error("Invalid classic SPL account");
   const token = unpackAccount(vault, vaultInfo);
-  const mint = unpackMint(DEVNET_MINT, mintInfo);
-  if (!token.owner.equals(vesting) || !token.mint.equals(DEVNET_MINT) || !token.isInitialized ||
-      !mint.isInitialized || mint.decimals !== 6 || token.isNative || token.delegate !== null ||
+  const mint = unpackMint(mintKey, mintInfo);
+  if (!token.owner.equals(vesting) || !token.mint.equals(mintKey) || !token.isInitialized ||
+      !mint.isInitialized || mint.decimals !== config.decimals || token.isNative || token.delegate !== null ||
       token.closeAuthority !== null || token.delegatedAmount !== 0n) {
     throw new Error("Invalid vault or mint");
   }
@@ -63,9 +67,10 @@ export async function readVesting(beneficiary: PublicKey, connection = createDev
   const total = BigInt(state.totalAmount.toString()), released = BigInt(state.releasedAmount.toString());
   const start = BigInt(state.startTime.toString()), cliff = BigInt(state.cliffTime.toString()), end = BigInt(state.endTime.toString());
   const { accrued, vested, claimable } = accrual(total, released, start, cliff, end, now);
+  if (await connection.getGenesisHash() !== config.genesisHash) throw new Error("Reader genesis changed during snapshot");
   return {
-    cluster: "devnet", slot: context.slot, observedAt: new Date().toISOString(),
-    program: DEVNET_PROGRAM_ID.toBase58(), mint: DEVNET_MINT.toBase58(), beneficiary: beneficiary.toBase58(),
+    cluster: config.cluster, symbol:config.symbol, decimals:config.decimals, slot: context.slot, observedAt: new Date().toISOString(),
+    program: programKey.toBase58(), mint: mintKey.toBase58(), beneficiary: beneficiary.toBase58(),
     authority: state.authority.toBase58(), vesting: vesting.toBase58(), vault: vault.toBase58(),
     total: total.toString(), released: released.toString(), accrued: accrued.toString(), vested: vested.toString(), claimable: claimable.toString(),
     vaultBalance: token.amount.toString(), shortfall: (total - released > token.amount ? total - released - token.amount : 0n).toString(),

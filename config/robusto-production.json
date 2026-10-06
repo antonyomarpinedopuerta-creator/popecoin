@@ -29,5 +29,10 @@
   "liquidity": null,
   "dex": null,
   "launchpad": null,
-  "independentReview": null
+  "independentReview": null,
+  "mainnetMode": "MAINNET_DISABLED",
+  "distributionStatus": "PROPOSED_NOT_APPROVED",
+  "payer": null,
+  "programElfSha256": null,
+  "metadataSha256": null
 }

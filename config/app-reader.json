@@ -1,0 +1,14 @@
+{
+  "profile": "HISTORICAL_PAPA_DEVNET",
+  "cluster": "devnet",
+  "rpc": "https://api.devnet.solana.com",
+  "genesisHash": "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG",
+  "program": "BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc",
+  "mint": "ANNSmx2Jww4HUukAvxBRSZeTqzcuqPQTiewSjxx7tgnw",
+  "symbol": "PAPA",
+  "decimals": 6,
+  "beneficiaries": {
+    "reserve": "HnXgMRPyukmJCXRoi5vF9YZNuBmbuTa2csiVmKYTfRHa",
+    "founder": "DuvtonEx95RYtTXiUUaUpz1t4PuRHRDGAVB6wD29EfT3"
+  }
+}

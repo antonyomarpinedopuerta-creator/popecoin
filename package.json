@@ -50,7 +50,12 @@
     "robusto:recover": "ts-node scripts/robusto-recovery.ts",
     "robusto:prepare-recycle": "ts-node scripts/robusto-recycle.ts",
     "robusto:prepare-metadata": "ts-node scripts/robusto-metadata.ts",
-    "robusto:prepare-vesting": "ts-node scripts/robusto-rehearsal.ts"
+    "robusto:prepare-vesting": "ts-node scripts/robusto-rehearsal.ts",
+    "robusto:production": "ts-node scripts/robusto-production.ts",
+    "robusto:third-status": "ts-node scripts/robusto-third-status.ts",
+    "robusto:metadata-publication": "ts-node scripts/robusto-metadata-publication.ts",
+    "check:security": "python3 scripts/security-scan.py",
+    "backup:public": "python3 scripts/backup-public.py"
   },
   "private": true,
   "engines": {

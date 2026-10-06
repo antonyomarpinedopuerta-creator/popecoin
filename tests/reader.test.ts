@@ -25,6 +25,7 @@ async function fixture() {
   const clock = Buffer.alloc(40); clock.writeBigInt64LE(200n, 32);
   const info = (data: Buffer, owner: PublicKey): AccountInfo<Buffer> => ({ data, owner, executable: false, lamports: 1000000, rentEpoch: 0 });
   const values = [info(state, DEVNET_PROGRAM_ID), info(vault, TOKEN_PROGRAM_ID), info(mint, TOKEN_PROGRAM_ID), info(clock, new PublicKey("Sysvar1111111111111111111111111111111111111"))];
+  connection.getGenesisHash = async () => "EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG";
   connection.getMultipleAccountsInfoAndContext = async () => ({ context: { slot: 123 }, value: values });
   return { connection, beneficiary, values };
 }

@@ -1,3 +1,4 @@
+import {pngFixture} from './png-fixture';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -16,7 +17,7 @@ test('ROBUSTO proposal separates token/base supply and preserves mutable metadat
   assert.throws(()=>validateRobustoProposal({...proposal,...patch}));
 });
 test('ROBUSTO publication fails closed on missing approval/hash or durable URI',()=>{
- const image=Buffer.alloc(24);Buffer.from('89504e470d0a1a0a','hex').copy(image);image.write('IHDR',12);image.writeUInt32BE(1,16);image.writeUInt32BE(1,20);
+ const image=pngFixture();
  const template={name:'ROBUSTO',symbol:'ROBUSTO',description:'Draft'};
  assert.throws(()=>prepareRobustoMetadata(proposal,template,image),/pending/);
  const p={...proposal,imageSha256:createHash('sha256').update(image).digest('hex')};

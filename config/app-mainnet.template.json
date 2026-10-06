@@ -1,0 +1,12 @@
+{
+  "profile": "ROBUSTO_MAINNET_PENDING",
+  "mainnetMode": "MAINNET_DISABLED",
+  "cluster": "mainnet-beta",
+  "rpc": null,
+  "genesisHash": null,
+  "program": null,
+  "mint": null,
+  "symbol": "ROBUSTO",
+  "decimals": 6,
+  "beneficiaries": null
+}

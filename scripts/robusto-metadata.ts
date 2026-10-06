@@ -1,5 +1,6 @@
 /** Local preparation only. No uploads, RPC, wallet or authority changes. */
 import fs from 'node:fs';
+import {validatePng} from './png-validation';
 import {createHash} from 'node:crypto';
 import {PublicKey} from '@solana/web3.js';
 import {durableUri} from './durable-uri';
@@ -26,8 +27,10 @@ export function prepareRobustoMetadata(p:any,template:any,image:Buffer){
  if(template.name!==p.name||template.symbol!==p.symbol||typeof template.description!=='string'||!template.description.trim())throw Error('Invalid ROBUSTO template');
  const sha256=createHash('sha256').update(image).digest('hex');
  if(typeof p.imageSha256!=='string'||sha256!==p.imageSha256)throw Error('Official ROBUSTO image approval/hash pending');
- if(image.length>4*1024*1024||image.length<24||!image.subarray(0,8).equals(Buffer.from('89504e470d0a1a0a','hex'))||image.toString('ascii',12,16)!=='IHDR'||image.readUInt32BE(16)===0||image.readUInt32BE(20)===0)throw Error('Invalid PNG');
- const metadata={name:p.name,symbol:p.symbol,description:template.description,image:durableUri(p.imageUri)};
+ validatePng(image);
+ const metadata:any={name:p.name,symbol:p.symbol,description:template.description,image:durableUri(p.imageUri)};
+ if(template.external_url!==null&&template.external_url!==undefined){const url=new URL(template.external_url);if(url.protocol!=='https:'||url.username||url.password)throw Error('Official external_url must be public HTTPS');metadata.external_url=url.href;}
+ metadata.properties={files:[{uri:metadata.image,type:'image/png'}],category:'image'};
  const bytes=JSON.stringify(metadata,null,2)+'\n';
  return {bytes,imageSha256:sha256,metadataSha256:createHash('sha256').update(bytes).digest('hex'),isMutable:true,metadataUpdateAuthority:p.metadataUpdateAuthority,authorityStatus:p.metadataUpdateAuthority===null?'PENDING':'PUBLIC_KEY_VALIDATED_NOT_CUSTODY_APPROVED'};
 }
