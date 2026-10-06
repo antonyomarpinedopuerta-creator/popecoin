@@ -4011,3 +4011,50 @@ fn test_initialize_rejects_substituted_pdas_before_creating_accounts() {
         assert_eq!(env.balance(env.authority_token.pubkey()), before);
     }
 }
+
+// Isolated LiteSVM clock only. These are not Devnet transactions or evidence.
+#[test]
+fn test_robusto_seven_day_lifecycle_local_only() {
+    let mut env = VestingTestEnv::new();
+    // Reduce the synthetic supply through SPL burn, never alter real accounts.
+    let burn = spl_token_interface::instruction::burn(
+        &spl_token_interface::ID, &env.authority_token.pubkey(), &env.mint.pubkey(),
+        &env.authority.pubkey(), &[], env.total_amount - 10_000_000,
+    ).unwrap();
+    let tx = Transaction::new_signed_with_payer(&[burn], Some(&env.payer.pubkey()),
+        &[&env.payer, &env.authority], env.svm.latest_blockhash());
+    env.svm.send_transaction(tx).unwrap();
+    env.total_amount = 10_000_000;
+    let start = 1_791_293_572; // Fixed third rehearsal schedule, copied into local runtime.
+    let cliff = start + 43_200;
+    let end = start + 604_800;
+    env.initialize_schedule(start, cliff, end);
+    env.fund();
+    let destination = env.destination();
+    let before = env.svm.get_account(&env.vesting).unwrap().data;
+    let tx = env.release_tx(destination, cliff - 1);
+    let err = env.svm.send_transaction(tx).unwrap_err();
+    assert!(err.meta.logs.iter().any(|l| l.contains("NothingToRelease")));
+    assert_eq!(env.svm.get_account(&env.vesting).unwrap().data, before);
+    for (now, expected) in [(start + 172_800, 2_857_142),
+                            (start + 345_600, 5_714_285), (end, 10_000_000)] {
+        let tx = env.release_tx(destination, now);
+        env.svm.send_transaction(tx).unwrap();
+        let account = env.svm.get_account(&env.vesting).unwrap();
+        let state = VestingAccount::try_deserialize(&mut &account.data[..]).unwrap();
+        assert_eq!(state.released_amount, expected);
+        assert_eq!(env.balance(destination), expected);
+        assert_eq!(env.balance(env.vault) + expected, env.total_amount);
+        assert_eq!(env.balance(env.authority_token.pubkey()), 0);
+    }
+    // A fresh transaction (new blockhash), not a replay-cache rejection.
+    let before = env.svm.get_account(&env.vesting).unwrap().data;
+    let tx = env.release_tx(destination, end + 1);
+    let err = env.svm.send_transaction(tx).unwrap_err();
+    assert!(err.meta.logs.iter().any(|l| l.contains("NothingToRelease")));
+    assert_eq!(env.svm.get_account(&env.vesting).unwrap().data, before);
+    assert_eq!(env.balance(destination), env.total_amount);
+    assert_eq!(env.balance(env.vault), 0);
+    let mint = env.svm.get_account(&env.mint.pubkey()).unwrap();
+    assert_eq!(Mint::unpack(&mint.data).unwrap().supply, env.total_amount);
+}

@@ -1,4 +1,5 @@
-import { loadDevnetKeypair } from "./devnet-config";
+import { Connection } from "@solana/web3.js";
+import { assertHistoricalDevnet, DEVNET_PROGRAM_ID, DEVNET_MINT, loadDevnetKeypair } from "./devnet-config";
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import {
   createSignerFromKeypair,
@@ -21,6 +22,7 @@ const URI =
   "https://raw.githubusercontent.com/antonyomarpinedopuerta-creator/popecoin/master/metadata/metadata.json";
 
 async function main() {
+  await assertHistoricalDevnet(new Connection(RPC), DEVNET_PROGRAM_ID, DEVNET_MINT);
   const umi = createUmi(RPC).use(mplTokenMetadata());
 
   const keypair = umi.eddsa.createKeypairFromSecretKey(
