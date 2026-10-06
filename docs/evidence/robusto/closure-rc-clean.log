@@ -1,0 +1,350 @@
+
+> popecoin_vesting@1.0.0 check:rc
+> python3 scripts/check-rc.py
+
+PASS: 198 public files; no checked credential patterns or sensitive names. Heuristic, not a universal secret audit.
+PASS: 198 public files; no checked credential patterns or sensitive names. Heuristic, not a universal secret audit.
+{
+  "status": "passed",
+  "head": "15204ffccffeb82492fb97f95607eaa1b1c1adcd",
+  "uniquePublicHistoryBlobs": 308,
+  "findings": [],
+  "limits": "Heuristic, not a universal guarantee; no credential values printed, private key files never read. All historical filenames checked by public gate; byte scan limited to most recent 20 commits."
+}
+PASS: target/metadata-local.json; production hosting still pending
+{
+  "status": "NOT_AUTHORIZED_FOR_MAINNET",
+  "mainnetMode": "MAINNET_DISABLED",
+  "supplyBaseUnits": "1000000000000000",
+  "distribution": "PENDING_OWNER_DECISION"
+}
+...............................................
+----------------------------------------------------------------------
+Ran 47 tests in 0.856s
+
+OK
+target/rc/papa-aaaaaaaaaaaa.tar.gz SHA-256 6396799cbe7df06c7cf4d75f56317d7a282c93dd81d6b03f13b2cb23b2e66968
+target/rc/papa-aaaaaaaaaaaa.tar.gz SHA-256 6396799cbe7df06c7cf4d75f56317d7a282c93dd81d6b03f13b2cb23b2e66968
+target/rc/papa-aaaaaaaaaaaa.tar.gz SHA-256 6396799cbe7df06c7cf4d75f56317d7a282c93dd81d6b03f13b2cb23b2e66968
+target/rc/papa-aaaaaaaaaaaa.tar.gz SHA-256 6396799cbe7df06c7cf4d75f56317d7a282c93dd81d6b03f13b2cb23b2e66968
+PASS: 19 public entries, current manifest and archive SHA-256 6396799cbe7df06c7cf4d75f56317d7a282c93dd81d6b03f13b2cb23b2e66968
+Local RC evidence: target/rc-check.json
+
+> popecoin_vesting@1.0.0 check
+> npm run build:safe && cargo test --locked && tsc --noEmit && npm run test:client && npm run verify:release
+
+
+> popecoin_vesting@1.0.0 build:safe
+> python3 scripts/build-release.py
+
+    Finished `release` profile [optimized] target(s) in 0.26s
+   Compiling popecoin_vesting v0.1.0 (/home/antony/popecoin_vesting/programs/popecoin_vesting)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.75s
+     Running unittests src/lib.rs (/home/antony/popecoin_vesting/target/debug/deps/popecoin_vesting-2f13b5ac3f1125b5)
+     Running tests/test_integration.rs (/home/antony/popecoin_vesting/target/debug/deps/test_integration-ca3a1909e5ca0ad1)
+     Running tests/test_program_load.rs (/home/antony/popecoin_vesting/target/debug/deps/test_program_load-5098cf2ba462b01f)
+     Running tests/test_vesting.rs (/home/antony/popecoin_vesting/target/debug/deps/test_vesting-cc9117392dfd4763)
+{
+  "target/deploy/popecoin_vesting.so": "1c3b71a2b792fa986b2a9264861d2bc58654e85370f2bb348cea4dcccaff8492",
+  "target/idl/popecoin_vesting.json": "bdd866c6853977ca05943b1961753850082eb91818a606d0dce117b78e0abb42",
+  "target/types/popecoin_vesting.ts": "9918f4a71d954c1e6da5e0617c0ff8a0405ae8fa95c3b61eddc77079df29c333"
+}
+   Compiling popecoin_vesting v0.1.0 (/home/antony/popecoin_vesting/programs/popecoin_vesting)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.07s
+     Running unittests src/lib.rs (target/debug/deps/popecoin_vesting-21fc32f58c875daa)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/test_integration.rs (target/debug/deps/test_integration-2da675a8f5cd596c)
+
+running 37 tests
+test test_initialize_rejects_cliff_after_end ... ok
+test test_initialize_rejects_cliff_before_start ... ok
+test test_initialize_rejects_start_after_end ... ok
+test test_deposit_rejects_unauthorized_authority ... ok
+test test_initialize_rejects_equal_start_end ... ok
+test test_deposit_rejects_wrong_amount ... ok
+test test_deposit_rejects_excess_amount ... ok
+test test_deposit_rejects_prefunded_full_vault ... ok
+test test_deposit_rejects_prefunded_excess_vault ... ok
+test test_deposit_rejects_wrong_authority_token_owner ... ok
+test test_duplicate_release_in_one_transaction_rolls_back_first_release ... ok
+test test_failed_release_rolls_back_and_can_retry_after_funding ... ok
+test test_clock_regression_preserves_state_and_catches_up ... ok
+test test_initialize_rejects_zero_amount ... ok
+test test_initialize_requires_beneficiary_signature ... ok
+test test_lamport_prefunding_does_not_block_initialization ... ok
+test test_deposit_and_release_require_signer_bits ... ok
+test test_reinitialize_cannot_replace_funded_schedule ... ok
+test test_release_at_exact_cliff ... ok
+test test_release_allows_authorized_beneficiary ... ok
+test test_partial_funding_release_blocks_deposit_but_direct_funding_can_finish ... ok
+test test_max_supply_full_timestamp_range_conserves_every_unit ... ok
+test test_release_full_i64_schedule_on_chain ... ok
+test test_release_at_end_cliff_blocks_every_earlier_claim ... ok
+test test_initialize_requires_authority_and_rent_payer_signatures ... ok
+test test_release_partial_and_repeated ... ok
+test test_initialize_rejects_substituted_pdas_before_creating_accounts ... ok
+test test_popecoin_integration_setup ... ok
+test test_vesting_test_env_creates_valid_accounts ... ok
+test test_release_rejects_destination_with_wrong_mint ... ok
+test test_release_rejects_unauthorized_beneficiary ... ok
+test test_release_rejects_wrong_destination_owner ... ok
+test test_frozen_token_cpi_rolls_back_then_recovers ... ok
+test test_small_amount_rounding_releases_all_dust_at_end ... ok
+test test_robusto_seven_day_lifecycle_local_only ... ok
+test test_deposit_rejects_substituted_accounts_and_preserves_balances ... ok
+test test_release_rejects_account_substitution_without_state_changes ... ok
+
+test result: ok. 37 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.44s
+
+     Running tests/test_program_load.rs (target/debug/deps/test_program_load-0a37793ecfef4488)
+
+running 1 test
+test test_program_loads ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+     Running tests/test_vesting.rs (target/debug/deps/test_vesting-0a01445483532e6d)
+
+running 10 tests
+test test_after_end ... ok
+test test_at_cliff ... ok
+test test_at_end ... ok
+test test_before_cliff ... ok
+test test_cliff_at_end ... ok
+test test_full_timestamp_range_and_max_amount ... ok
+test test_halfway_after_cliff ... ok
+test test_rounding_and_one_unit_final_release ... ok
+test test_monotonic_bounded_accrual ... ok
+test test_wide_deterministic_schedules_preserve_floor_bounds_and_monotonicity ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests popecoin_vesting
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+> popecoin_vesting@1.0.0 test:client
+> node --require ts-node/register tests/run.ts
+
+✔ Devnet binding preserves release IDL and derives checkpoint PDAs (2.060136ms)
+✔ generated IDL encodes initialize with beneficiary signature and exact u64 (1.666417ms)
+✔ generated IDL encodes deposit and release offline (0.535187ms)
+✔ missing explicit Devnet signer fails before reading a default wallet (0.55221ms)
+✔ deposit top-up handles donations and large exact amounts (0.275243ms)
+✔ SPL layouts use the vendored pure-JS bigint converter with exact u64 values (1.765446ms)
+✔ historical tools reject missing opt-in before reading any signer file (0.364212ms)
+✔ historical network guard rejects retargeting and incorrect genesis (0.737242ms)
+✔ reader verifies accounts from one slot and chain time (5.919712ms)
+✔ reader rejects owner, discriminator, size, token mint and clock tampering (11.53167ms)
+✔ reader reports underfunding and freezing without claiming release is executable (3.683802ms)
+✔ client math covers cliff, end, rounding, backwards clock and u64 extremes (0.338694ms)
+✔ reader rejects malformed classic SPL and unexpected vault powers (18.223299ms)
+✔ reader rejects noncanonical mint flags from RPC (17.257905ms)
+✔ app serves only public allowlisted assets with CSP (1.511133ms)
+✔ app rejects writes and invalid roles before invoking RPC (0.809398ms)
+✔ app maps RPC failures to controlled error without leaking internals (0.526681ms)
+✔ app handles malformed request targets without rejecting its handler (2.01525ms)
+✔ app limits concurrent RPC reads and recovers after errors (0.688799ms)
+✔ offline plan reconciles supply, UTC dates and distinct vesting vaults (5.472433ms)
+✔ production plan rejects pending parameters, implicit timezone and invalid calendar (3.678122ms)
+✔ Devnet program reader validates loader linkage without claiming local correspondence (0.710481ms)
+✔ Devnet program reader rejects malformed loader accounts (0.471977ms)
+✔ release record rejects omitted, extra, misplaced and malformed hashes (7.437187ms)
+✔ release record rejects newly added Rust source absent from manifest (0.517764ms)
+✔ Anchor's patched TOML parses project configuration and rejects prototype pollution (4.811697ms)
+✔ Jayson uses patched CommonJS UUIDs and rejects undersized output buffers (1.830409ms)
+✔ Solana UTF-8 codecs have their declared peer and preserve non-ASCII metadata (1.401244ms)
+✔ metadata reader validates public Devnet PDA and fields (7.699696ms)
+✔ metadata reader rejects substituted owners, PDA, mint, discriminator and URI (10.298416ms)
+✔ unsigned rehearsal instructions match Anchor account ordering and encoded ABI (9.482825ms)
+✔ unsigned rehearsal rejects protected identities, ambiguous amounts and malicious schedules (4.899534ms)
+✔ historical Devnet program is rejected even with a separate test mint (0.432813ms)
+✔ protected identities and account collisions fail in every rehearsal role (15.917077ms)
+✔ extended Devnet schedule requires explicit opt-in and preserves seven-day bound (5.824302ms)
+✔ seven-day cycle reconciles pre-cliff, two partial claims and final dust (0.305451ms)
+✔ rent estimate pins genesis, sums peak without refund and leaves fees unapproved (0.666868ms)
+✔ invalid sizes fail before RPC and wrong genesis before rent queries (0.392125ms)
+✔ malformed rent or changing genesis fails closed (0.333173ms)
+✔ transport ignores global CLI/environment endpoints and prohibits mutations/redirects (17.332537ms)
+✔ pins deployment, candidate and all protected roles without consulting CLI config (5.519221ms)
+✔ serializes loader instructions with bounded fragments (0.519528ms)
+✔ derived buffer is deterministic, bounded and separated from known roles (3.274204ms)
+✔ buffer creation yields one unsigned atomic transaction, no hidden follow-up (12.828355ms)
+✔ wrong genesis and an unexpected endpoint fail before account/build RPC work (1.211332ms)
+✔ insufficient rent, unavailable fee and stale artifact pins fail closed (3.516024ms)
+✔ one ELF fragment only, in-order, exact bytes and expected signers (7.956675ms)
+✔ read-only buffer verification requires complete ELF and zero padding (2.875892ms)
+✔ DeployWithMaxDataLen is a single unsigned message requiring payer, program and authority (4.39033ms)
+✔ read-only Program and ProgramData verifier matches bytes and authority (4.121023ms)
+✔ buffer state verifier rejects wrong owner, authority, tag, size and ELF prefix (0.490973ms)
+✔ mint create is a single unsigned classic SPL tx with decimals, authority and no freeze authority (2.469294ms)
+✔ authority ATA preparation is one unsigned idempotent instruction with exact payer/rent (2.296305ms)
+✔ rejects protected roles, malformed amounts, wrong endpoint/genesis, or an existing mint (2.959165ms)
+✔ existing ATA with wrong owner is rejected, never replaced with a create transaction (1.348153ms)
+✔ mintTo and read verifiers reject until actual mint state is correct (3.488482ms)
+✔ mintToChecked requires zero supply, correct mint authority/decimals and source ATA (5.515294ms)
+✔ read-only mint and ATA verifiers report only matching classic SPL fixture state (3.749747ms)
+✔ vested arithmetic handles cliff, linear partial vesting, end and integer rounding (0.163291ms)
+✔ initialize prepares one transaction only after exact test supply/source and empty PDAs (18.222128ms)
+✔ deposit requires exact remaining source, zero released and exact schedule (22.772998ms)
+✔ pre-cliff transaction is withheld inside safety window and prepared only with long expiry margin (15.075136ms)
+✔ partial and repeated releases require newly vested positive amounts (24.523825ms)
+✔ Devnet/genesis/deployment mismatch fails before snapshots or candidate use (10.748512ms)
+✔ final release and final reconciliation require exact balances, supply and released amount (19.419524ms)
+✔ full local lifecycle covers pre-cliff, two partial releases, final reconciliation and duplicate final rejection (39.231143ms)
+✔ durable URI accepts canonical supported identifiers and rejects malformed addresses (0.624106ms)
+✔ production metadata bytes are deterministic and downloads require exact approved content (19.558028ms)
+✔ ROBUSTO proposal separates token/base supply and preserves mutable metadata policy (0.496514ms)
+✔ ROBUSTO publication fails closed on missing approval/hash or durable URI (2.703274ms)
+✔ recycle prepares only full-supply return TransferChecked with two empty signatures (1.805999ms)
+✔ recycle rejects changed balances, identities, network and unavailable funding (1.289922ms)
+✔ metadata authority stays separate from mint and upgrade authority; pending is explicit (0.910691ms)
+✔ ROBUSTO distribution requires independent exact percentage and base-unit totals (47.83897ms)
+✔ production rejects role reuse, pending config, historical identities and accidental enabling (7.688826ms)
+✔ unsigned production instructions encode exact supply, ATA, distribution and signed vesting ABI (28.706067ms)
+✔ metadata creation/update preserve distinct authority, fungible standard and mutability (14.564946ms)
+✔ Mainnet guard denies defaults before RPC; fees unknown fail closed (26.225912ms)
+✔ initial reconciliation detects shortfall, beneficiary swaps and missing/duplicate entries (20.934223ms)
+✔ program verification pins loader linkage, upgrade authority and exact ELF (7.165735ms)
+✔ third rehearsal frozen schedule cannot be retimed by config (0.519362ms)
+✔ offline deployment chunks reconstruct exact ELF and keep upgrade authority (10.529966ms)
+✔ metadata publication adapter detects altered downloads and never selects a provider (7.168577ms)
+✔ reader configuration preserves historical PAPA and denies unconfigured Mainnet (1.303908ms)
+✔ official PNG preparation rejects truncation, damaged chunks and unapproved replacement (0.852872ms)
+✔ future production snapshot verifies one-slot ownership, ABI, metadata, authorities and conservation (70.959895ms)
+✔ future owner-approved name/URI update retains mutable account and update authority (9.84809ms)
+✔ stage preflight blocks Mainnet by default before making any request (2.855719ms)
+ℹ tests 88
+ℹ suites 0
+ℹ pass 88
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1920.961907
+
+> popecoin_vesting@1.0.0 verify:release
+> ts-node scripts/verify-mainnet-release.ts
+
+=== PAPA MAINNET RELEASE IDENTITY CHECK ===
+Expected:    AYsgq7YWePj8zSHMznEQwtexDMAFqfXkPjDK6diHkHEn
+declare_id:  AYsgq7YWePj8zSHMznEQwtexDMAFqfXkPjDK6diHkHEn
+IDL:         AYsgq7YWePj8zSHMznEQwtexDMAFqfXkPjDK6diHkHEn
+
+Binary SHA-256: 1c3b71a2b792fa986b2a9264861d2bc58654e85370f2bb348cea4dcccaff8492
+PASS: local identities and build-record hashes match. No RPC or keypair was accessed.
+A local build record is not an independent reproducible-build attestation or deployment verification.
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.40s
+
+> popecoin_vesting@1.0.0 build:devnet
+> python3 scripts/build-devnet.py
+
+   Compiling popecoin_vesting v0.1.0 (/home/antony/popecoin_vesting/target/devnet-workspace/programs/popecoin_vesting)
+    Finished `release` profile [optimized] target(s) in 2.13s
+   Compiling popecoin_vesting v0.1.0 (/home/antony/popecoin_vesting/target/devnet-workspace/programs/popecoin_vesting)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 8.34s
+     Running unittests src/lib.rs (target/debug/deps/popecoin_vesting-21fc32f58c875daa)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/test_integration.rs (target/debug/deps/test_integration-2da675a8f5cd596c)
+
+running 37 tests
+test test_initialize_rejects_cliff_after_end ... ok
+test test_initialize_rejects_start_after_end ... ok
+test test_initialize_rejects_equal_start_end ... ok
+test test_initialize_rejects_cliff_before_start ... ok
+test test_deposit_rejects_excess_amount ... ok
+test test_deposit_rejects_unauthorized_authority ... ok
+test test_deposit_rejects_prefunded_full_vault ... ok
+test test_deposit_rejects_wrong_amount ... ok
+test test_deposit_rejects_wrong_authority_token_owner ... ok
+test test_clock_regression_preserves_state_and_catches_up ... ok
+test test_failed_release_rolls_back_and_can_retry_after_funding ... ok
+test test_deposit_rejects_prefunded_excess_vault ... ok
+test test_duplicate_release_in_one_transaction_rolls_back_first_release ... ok
+test test_initialize_rejects_zero_amount ... ok
+test test_lamport_prefunding_does_not_block_initialization ... ok
+test test_initialize_requires_beneficiary_signature ... ok
+test test_reinitialize_cannot_replace_funded_schedule ... ok
+test test_release_at_exact_cliff ... ok
+test test_partial_funding_release_blocks_deposit_but_direct_funding_can_finish ... ok
+test test_deposit_and_release_require_signer_bits ... ok
+test test_release_allows_authorized_beneficiary ... ok
+test test_release_full_i64_schedule_on_chain ... ok
+test test_max_supply_full_timestamp_range_conserves_every_unit ... ok
+test test_initialize_rejects_substituted_pdas_before_creating_accounts ... ok
+test test_release_at_end_cliff_blocks_every_earlier_claim ... ok
+test test_initialize_requires_authority_and_rent_payer_signatures ... ok
+test test_popecoin_integration_setup ... ok
+test test_release_partial_and_repeated ... ok
+test test_frozen_token_cpi_rolls_back_then_recovers ... ok
+test test_vesting_test_env_creates_valid_accounts ... ok
+test test_release_rejects_unauthorized_beneficiary ... ok
+test test_release_rejects_wrong_destination_owner ... ok
+test test_release_rejects_destination_with_wrong_mint ... ok
+test test_small_amount_rounding_releases_all_dust_at_end ... ok
+test test_robusto_seven_day_lifecycle_local_only ... ok
+test test_deposit_rejects_substituted_accounts_and_preserves_balances ... ok
+test test_release_rejects_account_substitution_without_state_changes ... ok
+
+test result: ok. 37 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.78s
+
+     Running tests/test_program_load.rs (target/debug/deps/test_program_load-0a37793ecfef4488)
+
+running 1 test
+test test_program_loads ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+
+     Running tests/test_vesting.rs (target/debug/deps/test_vesting-0a01445483532e6d)
+
+running 10 tests
+test test_after_end ... ok
+test test_at_end ... ok
+test test_at_cliff ... ok
+test test_before_cliff ... ok
+test test_cliff_at_end ... ok
+test test_full_timestamp_range_and_max_amount ... ok
+test test_halfway_after_cliff ... ok
+test test_rounding_and_one_unit_final_release ... ok
+test test_monotonic_bounded_accrual ... ok
+test test_wide_deterministic_schedules_preserve_floor_bounds_and_monotonicity ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+   Doc-tests popecoin_vesting
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+{
+  "cluster": "devnet",
+  "programId": "BqphsaaswAYZjZK6GTyjb2Sp9juTt2nztD3VVkWEH8zc",
+  "binary": "target/devnet-workspace/target/deploy/popecoin_vesting.so",
+  "sha256": "e2afff5bdf90e1879ef08d8fd5bec4a84b14891b23e12617eb86e4e53b7b93fb",
+  "validation": "cargo build-sbf --locked and cargo test --locked passed; not deployed"
+}
+
+> popecoin_vesting@1.0.0 verify:release
+> ts-node scripts/verify-mainnet-release.ts
+
+=== PAPA MAINNET RELEASE IDENTITY CHECK ===
+Expected:    AYsgq7YWePj8zSHMznEQwtexDMAFqfXkPjDK6diHkHEn
+declare_id:  AYsgq7YWePj8zSHMznEQwtexDMAFqfXkPjDK6diHkHEn
+IDL:         AYsgq7YWePj8zSHMznEQwtexDMAFqfXkPjDK6diHkHEn
+
+Binary SHA-256: 1c3b71a2b792fa986b2a9264861d2bc58654e85370f2bb348cea4dcccaff8492
+PASS: local identities and build-record hashes match. No RPC or keypair was accessed.
+A local build record is not an independent reproducible-build attestation or deployment verification.
+Local RC evidence: target/rc-check.json

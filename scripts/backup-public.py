@@ -26,6 +26,9 @@ def make_backup(root=ROOT):
     security = load('security-scan').scan(root)
     if security['status'] != 'passed':
         raise ValueError('Security heuristics failed; no public backup produced')
+    tracked = set(filter(None, subprocess.check_output(['git', 'ls-files', '-z'], cwd=root).decode().split('\0')))
+    if tracked != set(report['sourceHashes']):
+        raise ValueError('RC inventory must include every tracked public file before backup')
     data = {name: package.public_bytes(root, name) for name in report['sourceHashes']}
     # Explicit small public artifacts, not node_modules, private identities or target tree.
     for name in report['artifacts']:

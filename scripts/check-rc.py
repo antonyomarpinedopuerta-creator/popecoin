@@ -10,7 +10,7 @@ import subprocess
 import sys
 
 ROOT_INPUTS = ['Cargo.toml', 'Cargo.lock', 'Anchor.toml', 'rust-toolchain.toml',
-               'package.json', 'yarn.lock', 'tsconfig.json', '.gitignore',
+               'package.json', 'yarn.lock', 'tsconfig.json', '.gitignore', '.prettierignore',
                'README.md', 'PAPA_WORK_HANDOFF.md']
 
 COMMANDS = [
