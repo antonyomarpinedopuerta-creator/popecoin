@@ -1,3 +1,5 @@
+> ARCHIVO HISTÓRICO PAPA. No define decisiones ROBUSTO. Política vigente: [ROBUSTO_MAINNET_CHECKLIST](ROBUSTO_MAINNET_CHECKLIST.md) y [ROBUSTO_AUTHORITIES](ROBUSTO_AUTHORITIES.md); MAINNET_DISABLED, distribución PROPOSED_NOT_APPROVED, autoridades conservadas.
+
 # PAPA Critical Authority Custody Plan
 
 ## Scope

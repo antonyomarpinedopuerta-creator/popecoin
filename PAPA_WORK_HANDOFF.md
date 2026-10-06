@@ -1,3 +1,17 @@
+# ROBUSTO — continuación vigente del cierre de octubre 2026
+
+Leer primero [ROBUSTO_STATUS](docs/ROBUSTO_STATUS.md), [cierre y clasificación](docs/ROBUSTO_CLOSURE.md), [validación](docs/evidence/robusto/closure-validation.md), [Mainnet](docs/ROBUSTO_MAINNET_CHECKLIST.md), [autoridades](docs/ROBUSTO_AUTHORITIES.md) y [recuperación/backup](docs/ROBUSTO_RECOVERY.md).
+
+Tercer rehearsal FINANCIADO, fechas fijas. Mint CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo; beneficiario GuKSMzTw7JZfAkh9A4hGYYysmQGpxTxXF2QdC1QHVFTF; ATA9gSDUytN7u3tUk8B8h7Tmdtik8U3SScyXfHRHL2Swgby; vesting4A63yMPGnrH4XY8yFAAFK8TkRi7rJ3May1GW1DvX2tNN; vaultCNJpJ3D9FUJcMnfpPQgxV6AxMoWbUwvGcUgtp2DmVuAT. Slot507915315 finalized: supply/vault10000000; source/beneficiario/released0. Start2026-10-06 13:32:52, cliff2026-10-07 01:32:52, end2026-10-13 13:32:52 UTC. Objetivos parciales8 y10 octubre a13:32:52 UTC. Sin nuevas firmas, releases NO autorizados. No reloj alterado ni depósito/mint nuevo.
+
+48 Rust (37 integraciónSBF+1carga+10aritmética), 88 cliente y 47 Python en las pruebas del cierre; resultados finales, reproducción, RC/backup/push en evidencia. Lectura nueva segura: `npm run robusto:third-status`. No correr `robusto:recover` ni `robusto-third-preview` antiguos para esta etapa: exigen checkpoint/setup anterior. No regenerar identidad privada ni repetir ATA/Initialize/Deposit.
+
+Preparación producción unsigned y validaciones listas; flags MAINNET_DISABLED / NOT_AUTHORIZED_FOR_MAINNET; supply candidato1e15 raw; allocationsnull / PROPOSED_NOT_APPROVED; metadata mutable, autoridades retenidas/separadas; imagen exacta PENDING_USER_ASSET. La firma/custodia/plataforma/revisión independiente y decisiones económicas siguen externas. No hay executor Mainnet ni release automático.
+
+Próxima acción: lectura de estado sin firmas; al primer objetivo2026-10-08 13:32:52 UTC comprobar Clock y preparar UN release parcial para revisión y autorización NUEVA. No realizarlo por haber llegado la fecha. Abajo se conserva el handoff histórico, no instrucciones vigentes.
+
+---
+
 > Estado vigente: primera tanda del tercer rehearsal FINALIZED (ATA + Initialize + Deposit); simulación unsigned pre-cliff NothingToRelease verificada. Source=0, vault=10,000,000, beneficiario=released=0. Primer parcial objetivo 2026-10-08 13:32:52 UTC; NO autorizado aún. Evidencia: docs/evidence/robusto/third-first-batch.md. Las secciones de preparación anteriores son históricas y no deben repetirse.
 
 > Actualización 2026-10-04: segundo rehearsal abandonado con vault vacío y released=0; NO Deposit, cierre ni reutilización. Tercer rehearsal preparado sin transacciones, con nueva identidad y calendario relativo de 48h de margen + 7 días de duración. Ver docs/ROBUSTO_REHEARSAL_3.md (desde docs: ROBUSTO_REHEARSAL_3.md). Esta actualización sustituye cualquier siguiente paso Deposit del segundo indicado abajo. Estado: PENDING_AUTHORIZATION.

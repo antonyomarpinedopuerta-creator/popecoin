@@ -1,3 +1,5 @@
+> Estado ROBUSTO vigente: [ROBUSTO_CLOSURE](ROBUSTO_CLOSURE.md), [ROBUSTO_STATUS](ROBUSTO_STATUS.md) y [recovery](ROBUSTO_RECOVERY.md). Las etapas históricas de este documento no autorizan repetir transacciones ni cambiar el tercer rehearsal.
+
 # Devnet rehearsal boundaries and evidence
 
 The next isolated rehearsal follows [the staged runbook](ISOLATED_REHEARSAL_RUNBOOK.md):

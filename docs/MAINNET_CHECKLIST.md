@@ -1,3 +1,5 @@
+> ARCHIVO HISTÓRICO PAPA. No define decisiones ROBUSTO. Política vigente: [ROBUSTO_MAINNET_CHECKLIST](ROBUSTO_MAINNET_CHECKLIST.md) y [ROBUSTO_AUTHORITIES](ROBUSTO_AUTHORITIES.md); MAINNET_DISABLED, distribución PROPOSED_NOT_APPROVED, autoridades conservadas.
+
 > HISTORICAL PAPA DOCUMENT — not the current ROBUSTO launch plan. See [ROBUSTO status](ROBUSTO_STATUS.md). Historical checkmarks are not evidence of ROBUSTO production readiness.
 
 # PAPA ($PAPA) — Mainnet Security Checklist

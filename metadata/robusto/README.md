@@ -11,3 +11,5 @@ La metadata on-chain deberá tener isMutable=true y conservar una update authori
 `metadata/metadata.json`, `papa-logo.png` y `popecoin-logo.png` son históricos e intactos. Los comandos antiguos de metadata siguen siendo para PAPA, no deben usarse para ROBUSTO.
 
 La configuración candidata se marca NOT_AUTHORIZED_FOR_MAINNET. Mint authority y metadata update authority tienen campos separados; el validador rechaza claves inválidas/default y la reutilización del mismo firmante de mint/upgrade para metadata. Custodia multisig/PDA requeriría revisión explícita; no se infiere de una dirección.
+
+Cierre: validación PNG de estructura/chunks/CRC y hash (no sustituye aprobación visual); `robusto:metadata-publication` prepara manifiesto proveedor-neutral y compara descargas locales byte a byte. external_url=null es placeholder pendiente, igual que image/URI. Actualización de nombre/URI y políticas: [ROBUSTO_AUTHORITIES](../../docs/ROBUSTO_AUTHORITIES.md). No uploader/plataforma seleccionado ni publicación ejecutada.

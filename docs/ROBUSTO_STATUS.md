@@ -1,38 +1,23 @@
-> Estado vigente: primera tanda del tercer rehearsal FINALIZED (ATA + Initialize + Deposit); simulación unsigned pre-cliff NothingToRelease verificada. Source=0, vault=10,000,000, beneficiario=released=0. Primer parcial objetivo 2026-10-08 13:32:52 UTC; NO autorizado aún. Evidencia: docs/evidence/robusto/third-first-batch.md. Las secciones de preparación anteriores son históricas y no deben repetirse.
+# ROBUSTO — estado vigente
 
-> Actualización 2026-10-04: segundo rehearsal abandonado con vault vacío y released=0; NO Deposit, cierre ni reutilización. Tercer rehearsal preparado sin transacciones, con nueva identidad y calendario relativo de 48h de margen + 7 días de duración. Ver docs/ROBUSTO_REHEARSAL_3.md (desde docs: ROBUSTO_REHEARSAL_3.md). Esta actualización sustituye cualquier siguiente paso Deposit del segundo indicado abajo. Estado: PENDING_AUTHORIZATION.
+NOT_AUTHORIZED_FOR_MAINNET · MAINNET_DISABLED. Código de preparación cerrado dentro del alcance seguro; no token, mercado ni metadata ROBUSTO de producción creados. Candidato: 1.000.000.000 ROBUSTO, seis decimales = **1.000.000.000.000.000 unidades base**, freeze=null. Distribución sin decidir; PROPOSED_NOT_APPROVED.
 
-# ROBUSTO — estado y límites de lanzamiento
+El tercer rehearsal está financiado y se conserva. Última observación RPC finalized: slot 507915315, cadena 2026-10-06 00:40:38 UTC; supply/vault=10000000, source/beneficiario/released=0. Evidencia: [third-status](evidence/robusto/third-status-2026-10-06T00-40-40-568Z.json). No hubo ninguna nueva firma/transacción en este cierre.
 
-Esta es la entrada actual de estado. Las referencias técnicas PAPA/popecoin y sus documentos anteriores se mantienen para reproducibilidad; no constituyen un plan aprobado para ROBUSTO.
+Calendario inmutable UTC:
 
-| Estado | Alcance |
+| Hito | Fecha |
 |---|---|
-| IMPLEMENTED | Programa/planners históricos; recuperación RPC persistente de ROBUSTO; preparación unsigned de reciclaje; propuesta de producción separada; metadata ROBUSTO separada; runbook del segundo rehearsal |
-| TESTED | 47 tests Rust (36 integración), 71 tests cliente, 45 tests Python, TypeScript, artefactos y metadata histórica PASS; ver evidence/robusto/SESSION_2026-10-04.md. Los mocks no prueban inclusión real de transacciones |
-| EXTERNALLY VERIFIED | Solo observaciones RPC de Devnet documentadas en `evidence/robusto/recovery-*.json`, con slot, firma y commitment. Esto no es auditoría independiente ni CI aprobado |
-| PENDING | Segundo rehearsal temporal real; imagen oficial, hosting y metadata; decisiones finales de producción/custodia/distribución; revisión independiente; autorización y financiación de lanzamiento |
+| Start | 2026-10-06 13:32:52 |
+| Cliff | 2026-10-07 01:32:52 |
+| Primer parcial objetivo | 2026-10-08 13:32:52 |
+| Segundo parcial objetivo | 2026-10-10 13:32:52 |
+| End | 2026-10-13 13:32:52 |
 
-## Producción propuesta, no autorizada
+No esperar activo ni alterar reloj. Llegar a una fecha no autoriza firmar. Los releases requieren autorización nueva por operación y elegibilidad por Clock on-chain. El segundo rehearsal queda abandonado/vacío y el primero finalizado; no cerrar/resetear/reutilizar ninguno.
 
-`config/robusto-production.json`: 1,000,000,000 ROBUSTO, 6 decimales = 1,000,000,000,000,000 unidades base. Sin freeze authority. Supply fijo después de emitir y verificar el total definitivo; revocación futura de mint authority requiere revisión/autorización separada y no está autorizada aquí. Metadata actualizable, update authority conservada.
+[Clasificación IMPLEMENTED / TESTED / EXTERNALLY VERIFIED / PENDING](ROBUSTO_CLOSURE.md), [resultados exactos](evidence/robusto/closure-validation.md), [procedimiento de producción](ROBUSTO_MAINNET_CHECKLIST.md), [autoridades](ROBUSTO_AUTHORITIES.md), [mercado](ROBUSTO_LAUNCH_CHECKLIST.md), [recuperación](ROBUSTO_RECOVERY.md).
 
-Mint, programa definitivo, allocations, custodios, fecha y URIs permanecen pendientes. No escalar automáticamente las antiguas asignaciones PAPA ni reutilizar identidades protegidas. `config/production-plan.json`, `scripts/production-plan.ts` y los documentos PAPA representan el plan histórico de 10 millones de tokens; el nuevo archivo no alimenta esos ejecutores/planners. No hay ejecutor Mainnet ROBUSTO autorizado.
+Pendientes exclusivos de propietario/externos: imagen oficial exacta (PENDING_USER_ASSET), descripción/enlaces finales, distribución/vesting/start aprobados, signers y custodia separados, integración de firma, revisión independiente, autorización y presupuesto. Ninguna distribución histórica PAPA ha sido escalada o aprobada para ROBUSTO. Mint authority, metadata update authority y program upgrade authority siguen conservadas y separadas en el diseño.
 
-## Dinero real mínimo
-
-Esta sesión no usa Mainnet ni SOL real. Reutilizar el supply y programa Devnet evita mint/deploy adicionales de ensayo. Antes de cotizar lanzamiento, decidir si se necesita el programa de vesting propio en producción; esa elección debe preservar los requisitos acordados. No confundir creación del token con creación de liquidez: no hay presupuesto de pool autorizado.
-
-Un presupuesto real debe consultar rent para tamaños exactos, getFeeForMessage de cada operación, hosting y eventual despliegue del programa en una futura revisión autorizada. No hay importe mínimo garantizado ni precio SOL/USD validado en esta sesión. Evitar depósitos/rent duplicados y despliegues innecesarios; no retirar controles de seguridad para ahorrar. Custodia y revisión independiente siguen pendientes.
-
-## Próximo paso on-chain
-
-La devolución TransferChecked fue autorizada y FINALIZED el 2026-10-04; evidencia en `evidence/robusto/authorized-return-2026-10-04.json`. Source=10000000, beneficiario antiguo=0, supply intacto. La ATA nueva también fue autorizada y FINALIZED: `evidence/robusto/authorized-ata-2026-10-04.json`, saldo0. Initialize nuevo FINALIZED: `evidence/robusto/authorized-initialize-second-2026-10-04.json`. Total10000000, released0, vault vacío; siguiente paso Deposit, pendiente de autorización independiente. No repetir el release final ya finalizado. El nuevo beneficiario ya se generó localmente con permisos privados; La ATA ya existe con saldo cero; PDA/vault ya existen con total10000000 y saldo0; calendario definitivo persistido en config/robusto-rehearsal-2.json. No recalcularlo.
-
-## Revisión y negociación pública
-
-Ver ROBUSTO_SECURITY_REVIEW.md: mint authority rehearsal activa, programa actualizable, depósitos posteriores al primer release rechazados y excedentes sin rescue. No se cambió diseño. CI del commit 1706e77: success, run 37131484384; no atribuir ese resultado a commits posteriores.
-
-Para Mainnet-ready faltan completar el ensayo temporal real, revisión independiente, imagen exacta/URIs, parámetros finales de distribución/vesting, identidades/custodia de producción y aprobación de presupuesto/operaciones. Propuesta actual marcada NOT_AUTHORIZED_FOR_MAINNET.
-
-Para negociación pública, además de emitir/distribuir de forma autorizada el mint real y verificar metadata/autoridades, falta elegir y verificar un mecanismo de mercado (DEX/launchpad u otro), sus requisitos, par y condiciones, presupuesto y procedencia de liquidez, comisiones y autorización de las operaciones reales. Crear un mint no crea un mercado. No se eligió plataforma ni se asumió liquidez o coste; no hay readiness comercial implícita.
+TOKEN CREATED y TOKEN PUBLICLY TRADABLE son estados distintos. No hay DEX/launchpad/contraparte/liquidez elegido ni costes actuales de mercado verificados. Un mercado líquido necesita un mecanismo real de liquidez/contrapartida; minimizar capital no elimina ese requisito. No se selecciona proveedor sin decisión y verificación actuales.

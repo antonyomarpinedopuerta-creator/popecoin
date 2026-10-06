@@ -1,3 +1,5 @@
+> Cierre posterior: [ROBUSTO_CLOSURE](ROBUSTO_CLOSURE.md) y [validación](evidence/robusto/closure-validation.md). Contrato/ABI/binary del ensayo intactos; genesis guards de metadata históricos añadidos; 48 Rust/88 cliente/47 Python en pruebas del cierre. Limitaciones Deposit/exceso y avisos de dependencias conservados. No auditoría independiente.
+
 # ROBUSTO — revisión interna de seguridad 2026-10-04 UTC
 
 No es auditoría independiente. No se modificó contrato, ABI, seeds, autoridades ni binarios. Código revisado: Initialize, Deposit, Release, VestingAccount y constraints Anchor. Suite Rust existente ejecutada offline con caché: 47 PASS (36 integración LiteSVM/SBF, 1 carga, 10 aritmética). Registro completo en evidence/robusto/rust-tests-2026-10-04.log.

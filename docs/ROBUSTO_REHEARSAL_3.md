@@ -1,3 +1,5 @@
+> REGISTRO DE PREPARACIÓN HISTÓRICO. ATA/Initialize/Deposit ya FINALIZED; calendario FIJO start2026-10-06 13:32:52, cliff2026-10-07 01:32:52, end2026-10-13 13:32:52 UTC. No recalcular T, repetir setup ni ejecutar preview. Estado vigente en ROBUSTO_STATUS.md; lectura segura: robusto:third-status. Los pendientes de preparación que figuran abajo ya están superados por third-first-batch.md.
+
 > Estado vigente: primera tanda del tercer rehearsal FINALIZED (ATA + Initialize + Deposit); simulación unsigned pre-cliff NothingToRelease verificada. Source=0, vault=10,000,000, beneficiario=released=0. Primer parcial objetivo 2026-10-08 13:32:52 UTC; NO autorizado aún. Evidencia: docs/evidence/robusto/third-first-batch.md. Las secciones de preparación anteriores son históricas y no deben repetirse.
 
 # ROBUSTO — tercer rehearsal temporal, preparado, NO autorizado

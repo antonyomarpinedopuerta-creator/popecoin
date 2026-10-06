@@ -1,3 +1,5 @@
+> Estado ROBUSTO vigente: [ROBUSTO_CLOSURE](ROBUSTO_CLOSURE.md), [ROBUSTO_STATUS](ROBUSTO_STATUS.md) y [recovery](ROBUSTO_RECOVERY.md). Las etapas históricas de este documento no autorizan repetir transacciones ni cambiar el tercer rehearsal.
+
 # PAPA Vesting — Security Review
 
 **Project:** PAPA ($PAPA)  

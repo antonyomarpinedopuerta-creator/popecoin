@@ -3,10 +3,23 @@
 Estado actual y límites de lanzamiento: [ROBUSTO_STATUS.md](docs/ROBUSTO_STATUS.md).
 ROBUSTO es la marca pública; los nombres técnicos `popecoin_vesting`, IDs, binarios y metadata PAPA se conservan para reproducibilidad. Los planes PAPA de 10 millones de tokens son históricos: la nueva propuesta ROBUSTO de 1.000 millones está separada y no autorizada.
 
-El lector web conserva datos del ensayo histórico PAPA, explícitamente identificados; no muestra el mint ROBUSTO ni balances de producción.
+El lector web conserva PAPA para sus cuentas históricas; `config/app-reader.json` define ese perfil. La plantilla Mainnet está deshabilitada y requiere direcciones verificadas y opt-in de lectura explícito antes de usarla.
 
 
 Programa Solana/Anchor para vesting lineal de tokens SPL clásicos. Requiere firma del beneficiario al crear y liberar; la autoridad financia el vault. No tiene cancelación, retiro administrativo ni recuperación de excedentes. La acumulación comienza en `start_time` y se puede reclamar desde `cliff_time`.
+
+## Cierre ROBUSTO
+
+[Inventario y alcance](docs/ROBUSTO_CLOSURE.md), [validación del cierre](docs/evidence/robusto/closure-validation.md), [producción/Mainnet deshabilitado](docs/ROBUSTO_MAINNET_CHECKLIST.md), [autoridades conservadas](docs/ROBUSTO_AUTHORITIES.md), [mercado público pendiente](docs/ROBUSTO_LAUNCH_CHECKLIST.md) y [restauración](docs/ROBUSTO_RECOVERY.md).
+
+```sh
+npm run robusto:production       # offline; no autorización
+npm run check:rc                # build/tests de dos identidades
+npm run check:security          # heurística + últimos 20 commits
+npm run robusto:third-status    # lectura Devnet, evidencia nueva, sin firmas
+```
+
+El lifecycle rápido completo ejecuta SBF/SPL en LiteSVM con Clock aislado; no es evidencia Devnet. El ensayo público mantiene sus fechas exactas y 10.000.000 raw depositados. Imagen ROBUSTO: PENDING_USER_ASSET. Distribución: PROPOSED_NOT_APPROVED. Ningún Mainnet, publicación on-chain, mint adicional, liquidez ni revocación.
 
 ## Validación local
 
