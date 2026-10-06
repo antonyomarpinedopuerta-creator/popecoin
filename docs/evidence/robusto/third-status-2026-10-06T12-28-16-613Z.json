@@ -1,0 +1,63 @@
+{
+  "status": "READ_ONLY_DEVNET_OBSERVATION",
+  "commitment": "finalized",
+  "observedAt": "2026-10-06T12:28:16.613Z",
+  "snapshot": {
+    "slot": 508092917,
+    "unixTime": 1791289696,
+    "program": "6nLZrtmi9Uf3E3kJjGY9Po4KqNhvLDQqQAax5UKMAGVk",
+    "programData": "3XmkEz8dhj5AkbPb1oMkyPEfnbtkiUaHc81awxdfh6Zm",
+    "mint": "CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo",
+    "decimals": 6,
+    "supply": "10000000",
+    "vesting": "4A63yMPGnrH4XY8yFAAFK8TkRi7rJ3May1GW1DvX2tNN",
+    "vestingState": {
+      "authority": "EEbLZxtZ7hfruksSCG3iKd9CZ7fJ69tQE414Z78Kzt8p",
+      "beneficiary": "GuKSMzTw7JZfAkh9A4hGYYysmQGpxTxXF2QdC1QHVFTF",
+      "mint": "CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo",
+      "total": "10000000",
+      "released": "0",
+      "start": "1791293572",
+      "cliff": "1791336772",
+      "end": "1791898372"
+    },
+    "vault": "CNJpJ3D9FUJcMnfpPQgxV6AxMoWbUwvGcUgtp2DmVuAT",
+    "vaultAmount": "10000000",
+    "source": "DHyysduG5SxsqiupB7Zvw32fLq14BUVBZbHKbXBqYcN6",
+    "sourceAmount": "0",
+    "beneficiaryAta": "9gSDUytN7u3tUk8B8h7Tmdtik8U3SScyXfHRHL2Swgby",
+    "beneficiaryAmount": "0"
+  },
+  "fingerprintSlot": 508092923,
+  "fingerprints": [
+    {
+      "address": "4A63yMPGnrH4XY8yFAAFK8TkRi7rJ3May1GW1DvX2tNN",
+      "owner": "6nLZrtmi9Uf3E3kJjGY9Po4KqNhvLDQqQAax5UKMAGVk",
+      "lamports": 1386840,
+      "dataSha256": "cf6cc44f02d86caeee1d01bd032d4ce23bf99e2eaf13aa3295a5790d9bd458d6"
+    },
+    {
+      "address": "CNJpJ3D9FUJcMnfpPQgxV6AxMoWbUwvGcUgtp2DmVuAT",
+      "owner": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "lamports": 1488440,
+      "dataSha256": "207ccfe180f22c29244e50974daa5e88d80dc3da2185e32adfc261fbeee6160a"
+    },
+    {
+      "address": "9gSDUytN7u3tUk8B8h7Tmdtik8U3SScyXfHRHL2Swgby",
+      "owner": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "lamports": 1488440,
+      "dataSha256": "5006cda1a81e94342fc0ff6eb895c303c5e5c94aeb2359be56dd87131c4e30dd"
+    },
+    {
+      "address": "CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo",
+      "owner": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "lamports": 1066800,
+      "dataSha256": "7ca81501c85b4c7d07d3878e5a67a0498b62232af4bbed4004e16d5e3e677422"
+    }
+  ],
+  "notes": [
+    "Separate fingerprint read may use a newer slot.",
+    "No release authorized or submitted by this tool.",
+    "Eligibility depends on on-chain Clock, not wall clock or target date."
+  ]
+}

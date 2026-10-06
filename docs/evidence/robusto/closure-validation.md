@@ -1,5 +1,7 @@
 # ROBUSTO — validación del cierre
 
+Actualización 2026-10-06: [revisión final adicional](../../ROBUSTO_FINAL_REVIEW.md). Código validado con 95 cliente, 49 Python y 48 Rust por identidad; tsc/Clippy/builds/artefactos PASS. Logs final-review-client.log y final-review-rc.log. Preservada observación Devnet anterior de 12:12:53; última lectura finalized slot508092917 a12:28:16 UTC con supply/vault10000000 y source/beneficiario/released0. No firmas/transacciones. El commit limpio se valida/reproduce/empaqueta después del cierre documental, con evidencias exactas en target y manifest del backup final. No usar estas notas históricas como sustituto del informe actual de HEAD.
+
 Resultados durante implementación: 48 Rust (37 SBF/LiteSVM, 1 carga, 10 aritmética), 89 cliente TypeScript, 47 Python PASS; tsc PASS. RC completo del árbol de trabajo PASS: SBF/IDL + Rust de ambas identidades, tsc, clientes, Python, Clippy y verificación de artefactos. Se reejecutará sobre el commit limpio para empaquetado; no atribuir resultados a CI remoto aún.
 
 RPC Devnet finalized slot507915315: estado inmutable de tercer rehearsal validado; evidencia third-status-2026-10-06T00-40-40-568Z.json. No firma/envío ni modificación de cuentas. No lectura Mainnet. Dos parciales y final siguen pendientes de fechas Y autorización independiente.

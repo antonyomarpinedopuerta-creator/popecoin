@@ -2,6 +2,8 @@
 
 Estado: NOT_AUTHORIZED_FOR_MAINNET / MAINNET_DISABLED. Este cierre no autoriza ninguna firma o transacción. No se modificó el programa desplegado, las cuentas, el supply ni autoridades. El código Rust del contrato y sus seeds/ABI quedan idénticos al commit 324e5ba; se añade una regresión local, no una actualización on-chain.
 
+Revisión adicional del 6 de octubre: [ROBUSTO_FINAL_REVIEW.md](ROBUSTO_FINAL_REVIEW.md), con PNG descomprimido/filtros/palette, binding de instrucciones de preflight, rechazo de flags SPL no canónicos, autoridades separadas y auditoría/backup ligado a fuentes exactas. Contadores actuales: 95 cliente, 49 Python, 48 Rust por identidad. Los resultados anteriores de este documento conservan su contexto histórico.
+
 ## Inventario y clasificación
 
 Se inventariaron/leyeron los 175 archivos públicos del árbol de referencia (incluidos lockfiles, vendor, evidencia, workflow, metadata PNG histórica), y el historial reciente. La revisión funcional se concentra en contrato, herramientas operativas, cliente, servidor, validadores, build/RC y CI. Los documentos/planes antiguos PAPA conservan contexto histórico y no se convierten en decisiones ROBUSTO. No se abrieron archivos privados.

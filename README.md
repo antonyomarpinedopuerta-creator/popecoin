@@ -12,6 +12,8 @@ Programa Solana/Anchor para vesting lineal de tokens SPL clásicos. Requiere fir
 
 [Inventario y alcance](docs/ROBUSTO_CLOSURE.md), [validación del cierre](docs/evidence/robusto/closure-validation.md), [producción/Mainnet deshabilitado](docs/ROBUSTO_MAINNET_CHECKLIST.md), [autoridades conservadas](docs/ROBUSTO_AUTHORITIES.md), [mercado público pendiente](docs/ROBUSTO_LAUNCH_CHECKLIST.md) y [restauración](docs/ROBUSTO_RECOVERY.md).
 
+La [revisión final del 6 de octubre](docs/ROBUSTO_FINAL_REVIEW.md) documenta las correcciones adicionales y el límite entre código probado y operaciones/decisiones pendientes.
+
 ```sh
 npm run robusto:production       # offline; no autorización
 npm run check:rc                # build/tests de dos identidades

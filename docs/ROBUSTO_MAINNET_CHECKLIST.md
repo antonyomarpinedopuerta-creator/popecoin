@@ -8,6 +8,7 @@ Estado obligatorio actual: MAINNET_DISABLED / NOT_AUTHORIZED_FOR_MAINNET. Ningú
 - Validación de distribución exactamente 10000 basis points y 1e15 raw; beneficiarios únicos y claves protegidas excluidas. Conservar allocations=null hasta decisión.
 - Construcción unsigned de mint, ATA source/destinos, emisión exacta única, transferencias, Initialize/Deposit de vesting y metadata mutable.
 - Buffer/create/write/deploy unsigned y verificación de loader/ProgramData/upgrade authority/ELF exacto/padding.
+- `validatePreparedStage` compara etapa, programa, cuentas, flags de firma/escritura y bytes de instrucciones con los builders canónicos antes de RPC. No sustituye aprobación del mensaje final, actualización de rent ni simulación.
 - Guard de lectura futura: HTTPS público sin secretos, cluster mainnet-beta y genesis `5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d`. Opt-in literal `READ_ONLY:<genesis>`; por defecto se rechaza antes de RPC. No se usó aquí.
 - Cotización de fees/rent por mensaje, cartera system y snapshot/reconciliación de distribución inicial, mint/metadata/autoridades. Tests usan RPC mock, jamás Mainnet.
 
