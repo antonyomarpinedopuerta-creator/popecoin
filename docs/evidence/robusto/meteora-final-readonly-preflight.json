@@ -1,0 +1,75 @@
+{
+  "status": "PASSED_READONLY_PREFLIGHT",
+  "checkedAtUtc": "2026-10-07T01:17:16.180924+00:00",
+  "sourceCommit": "a85c926607433f23f0ea60f4ca7b1ae92f4156cb",
+  "binarySha256": "a30610058262a5c87e1b22144ef6053ff2cd8bc9f97b7e978a51e28f8ec3ea3c",
+  "verifiedSourceInputs": 129,
+  "observations": {
+    "mainnet-beta": {
+      "status": "VERIFIED_BYTE_MATCH_AT_OBSERVED_SLOTS",
+      "program": "cpamdpZCGKUy5JxQXB4dcpGPiikHawvSWAd6mEn1sGG",
+      "programData": "AUh8bm2XsMfex3KjYGcM3G4uBqUNSDw6HEhWaWMYnyPH",
+      "programObservationSlot": 454072714,
+      "programDataObservationSlot": 454072716,
+      "lastDeploymentSlot": 445230614,
+      "upgradeAuthorityPresent": true,
+      "artifactSha256": "a30610058262a5c87e1b22144ef6053ff2cd8bc9f97b7e978a51e28f8ec3ea3c",
+      "artifactBytes": 1433928,
+      "programDataCodeAndPaddingSha256": "4d5b920baebc090f89b2e8796a3452ed067c9667a143058c96a312f2c1e6848b",
+      "programDataCodeAndPaddingBytes": 2174352,
+      "exactPrefixAndZeroPaddingMatch": true,
+      "limits": "Saved RPC responses supplied by operator; no independent RPC quorum, no atomic snapshot, no guarantee after upgrades. No transaction support."
+    },
+    "devnet": {
+      "status": "NOT_VERIFIED",
+      "program": "cpamdpZCGKUy5JxQXB4dcpGPiikHawvSWAd6mEn1sGG",
+      "programData": "AUh8bm2XsMfex3KjYGcM3G4uBqUNSDw6HEhWaWMYnyPH",
+      "programObservationSlot": 508285875,
+      "programDataObservationSlot": 508285877,
+      "lastDeploymentSlot": 503166267,
+      "upgradeAuthorityPresent": true,
+      "artifactSha256": "a30610058262a5c87e1b22144ef6053ff2cd8bc9f97b7e978a51e28f8ec3ea3c",
+      "artifactBytes": 1433928,
+      "programDataCodeAndPaddingSha256": "82bb9375921bb8007551cb65f9ca43b191597496cc9922926468b36671081ec2",
+      "programDataCodeAndPaddingBytes": 1559448,
+      "exactPrefixAndZeroPaddingMatch": false,
+      "limits": "Saved RPC responses supplied by operator; no independent RPC quorum, no atomic snapshot, no guarantee after upgrades. No transaction support."
+    }
+  },
+  "publicSplPrograms": {
+    "token": {
+      "program": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "programData": "3gvYRKWyXRR9xKWe1ZjPhLY5ZJRN7KDB4rFZFGoJfFk2",
+      "source": "OFFICIAL_PUBLIC_SOLANA_RPC_READONLY",
+      "observedSlot": 454072743,
+      "bytes": 108600,
+      "sha256": "8190d3f7ceb6cb7a7a8d8924bff89f9f611e15ce1f806f2b6237f3311a98f697",
+      "path": "target/robusto-final-public-programs/token.so",
+      "limitation": "Deployed public bytecode snapshot; not an independent SPL source reproducible-build attestation"
+    },
+    "token2022": {
+      "program": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+      "programData": "DoU57AYuPFu2QU514RktNPG22QhApEjnKxnBcu4BHDTY",
+      "source": "OFFICIAL_PUBLIC_SOLANA_RPC_READONLY",
+      "observedSlot": 454072750,
+      "bytes": 1382016,
+      "sha256": "0999dbf708971e723b08d1caafc988826a59c6001ed6dc02260da07defbe1469",
+      "path": "target/robusto-final-public-programs/token2022.so",
+      "limitation": "Deployed public bytecode snapshot; not an independent SPL source reproducible-build attestation"
+    },
+    "ata": {
+      "program": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+      "programData": null,
+      "source": "OFFICIAL_PUBLIC_SOLANA_RPC_READONLY",
+      "observedSlot": 454072757,
+      "bytes": 105032,
+      "sha256": "6804554e69fd3a58caa191dc4a58f4c67223d30ca28ab8987f39fc18d2f7374d",
+      "path": "target/robusto-final-public-programs/ata.so",
+      "limitation": "Deployed public bytecode snapshot; not an independent SPL source reproducible-build attestation"
+    }
+  },
+  "selectedEnvironment": "localnet",
+  "publicTransactions": 0,
+  "reason": "Exact reviewed production bytecode in isolated validator; deterministic adversarial states. Devnet has a different unreviewed binary.",
+  "limitations": "Single public RPC provider per cluster, non-atomic reads, upgradeable programs. No economic or Mainnet authorization."
+}
