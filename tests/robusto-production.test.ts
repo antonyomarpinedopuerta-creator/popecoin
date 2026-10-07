@@ -13,30 +13,43 @@ const key=()=>Keypair.generate().publicKey.toBase58();
 function fixture(){const p={...JSON.parse(fs.readFileSync('config/robusto-production.json','utf8')),
  payer:key(),mint:key(),program:key(),mintAuthority:key(),metadataUpdateAuthority:key(),upgradeAuthority:key(),
  imageSha256:'a'.repeat(64),metadataSha256:'b'.repeat(64),metadataUri:`ar://${'A'.repeat(43)}`,
- allocations:[{label:'direct',beneficiary:key(),basisPoints:3000,baseUnits:'300000000000000'},
- {label:'vested',beneficiary:key(),basisPoints:7000,baseUnits:'700000000000000',vesting:{start:'1800000000',cliff:'1800000100',end:'1800001000'}}]};
+ allocations:[{label:'market_ecosystem_launch',beneficiary:key(),basisPoints:5000,baseUnits:'500000000000000'},
+ {label:'community_marketing',beneficiary:key(),basisPoints:1500,baseUnits:'150000000000000'},
+ {label:'reserve',beneficiary:key(),basisPoints:3000,baseUnits:'300000000000000',vesting:{start:'1800000100',cliff:'1800000100',end:'1894608100'}},
+ {label:'team_founder',beneficiary:key(),basisPoints:500,baseUnits:'50000000000000',vesting:{start:'1800000100',cliff:'1800000100',end:'1863072100'}}]};
+ p.distributionSourceOwner=p.allocations[0].beneficiary;
  const idl={...JSON.parse(fs.readFileSync('target/idl/popecoin_vesting.json','utf8')),address:p.program};return {p,idl};}
 test('ROBUSTO distribution requires independent exact percentage and base-unit totals',()=>{
- const {p}=fixture();assert.equal(validateDistribution(p.allocations).length,2);
+ const {p}=fixture();assert.equal(validateDistribution(p.allocations).length,4);
  for(const patch of [{basisPoints:2999},{baseUnits:'300000000000001'},{baseUnits:300000000000000},{baseUnits:'0300000000000000'},{basisPoints:30.5},{basisPoints:0},{beneficiary:p.allocations[1].beneficiary},{vesting:{start:'10',cliff:'9',end:'20'}}])assert.throws(()=>validateDistribution([{...p.allocations[0],...patch},p.allocations[1]]));
  assert.throws(()=>validateDistribution([p.allocations[0]]));assert.throws(()=>validateDistribution(null));
  for(const v of ['-1','1e15','0x10','18446744073709551616',1,null])assert.throws(()=>integer(v));
 });
 test('production rejects role reuse, pending config, historical identities and accidental enabling',()=>{
  const {p}=fixture();validateProduction(p);
- for(const patch of [{mainnetMode:'MAINNET_ENABLED'},{mainnetAuthorized:true},{distributionStatus:'APPROVED'},{mint:p.payer},{upgradeAuthority:p.mintAuthority},{mint:'CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo'}])assert.throws(()=>validateProduction({...p,...patch}));
+ for(const patch of [{mainnetMode:'MAINNET_ENABLED'},{mainnetAuthorized:true},{distributionStatus:'APPROVED'},{mint:p.payer},{upgradeAuthority:p.mintAuthority},{mint:'CfHGrav3zjZyAEdspKwdBGW3yBHYkiz6cYpeeQXoujvo'},
+  {distributionSourceOwner:p.mintAuthority},{distributionSourceOwner:key()},{secretKey:'must-not-appear'},{custody:{privateKey:'must-not-appear'}},
+  {allocations:p.allocations.map((a:any)=>a.label==='community_marketing'?{...a,beneficiary:'ANNSmx2Jww4HUukAvxBRSZeTqzcuqPQTiewSjxx7tgnw'}:a)},
+  {allocations:p.allocations.map((a:any)=>a.label==='market_ecosystem_launch'?{...a,baseUnits:'500000000000001'}:a)},
+  {allocations:p.allocations.map((a:any)=>a.label==='reserve'?{...a,vesting:{...a.vesting,end:'1894608101'}}:a)}])assert.throws(()=>validateProduction({...p,...patch}));
  assert.throws(()=>validateProduction(JSON.parse(fs.readFileSync('config/robusto-production.json','utf8'))),/pending/);
 });
 test('unsigned production instructions encode exact supply, ATA, distribution and signed vesting ABI',()=>{
  const {p,idl}=fixture();const steps=buildProductionSteps(p,idl,1461600);
- assert.equal(steps.length,9);
+ assert.equal(steps.length,12);
  const init=decodeInitializeMint2Instruction(steps[0].instructions[1]);assert.equal(init.data.decimals,6);assert.equal(init.data.freezeAuthority,null);
  assert.equal(decodeMintToCheckedInstruction(steps[2].instructions[0]).data.amount,SUPPLY);
- assert.equal(decodeTransferCheckedInstruction(steps[4].instructions[0]).data.amount,300000000000000n);
- const vesting=steps.find(s=>s.kind==='initialize')!.instructions[0];
- assert.deepEqual(vesting.keys.filter(k=>k.isSigner).map(k=>k.pubkey.toBase58()),[p.payer,p.mintAuthority,p.allocations[1].beneficiary]);
- assert.equal(vesting.data.readBigUInt64LE(8),700000000000000n);
- assert.equal(vesting.data.readBigInt64LE(16),1800000000n);
+ assert.equal(decodeTransferCheckedInstruction(steps[4].instructions[0]).data.amount,150000000000000n);
+ const vesting=steps.find(s=>s.label==='initialize-reserve')!.instructions[0];
+ assert.deepEqual(vesting.keys.filter(k=>k.isSigner).map(k=>k.pubkey.toBase58()),[p.payer,p.distributionSourceOwner,p.allocations[2].beneficiary]);
+ assert.equal(vesting.data.readBigUInt64LE(8),300000000000000n);
+ assert.equal(vesting.data.readBigInt64LE(16),1800000100n);
+ const mintSteps=steps.filter(s=>s.kind==='mintTo');assert.equal(mintSteps.length,1);
+ assert.equal(mintSteps[0].instructions[0].keys[2].pubkey.toBase58(),p.mintAuthority);
+ assert.equal(mintSteps[0].instructions[0].keys[1].pubkey.toBase58(),getAssociatedTokenAddressSync(new PublicKey(p.mint),new PublicKey(p.distributionSourceOwner)).toBase58());
+ assert.notEqual(p.mintAuthority,p.distributionSourceOwner);
+ for(const s of steps.filter(v=>['transfer','deposit'].includes(v.kind)))assert(s.instructions[0].keys.some(k=>k.isSigner&&k.pubkey.toBase58()===p.distributionSourceOwner));
+ assert(!steps.some(s=>s.instructions.some(ix=>ix.keys.some(k=>k.pubkey.toBase58()===p.mintAuthority)&&['transfer','deposit'].includes(s.kind))));
  for(const step of steps){const tx=new Transaction({feePayer:new PublicKey(p.payer),recentBlockhash:PublicKey.default.toBase58()}).add(...step.instructions);
   const roundtrip=Transaction.from(tx.serialize({requireAllSignatures:false,verifySignatures:false}));assert(roundtrip.signatures.every(s=>s.signature===null));}
  assert.throws(()=>buildProductionSteps(p,{...idl,address:key()},1461600),/identity/);
@@ -67,10 +80,10 @@ test('Mainnet guard denies defaults before RPC; fees unknown fail closed',async(
  await assert.rejects(quoteSteps({...c,getFeeForMessage:async()=>({value:null})},p,steps,network,`READ_ONLY:${MAINNET_GENESIS}`),/fee/);
 });
 test('initial reconciliation detects shortfall, beneficiary swaps and missing/duplicate entries',()=>{
- const {p}=fixture();const snapshot={supply:SUPPLY.toString(),source:'0',decimals:6,freezeAuthority:null,mintAuthority:p.mintAuthority,
+ const {p}=fixture();const snapshot={supply:SUPPLY.toString(),source:'500000000000000',sourceOwner:p.distributionSourceOwner,decimals:6,freezeAuthority:null,mintAuthority:p.mintAuthority,
  allocations:p.allocations.map((a:any)=>a.vesting?{label:a.label,beneficiary:a.beneficiary,balance:'0',total:a.baseUnits,released:'0',vault:a.baseUnits,...a.vesting}:{label:a.label,beneficiary:a.beneficiary,balance:a.baseUnits})};
  assert.equal(reconcileDistribution(p,snapshot).status,'INITIAL_DISTRIBUTION_RECONCILED');
- for(const patch of [{supply:'1000000000'},{source:'1'},{freezeAuthority:key()},{mintAuthority:null},{allocations:[snapshot.allocations[0],snapshot.allocations[0]]}])assert.throws(()=>reconcileDistribution(p,{...snapshot,...patch}));
+ for(const patch of [{supply:'1000000000'},{source:'1'},{sourceOwner:p.mintAuthority},{freezeAuthority:key()},{mintAuthority:null},{allocations:[snapshot.allocations[0],snapshot.allocations[0]]}])assert.throws(()=>reconcileDistribution(p,{...snapshot,...patch}));
  assert.throws(()=>reconcileDistribution(p,{...snapshot,allocations:[{...snapshot.allocations[0],balance:'1'},snapshot.allocations[1]]}));
  assert.throws(()=>prepareMintRevocation(p,undefined,'INITIAL_DISTRIBUTION_RECONCILED'),/Separate/);
 });
@@ -156,27 +169,30 @@ test('future production snapshot verifies one-slot ownership, ABI, metadata, aut
  const token=(owner:PublicKey,amount:bigint)=>{const data=Buffer.alloc(165);AccountLayout.encode({mint,owner,amount,delegateOption:0,delegate:PublicKey.default,state:1,isNativeOption:0,isNative:0n,delegatedAmount:0n,closeAuthorityOption:0,closeAuthority:PublicKey.default},data);return info(data);};
  const mintData=Buffer.alloc(82);MintLayout.encode({mintAuthorityOption:1,mintAuthority:new PublicKey(p.mintAuthority),supply:SUPPLY,decimals:6,isInitialized:true,freezeAuthorityOption:0,freezeAuthority:PublicKey.default},mintData);
  const metadata=Buffer.from(getMetadataAccountDataSerializer().serialize({updateAuthority:publicKey(p.metadataUpdateAuthority),mint:publicKey(p.mint),name:'ROBUSTO',symbol:'ROBUSTO',uri:p.metadataUri,sellerFeeBasisPoints:0,creators:null,primarySaleHappened:false,isMutable:true,editionNonce:null,tokenStandard:2,collection:null,uses:null,collectionDetails:null,programmableConfig:null}));
- const a=p.allocations[1],[vesting,bump]=PublicKey.findProgramAddressSync([Buffer.from('vesting'),new PublicKey(a.beneficiary).toBuffer(),mint.toBuffer()],program);
- const coder=new BorshAccountsCoder(idl),state=await coder.encode('VestingAccount',{authority:new PublicKey(p.mintAuthority),beneficiary:new PublicKey(a.beneficiary),mint,total_amount:new BN(a.baseUnits),released_amount:new BN(0),start_time:new BN(a.vesting.start),cliff_time:new BN(a.vesting.cliff),end_time:new BN(a.vesting.end),bump});
- const values=[info(link,LOADER,true),info(payload,LOADER),info(mintData),token(new PublicKey(p.mintAuthority),0n),info(metadata,new PublicKey(MPL_TOKEN_METADATA_PROGRAM_ID)),token(new PublicKey(p.allocations[0].beneficiary),300000000000000n),token(new PublicKey(a.beneficiary),0n),info(state,program),token(vesting,700000000000000n)];
+ const reserve=p.allocations[2],team=p.allocations[3],coder=new BorshAccountsCoder(idl);
+ const vestingAccount=async(a:any)=>{const [v,bump]=PublicKey.findProgramAddressSync([Buffer.from('vesting'),new PublicKey(a.beneficiary).toBuffer(),mint.toBuffer()],program);const data=await coder.encode('VestingAccount',{authority:new PublicKey(p.distributionSourceOwner),beneficiary:new PublicKey(a.beneficiary),mint,total_amount:new BN(a.baseUnits),released_amount:new BN(0),start_time:new BN(a.vesting.start),cliff_time:new BN(a.vesting.cliff),end_time:new BN(a.vesting.end),bump});return {v,data};};
+ const rv=await vestingAccount(reserve),tv=await vestingAccount(team);
+ const values=[info(link,LOADER,true),info(payload,LOADER),info(mintData),token(new PublicKey(p.distributionSourceOwner),500000000000000n),info(metadata,new PublicKey(MPL_TOKEN_METADATA_PROGRAM_ID)),token(new PublicKey(p.distributionSourceOwner),500000000000000n),token(new PublicKey(p.allocations[1].beneficiary),150000000000000n),token(new PublicKey(reserve.beneficiary),0n),info(rv.data,program),token(rv.v,300000000000000n),token(new PublicKey(team.beneficiary),0n),info(tv.data,program),token(tv.v,50000000000000n)];
  const network={mainnetMode:'MAINNET_DISABLED',cluster:'mainnet-beta',rpc:'https://api.mainnet-beta.solana.com'};
  const accountMap=new Map<string,any>();
  const c={rpcEndpoint:network.rpc,getGenesisHash:async()=>MAINNET_GENESIS,getMultipleAccountsInfoAndContext:async(keys:PublicKey[])=>{if(accountMap.size===0){assert.equal(keys.length,values.length);keys.forEach((k,i)=>accountMap.set(k.toBase58(),values[i]));}return {context:{slot:123},value:keys.map(k=>accountMap.get(k.toBase58())??null)};}} as any;
  const result=await verifyProductionSnapshot(c,p,idl,elf,network,`READ_ONLY:${MAINNET_GENESIS}`);assert.equal(result.slot,123);assert.equal(result.reconciliation.baseUnits,SUPPLY.toString());
  const clock=Buffer.alloc(40);clock.writeBigInt64LE(1799999999n,32);accountMap.set('SysvarC1ock11111111111111111111111111111111',info(clock,new PublicKey('Sysvar1111111111111111111111111111111111111')));accountMap.set(p.payer,info(Buffer.alloc(0),SystemProgram.programId));
  const steps=buildProductionSteps(p,idl,1461600),optIn=`READ_ONLY:${MAINNET_GENESIS}`;
+ values[5].data.writeBigUInt64LE(0n,64);
  await assert.rejects(preflightStage(c,p,idl,elf,steps[2],network,optIn),/zero supply/);
  mintData.writeBigUInt64LE(0n,36);
  assert.equal((await preflightStage(c,p,idl,elf,steps[2],network,optIn)).status,'PRECONDITIONS_VERIFIED_SIMULATION_AND_APPROVAL_REQUIRED');
  await assert.rejects(preflightStage(c,p,idl,elf,steps[0],network,optIn),/occupied/);
  mintData.writeBigUInt64LE(SUPPLY,36);
  const deposit=steps.find(s=>s.kind==='deposit')!;
+ values[5].data.writeBigUInt64LE(0n,64);values[9].data.writeBigUInt64LE(0n,64);
  await assert.rejects(preflightStage(c,p,idl,elf,deposit,network,optIn),/preconditions/);
- values[3].data.writeBigUInt64LE(700000000000000n,64);values[8].data.writeBigUInt64LE(0n,64);
- assert.equal((await preflightStage(c,p,idl,elf,deposit,network,optIn)).label,'deposit-vested');
+ values[5].data.writeBigUInt64LE(500000000000000n,64);
+ assert.equal((await preflightStage(c,p,idl,elf,deposit,network,optIn)).label,'deposit-reserve');
  clock.writeBigInt64LE(1800000100n,32);await assert.rejects(preflightStage(c,p,idl,elf,deposit,network,optIn),/preconditions/);
- values[3].data.writeBigUInt64LE(0n,64);
- values[8].data.writeBigUInt64LE(699999999999999n,64);await assert.rejects(verifyProductionSnapshot(c,p,idl,elf,network,`READ_ONLY:${MAINNET_GENESIS}`),/allocation mismatch/);
+ values[5].data.writeBigUInt64LE(500000000000000n,64);
+ values[9].data.writeBigUInt64LE(299999999999999n,64);await assert.rejects(verifyProductionSnapshot(c,p,idl,elf,network,`READ_ONLY:${MAINNET_GENESIS}`),/allocation mismatch/);
 });
 
 import {buildMetadataUpdate} from '../scripts/robusto-production';
@@ -198,6 +214,9 @@ test('production preflight binds amounts, destinations, signers and stage to can
  const changed={...original,instructions:original.instructions.map(ix=>new (require('@solana/web3.js').TransactionInstruction)({programId:ix.programId,keys:ix.keys.map(k=>({...k})),data:Buffer.from(ix.data)}))};
  changed.instructions[0].data.writeBigUInt64LE(SUPPLY+1n,1);
  assert.throws(()=>validatePreparedStage(p,idl,Buffer.alloc(0),changed),/canonical/);
+ const mintStage=steps[2],wrongAuthority={...mintStage,instructions:mintStage.instructions.map(ix=>new (require('@solana/web3.js').TransactionInstruction)({programId:ix.programId,keys:ix.keys.map(k=>({...k})),data:Buffer.from(ix.data)}))};
+ wrongAuthority.instructions[0].keys[2].pubkey=new PublicKey(p.distributionSourceOwner);
+ assert.throws(()=>validatePreparedStage(p,idl,Buffer.alloc(0),wrongAuthority),/canonical/);
  let calls=0;const network={mainnetMode:'MAINNET_DISABLED',cluster:'mainnet-beta',rpc:'https://api.mainnet-beta.solana.com'};
  const c={rpcEndpoint:network.rpc,getGenesisHash:async()=>{calls++;return MAINNET_GENESIS;}} as any;
  await assert.rejects(preflightStage(c,p,idl,Buffer.alloc(0),changed,network,`READ_ONLY:${MAINNET_GENESIS}`),/canonical/);assert.equal(calls,0);

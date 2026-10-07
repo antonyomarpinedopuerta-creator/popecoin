@@ -69,7 +69,7 @@ test('third unsigned planner uses verified Clock, rejects early windows and neve
 function productionFixture(){
  // Deterministic public-address bytes only; no private keys/seeds generated.
  let counter=2;const key=()=>{while(counter<255){const k=new PublicKey(Buffer.alloc(32,counter++));if(PublicKey.isOnCurve(k.toBytes()))return k.toBase58();}throw Error('Public fixture exhausted');};
- const p={...JSON.parse(fs.readFileSync('config/robusto-production.json','utf8')),payer:key(),mint:key(),program:key(),mintAuthority:key(),metadataUpdateAuthority:key(),upgradeAuthority:key(),metadataUri:'ar://'+'A'.repeat(43),imageSha256:'a'.repeat(64),metadataSha256:'b'.repeat(64),allocations:proposal.primary.map((a:any)=>({label:a.label,basisPoints:a.basisPoints,baseUnits:a.baseUnits,beneficiary:key(),...(a.label==='team_founder'?{vesting:{start:'1800000000',cliff:'1831536000',end:'1894608000'}}:{})}))};
+ const p={...JSON.parse(fs.readFileSync('config/robusto-production.json','utf8')),payer:key(),mint:key(),program:key(),mintAuthority:key(),metadataUpdateAuthority:key(),upgradeAuthority:key(),metadataUri:'ar://'+'A'.repeat(43),imageSha256:'a'.repeat(64),metadataSha256:'b'.repeat(64),allocations:proposal.stagedAlternative.map((a:any)=>({label:a.label,basisPoints:a.basisPoints,baseUnits:a.baseUnits,beneficiary:key(),...(['team_founder','reserve'].includes(a.label)?{vesting:{start:'1831536000',cliff:'1831536000',end:a.label==='team_founder'?'1894608000':'1926144000'}}:{})}))};p.distributionSourceOwner=p.allocations[0].beneficiary;
  const idl={...JSON.parse(fs.readFileSync('target/idl/popecoin_vesting.json','utf8')),address:p.program},elf=Buffer.alloc(1450,1);
  Buffer.from([127,69,76,70]).copy(elf);new PublicKey(p.program).toBuffer().copy(elf,100);p.programElfSha256=createHash('sha256').update(elf).digest('hex');
  const input={status:'PROPOSED_NOT_APPROVED',network:{mainnetMode:'MAINNET_DISABLED',cluster:'mainnet-beta',rpc:'https://mock-rpc.invalid'},deployProgram:true,bufferAddress:key(),maxProgramBytes:1500,payerReserveLamports:'1000',feePolicy:'NO_PRIORITY_IN_QUOTED_MESSAGES'};
@@ -86,8 +86,8 @@ test('technical estimator quotes loader, mint, ATAs, metadata and vesting with f
  assert.equal(offlineCostChecklist().prices,null);
  const {p,idl,elf,input}=productionFixture(),m=quoteMock(p,input);
  const q=await quoteProductionCosts(m.c,p,idl,elf,input,`READ_ONLY:${MAINNET_GENESIS}`);
- assert.equal(q.transactionCount,18);assert.equal(q.metadata.totalExtraLamports,15000);assert.equal(q.metadata.rentLamports,10000);assert.equal(q.metadata.protocolAndOtherDebitLamports,5000);
- assert.equal(q.temporaryBufferRentLamports,153700);assert.equal(q.quotedNetTechnicalLamports,384800);assert.equal(q.conservativeFundingLamports,539500);
+ assert.equal(q.transactionCount,17);assert.equal(q.metadata.totalExtraLamports,15000);assert.equal(q.metadata.rentLamports,10000);assert.equal(q.metadata.protocolAndOtherDebitLamports,5000);
+ assert.equal(q.temporaryBufferRentLamports,153700);assert.equal(q.quotedNetTechnicalLamports,394300);assert.equal(q.conservativeFundingLamports,549000);
  assert.equal(q.completeBudget,false);assert.equal(m.simulated(),1);assert.equal(m.sent(),0);
 });
 test('cost estimator refuses unauthorized reads, unavailable quotes and inconsistent simulations',async()=>{

@@ -42,25 +42,23 @@ Después de la asignación total, los saldos objetivo por cuenta son:
 | Vesting vault PDA team | 50.000.000 | 50.000.000.000.000 | `start=cliff=base+365d`; end = start + 730d. |
 | **Total** | **1.000.000.000** | **1.000.000.000.000.000** | Reconciliar supply y cada ATA/vault antes de cualquier gasto. |
 
-### Bloqueo que debe resolverse antes de crear identidades
+### Flujo de emisión y distribución preparado
 
-El builder actual (`scripts/robusto-production.ts`) crea la source ATA a nombre de `mintAuthority`, acuña ahí los 1e15 base units y usa esa misma autoridad como firmante de transfers y depósitos de vesting. Eso mezcla emisión y custodia temporal del supply completo; **no cumple la separación recomendada**.
+El builder (`scripts/robusto-production.ts`) separa emisión y custodia: `mintAuthority` firma la única instrucción `MintToChecked` por 1e15 base units; el ATA `market` (también `distributionSourceOwner`) recibe y distribuye el supply. Esa wallet es el rol market ya aprobado, no una novena identidad. `config/robusto-production.json:distributionSourceOwner` debe coincidir exactamente con el bucket `market_ecosystem_launch`.
 
-Antes de generar identidades, actualizar y probar el builder para que:
+1. Crear el mint con decimals 6 y freeze authority `None`; crear el ATA market, que será source ATA y cuenta final del bucket market.
+2. La mint authority emite exactamente una vez el supply completo al ATA market. No firma transferencias ni depósitos, y no custodia tokens en su propia ATA.
+3. Market firma el envío exacto de 150M al ATA community y los depósitos de 300M/50M a los vaults reserve/team. Reserve/team firman como beneficiarios sus inicializaciones; sus wallets no reciben el principal durante vesting.
+4. Reconciliar supply=1e15, ATA market/source=500M, ATA community=150M, vault reserve=300M y vault team=50M. El ATA market compartido se cuenta una sola vez. El builder rechaza otros porcentajes, cantidades, beneficiarios/source distintos, vesting no aprobado, roles alias e identidades históricas.
 
-1. Cree la source ATA temporal bajo una autoridad de distribución separada de `mint_authority` (recomendación: wallet market fría dedicada; la wallet market recibiría temporalmente todo el supply durante la distribución).
-2. `mint_authority` firme `MintToChecked` solamente; la autoridad de distribución firme transfers al ATA community y depósitos a los vesting vaults. Team/reserve wallets firman como beneficiarios sus `Initialize`.
-3. Requiera reconciliación del source a cero y balances finales de buckets/vaults al supply exacto, y falle ante reuse de autoridad, recipient/ATA incorrecta o distribución parcial.
-4. Muestre explícitamente que market tendrá control transitorio del supply completo entre la acuñación y los transfers. Preparar secuencia segura, límites y autorizaciones por instrucción antes de cualquier mensaje Mainnet.
-
-No generar identidades para un flujo que aún mezcla autoridades. La source temporal usa el rol market existente, así no se añade un noveno custodio permanente; exige que la wallet market sea fría y permanezca sin firmar mercado/marketing mientras mantiene saldo transitorio.
+El ATA market controla transitoriamente los 1B después de acuñar hasta terminar transfers y depósitos. Debe tratarse como etapa crítica: wallet market fría, ejecución por mensajes revisados y reconciliación antes de cualquier otra operación. El preflight impide repetir la emisión si supply o source ya tienen saldo.
 
 ## Procedimiento futuro del propietario para crear las identidades
 
 Solo tras autorización específica de crear identidades; estos pasos aún no se ejecutan:
 
 1. **Cerrar titulares y recuperación.** Completar los responsables de cada rol, beneficiary team/reserve, quién recupera cada hardware signer y quién es el beneficiario founder. Confirmar al wallet team/founder como wallet principal del propietario, o registrar que esa propuesta se rechaza. No inventar fecha base: vesting base sigue siendo fecha real de lanzamiento.
-2. **Cerrar el diseño técnico.** Corregir el builder para separar mint authority/source market, probar la matriz de firmantes, verificar compatibilidad on-curve y decidir si el programa de vesting se desplegará. No usar multisig hasta soporte probado.
+2. **Cerrar el diseño técnico.** La separación mint authority/source market está implementada y probada. Antes de identidades, revisar mensajes unsigned finales con las direcciones públicas; confirmar compatibilidad on-curve y decidir si se desplegará el programa de vesting. No usar multisig hasta soporte probado.
 3. **Preparar ambiente offline limpio.** Dispositivo dedicado y actualizado, software/hardware del fabricante verificado desde origen oficial, sin screen recording, sync, telemetría de clipboard ni shell-history. Nunca abrir o sobrescribir `~/.config/solana/id.json`; no importar wallets históricas/Devnet y no conectar Phantom automáticamente.
 4. **Generar en hardware signer.** Crear ocho identidades independientes según cada rol —y el mint keypair temporal solo en su etapa— dentro del hardware signer/dispositivo offline. Nunca imprimir, copiar al clipboard, pasar por argumentos/env vars, pegar al chat o mostrar seed/private key. Verificar cada address en pantalla del hardware y exportar únicamente el address público.
 5. **Copias privadas offline.** Anotar seed solo en respaldo físico seguro cuando el hardware lo requiera. Guardar copias cifradas de material privado en dos medios offline distintos bajo custodios/accesos separados, fuera de equipos conectados. No guardar secreto o seed en Git/GitHub, logs, ticket/chat, backup público, OneDrive, Dropbox, email ni cualquier cloud no autorizado. No respaldar imágenes de recovery phrase.
@@ -81,7 +79,7 @@ Solo tras autorización específica de crear identidades; estos pasos aún no se
 
 ## Pendiente inmediatamente después de esta preparación
 
-1. Implementar/pruebar el cambio del builder que separa market distribution source de mint authority; actualizar tests para todos los signer roles sin generar identidades definitivas.
+1. La separación builder/source está implementada y probada. Antes de crear identidades faltan beneficiarios/fecha elegidos por el propietario, direcciones públicas de roles, decidir el despliegue del programa de vesting, cotizaciones vigentes, autorización de hosting/publicación de metadata y autorización específica por operación Mainnet.
 2. Propietario asigna titulares/custodios, recuperadores y beneficiarios team/reserve; decide si team/founder será su wallet principal. No se puede rellenar inventario hasta que las identidades se creen por el propietario.
 3. Solo entonces, con autorización separada y sin operaciones blockchain, el propietario crea los signers y registra sus public addresses; revisar ATAs/PDA previews.
 4. Persisten después precio/rango SOL final con live quote y aprobación, importe efectivo/campañas, presupuesto y gastos Arweave, y autorizaciones independientes por transacción.

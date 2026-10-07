@@ -71,6 +71,30 @@ export function validateDistribution(rows:unknown):Allocation[] {
  if(bps!==10000||total!==SUPPLY)throw Error('Distribution must equal exactly 100% and 1,000,000,000 ROBUSTO');
  return rows;
 }
+const APPROVED_BUCKETS:Record<string,{bps:number;baseUnits:string;vestingDays:number|null}>={
+ market_ecosystem_launch:{bps:5000,baseUnits:'500000000000000',vestingDays:null},
+ community_marketing:{bps:1500,baseUnits:'150000000000000',vestingDays:null},
+ reserve:{bps:3000,baseUnits:'300000000000000',vestingDays:1095},
+ team_founder:{bps:500,baseUnits:'50000000000000',vestingDays:730},
+};
+const DAY=86400n;
+function assertPublicConfigOnly(p:any){
+ const allowedTop=new Set(Object.keys(JSON.parse(fs.readFileSync('config/robusto-production.json','utf8'))));
+ if(!p||typeof p!=='object'||Object.keys(p).some(k=>!allowedTop.has(k)))throw Error('Unknown field forbidden in public production config');
+ const visit=(v:any,path='')=>{
+  if(!v||typeof v!=='object')return;
+  if(Array.isArray(v)){
+   if(path!=='allocations'||v.some(row=>!row||typeof row!=='object'||Array.isArray(row)))throw Error('Unexpected public config array');
+   for(const row of v){if(Object.keys(row).some(k=>!['label','beneficiary','basisPoints','baseUnits','vesting'].includes(k)))throw Error('Unexpected allocation field');visit(row,'allocation');}return;
+  }
+  for(const [k,x] of Object.entries(v)){
+   if(/private.?key|secret|seed.?phrase|mnemonic|keypair/i.test(k))throw Error('Secret-bearing field forbidden in public production config');
+   if(path==='allocation.vesting'&&!['start','cliff','end'].includes(k))throw Error('Unexpected vesting field');
+   if(x&&typeof x==='object')visit(x,path?`${path}.${k}`:k);
+  }
+ };
+ visit(p);
+}
 export function protectedAddresses(){
  const values=new Set<string>();
  for(const file of ['config/rehearsal-deployment.json','config/rehearsal-plan.json','config/robusto-rehearsal-2.json','config/robusto-rehearsal-3.json','config/production-plan.json']){
@@ -83,6 +107,7 @@ export function protectedAddresses(){
  return values;
 }
 export function validateProduction(p:any){
+ assertPublicConfigOnly(p);
  validateRobustoProposal(p);
  if(p.mainnetMode!=='MAINNET_DISABLED'||p.distributionStatus!=='PROPOSED_NOT_APPROVED')throw Error('Preparation must stay MAINNET_DISABLED / PROPOSED_NOT_APPROVED');
  const roles=['payer','mint','program','mintAuthority','metadataUpdateAuthority','upgradeAuthority'];
@@ -91,7 +116,21 @@ export function validateProduction(p:any){
  const protectedKeys=protectedAddresses();
  if(keys.some(k=>protectedKeys.has(k.toBase58())||!PublicKey.isOnCurve(k.toBytes())))throw Error('Historical/rehearsal identity or unsupported custody');
  const rows=validateDistribution(p.allocations);
+ if(rows.length!==4)throw Error('Production allocations must match the approved four-bucket distribution');
+ for(const [label,expected] of Object.entries(APPROVED_BUCKETS)){
+  const matches=rows.filter(a=>a.label===label);if(matches.length!==1)throw Error('Missing/duplicate approved allocation bucket');
+  const a=matches[0];if(a.basisPoints!==expected.bps||a.baseUnits!==expected.baseUnits)throw Error('Approved 50/15/30/5 allocation mismatch');
+  if(expected.vestingDays===null){if(a.vesting)throw Error('Market/community allocations cannot enter vesting');}
+  else {
+   if(!a.vesting)throw Error('Reserve/team allocation must use approved vesting');
+   const start=integer(a.vesting.start,2n**63n-1n),cliff=integer(a.vesting.cliff,2n**63n-1n),end=integer(a.vesting.end,2n**63n-1n);
+   if(start!==cliff||end-start!==BigInt(expected.vestingDays)*DAY)throw Error('Vesting must start at cliff and use the approved linear duration');
+  }
+ }
+ const market=rows.find(a=>a.label==='market_ecosystem_launch')!;
+ if(p.distributionSourceOwner!==market.beneficiary)throw Error('Distribution source owner must be the approved market wallet');
  if(rows.some(a=>keys.some(k=>k.toBase58()===a.beneficiary)||protectedKeys.has(a.beneficiary)))throw Error('Allocation uses protected or authority identity');
+ if(p.mintAuthority===p.distributionSourceOwner)throw Error('Mint authority cannot be distribution/source custody');
  return rows;
 }
 export type Step={label:string;instructions:TransactionInstruction[];rentSizes:number[];kind:string};
@@ -115,23 +154,25 @@ export function buildProductionSteps(p:any,idl:Idl,mintRent:number):Step[]{
  const allocations=validateProduction(p);
  if(!Number.isSafeInteger(mintRent)||mintRent<=0)throw Error('Exact mint rent estimate required');
  if(idl.address!==p.program)throw Error('Production IDL/build identity mismatch');
- const payer=address(p.payer),mint=address(p.mint),authority=address(p.mintAuthority),program=address(p.program);
- const source=getAssociatedTokenAddressSync(mint,authority);const coder=new BorshInstructionCoder(idl);
+ const payer=address(p.payer),mint=address(p.mint),mintAuthority=address(p.mintAuthority),distributionAuthority=address(p.distributionSourceOwner),program=address(p.program);
+ const market=allocations.find(a=>a.label==='market_ecosystem_launch')!;
+ const source=getAssociatedTokenAddressSync(mint,distributionAuthority);const coder=new BorshInstructionCoder(idl);
  const ata=(owner:PublicKey)=>createAssociatedTokenAccountIdempotentInstruction(payer,getAssociatedTokenAddressSync(mint,owner),owner,mint);
  const steps:Step[]=[{label:'create-mint',kind:'mint',rentSizes:[MINT_SIZE],instructions:[
   SystemProgram.createAccount({fromPubkey:payer,newAccountPubkey:mint,lamports:mintRent,space:MINT_SIZE,programId:TOKEN_PROGRAM_ID}),
-  createInitializeMint2Instruction(mint,6,authority,null)]},
- {label:'source-ata',kind:'ata',rentSizes:[165],instructions:[ata(authority)]},
- {label:'mint-exact-supply',kind:'mintTo',rentSizes:[],instructions:[createMintToCheckedInstruction(mint,source,authority,SUPPLY,6)]}];
+  createInitializeMint2Instruction(mint,6,mintAuthority,null)]},
+ {label:'source-ata-market',kind:'ata',rentSizes:[165],instructions:[ata(distributionAuthority)]},
+ {label:'mint-exact-supply-to-market-source',kind:'mintTo',rentSizes:[],instructions:[createMintToCheckedInstruction(mint,source,mintAuthority,SUPPLY,6)]}];
  for(const a of allocations){const beneficiary=address(a.beneficiary),dest=getAssociatedTokenAddressSync(mint,beneficiary),raw=integer(a.baseUnits);
+  if(a.label===market.label)continue; // Market's 500M remains in the source ATA after exact allocations leave.
   steps.push({label:`ata-${a.label}`,kind:'ata',rentSizes:[165],instructions:[ata(beneficiary)]});
-  if(!a.vesting){steps.push({label:`distribute-${a.label}`,kind:'transfer',rentSizes:[],instructions:[createTransferCheckedInstruction(source,mint,dest,authority,raw,6)]});continue;}
+  if(!a.vesting){steps.push({label:`distribute-${a.label}`,kind:'transfer',rentSizes:[],instructions:[createTransferCheckedInstruction(source,mint,dest,distributionAuthority,raw,6)]});continue;}
   const [vesting]=PublicKey.findProgramAddressSync([Buffer.from('vesting'),beneficiary.toBuffer(),mint.toBuffer()],program);
   const [vault]=PublicKey.findProgramAddressSync([Buffer.from('vault'),vesting.toBuffer()],program);
   const meta=(pubkey:PublicKey,isSigner=false,isWritable=false)=>({pubkey,isSigner,isWritable});
-  const init=new TransactionInstruction({programId:program,keys:[meta(payer,true,true),meta(authority,true),meta(beneficiary,true),meta(mint),meta(vesting,false,true),meta(vault,false,true),meta(TOKEN_PROGRAM_ID),meta(SystemProgram.programId),meta(SYSVAR_RENT_PUBKEY)],
+  const init=new TransactionInstruction({programId:program,keys:[meta(payer,true,true),meta(distributionAuthority,true),meta(beneficiary,true),meta(mint),meta(vesting,false,true),meta(vault,false,true),meta(TOKEN_PROGRAM_ID),meta(SystemProgram.programId),meta(SYSVAR_RENT_PUBKEY)],
    data:coder.encode('initialize',{total_amount:new BN(raw.toString()),start_time:new BN(a.vesting.start),cliff_time:new BN(a.vesting.cliff),end_time:new BN(a.vesting.end)})});
-  const deposit=new TransactionInstruction({programId:program,keys:[meta(vesting,false,true),meta(vault,false,true),meta(authority,true,true),meta(mint),meta(source,false,true),meta(TOKEN_PROGRAM_ID)],data:coder.encode('deposit',{amount:new BN(raw.toString())})});
+  const deposit=new TransactionInstruction({programId:program,keys:[meta(vesting,false,true),meta(vault,false,true),meta(distributionAuthority,true,true),meta(mint),meta(source,false,true),meta(TOKEN_PROGRAM_ID)],data:coder.encode('deposit',{amount:new BN(raw.toString())})});
   steps.push({label:`initialize-${a.label}`,kind:'initialize',rentSizes:[145,165],instructions:[init]},
    {label:`deposit-${a.label}`,kind:'deposit',rentSizes:[],instructions:[deposit]});
  }
@@ -182,7 +223,8 @@ export function verifyMetadataAccount(account:any,p:any){
 /** Exact initial distribution reconciliation; only use before recipients spend. */
 export function reconcileDistribution(p:any,snapshot:any){
  const allocations=validateProduction(p);
- if(integer(snapshot.supply)!==SUPPLY||integer(snapshot.source)!==0n||snapshot.decimals!==6||snapshot.freezeAuthority!==null||snapshot.mintAuthority!==p.mintAuthority)throw Error('Mint/source authority/supply mismatch');
+ const marketAllocation=allocations.find(a=>a.label==='market_ecosystem_launch')!;
+ if(integer(snapshot.supply)!==SUPPLY||integer(snapshot.source)!==BigInt(marketAllocation.baseUnits)||snapshot.sourceOwner!==p.distributionSourceOwner||p.distributionSourceOwner===p.mintAuthority||snapshot.decimals!==6||snapshot.freezeAuthority!==null||snapshot.mintAuthority!==p.mintAuthority)throw Error('Mint/source authority/supply mismatch');
  if(!Array.isArray(snapshot.allocations)||snapshot.allocations.length!==allocations.length)throw Error('Incomplete reconciliation');
  let sum=0n;
  for(const a of allocations){const matches=snapshot.allocations.filter((v:any)=>v.label===a.label);if(matches.length!==1)throw Error('Duplicate/missing allocation snapshot');const s=matches[0];

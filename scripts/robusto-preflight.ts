@@ -34,8 +34,8 @@ export function validatePreparedStage(p:any,idl:Idl,elf:Buffer,step:Step,maxProg
 export async function preflightStage(c:Connection,p:any,idl:Idl,elf:Buffer,step:Step,network:any,optIn:unknown,maxProgramBytes?:number){
  requireMainnetReadOnly(network,optIn);if(c.rpcEndpoint!==network.rpc||idl.address!==p.program)throw Error('Preflight RPC/IDL mismatch');
  const allocations=validateProduction(p);validatePreparedStage(p,idl,elf,step,maxProgramBytes);await assertMainnet(c);
- const program=address(p.program),mint=address(p.mint),authority=address(p.mintAuthority),payer=address(p.payer);
- const [pd]=PublicKey.findProgramAddressSync([program.toBuffer()],LOADER),source=getAssociatedTokenAddressSync(mint,authority);
+ const program=address(p.program),mint=address(p.mint),mintAuthority=address(p.mintAuthority),distributionAuthority=address(p.distributionSourceOwner),payer=address(p.payer);
+ const [pd]=PublicKey.findProgramAddressSync([program.toBuffer()],LOADER),source=getAssociatedTokenAddressSync(mint,distributionAuthority);
  const umi=createUmi('http://127.0.0.1:8899').use(mplTokenMetadata()),[metadata]=findMetadataPda(umi,{mint:publicKey(p.mint)});
  const keys=[program,pd,mint,source,payer,SYSVAR_CLOCK_PUBKEY,new PublicKey(metadata)];
  for(const ix of step.instructions)for(const k of ix.keys)if(!keys.some(key=>key.equals(k.pubkey)))keys.push(k.pubkey);
@@ -58,10 +58,10 @@ export async function preflightStage(c:Connection,p:any,idl:Idl,elf:Buffer,step:
   if(step.kind==='mint')absent(mint);
   else {
    const mintInfo=account(mint),m=unpackMint(mint,mintInfo,TOKEN_PROGRAM_ID);
-   if(!mintInfo||mintInfo.executable||mintInfo.data.length!==82||mintInfo.data[45]!==1||![0,1].includes(mintInfo.data.readUInt32LE(0))||![0,1].includes(mintInfo.data.readUInt32LE(46))||m.decimals!==6||m.freezeAuthority!==null||!m.mintAuthority?.equals(authority))throw Error('Classic ROBUSTO mint authority/decimals/freeze mismatch');
+   if(!mintInfo||mintInfo.executable||mintInfo.data.length!==82||mintInfo.data[45]!==1||![0,1].includes(mintInfo.data.readUInt32LE(0))||![0,1].includes(mintInfo.data.readUInt32LE(46))||m.decimals!==6||m.freezeAuthority!==null||!m.mintAuthority?.equals(mintAuthority))throw Error('Classic ROBUSTO mint authority/decimals/freeze mismatch');
    const token=(key:PublicKey,owner:PublicKey)=>{const info=account(key);if(!info||info.executable||info.data.length!==165||info.data[108]!==1||![0,1].includes(info.data.readUInt32LE(72))||![0,1].includes(info.data.readUInt32LE(109))||![0,1].includes(info.data.readUInt32LE(129)))throw Error('Valid unfrozen classic token account required');const t=unpackAccount(key,info,TOKEN_PROGRAM_ID);if(!t.owner.equals(owner)||!t.mint.equals(mint)||t.delegate||t.closeAuthority||t.isNative||t.delegatedAmount!==0n)throw Error('Token account identity/powers mismatch');return t;};
    if(step.kind==='mintTo'){
-    if(m.supply!==0n||token(source,authority).amount!==0n)throw Error('MintTo requires zero supply and source: never repeat issuance');
+    if(m.supply!==0n||token(source,distributionAuthority).amount!==0n)throw Error('MintTo requires zero supply and market source: never repeat issuance');
    }else if(step.kind==='ata'){
     const ix=step.instructions[0],dest=ix.keys[1].pubkey,owner=ix.keys[2].pubkey;
     if(!dest.equals(getAssociatedTokenAddressSync(mint,owner)))throw Error('ATA derivation mismatch');
@@ -73,14 +73,14 @@ export async function preflightStage(c:Connection,p:any,idl:Idl,elf:Buffer,step:
      const a=allocations.find(row=>step.label===`${step.kind==='transfer'?'distribute':step.kind}-${row.label}`);if(!a)throw Error('Unknown allocation stage');
      const beneficiary=address(a.beneficiary),[vesting,bump]=PublicKey.findProgramAddressSync([Buffer.from('vesting'),beneficiary.toBuffer(),mint.toBuffer()],program),[vault]=PublicKey.findProgramAddressSync([Buffer.from('vault'),vesting.toBuffer()],program);
      if(step.kind==='transfer'){
-      if(a.vesting||token(getAssociatedTokenAddressSync(mint,beneficiary),beneficiary).amount!==0n||token(source,authority).amount<BigInt(a.baseUnits))throw Error('Distribution destination/source precondition mismatch');
+      if(a.vesting||token(getAssociatedTokenAddressSync(mint,beneficiary),beneficiary).amount!==0n||token(source,distributionAuthority).amount<BigInt(a.baseUnits))throw Error('Distribution destination/source precondition mismatch');
      }else if(step.kind==='initialize'){absent(vesting);absent(vault);}
      else if(step.kind==='deposit'){
       if(!a.vesting)throw Error('Vesting allocation required');const info=account(vesting);
       if(!info||info.executable||!info.owner.equals(program)||info.data.length!==145)throw Error('Vesting owner/size mismatch');
       const name=idl.accounts?.find(v=>v.name.toLowerCase().replace('_','')==='vestingaccount')?.name;if(!name)throw Error('Vesting schema unavailable');
       const v=new BorshAccountsCoder(idl).decode(name,info.data);
-      if(v.bump!==bump||v.authority.toBase58()!==p.mintAuthority||v.beneficiary.toBase58()!==a.beneficiary||v.mint.toBase58()!==p.mint||v.total_amount.toString()!==a.baseUnits||v.released_amount.toString()!=='0'||v.start_time.toString()!==a.vesting.start||v.cliff_time.toString()!==a.vesting.cliff||v.end_time.toString()!==a.vesting.end||now>=BigInt(a.vesting.cliff)||token(vault,vesting).amount!==0n||token(source,authority).amount<BigInt(a.baseUnits))throw Error('Deposit schedule/funding preconditions mismatch');
+      if(v.bump!==bump||v.authority.toBase58()!==p.distributionSourceOwner||v.beneficiary.toBase58()!==a.beneficiary||v.mint.toBase58()!==p.mint||v.total_amount.toString()!==a.baseUnits||v.released_amount.toString()!=='0'||v.start_time.toString()!==a.vesting.start||v.cliff_time.toString()!==a.vesting.cliff||v.end_time.toString()!==a.vesting.end||now>=BigInt(a.vesting.cliff)||token(vault,vesting).amount!==0n||token(source,distributionAuthority).amount<BigInt(a.baseUnits))throw Error('Deposit schedule/funding preconditions mismatch');
      }else throw Error('Unsupported preflight stage');
     }
    }
