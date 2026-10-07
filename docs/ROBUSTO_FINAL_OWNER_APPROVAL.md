@@ -29,6 +29,8 @@ El objetivo 3× y fee fija 25 bps ya están aprobados para preparación; el rang
 
 ## 2. Custodia y wallets de las ocho funciones
 
+Diseño recomendado, flujo exacto de cuentas, wallet principal del propietario y procedimiento seguro: [ROBUSTO_MAINNET_IDENTITY_CUSTODY.md](ROBUSTO_MAINNET_IDENTITY_CUSTODY.md). El inventario de direcciones público está vacío hasta la creación autorizada. Esta etapa no crea claves.
+
 - [ ] Aprobar diseño de ocho identidades separadas: market/NFT custody, community, reserve, team, payer, mint authority, metadata update authority y program upgrade authority.
 - [ ] Rechazar el diseño y especificar cambios antes de crear claves.
 

@@ -45,3 +45,8 @@ Hoja con únicamente aprobaciones pendientes: [ROBUSTO_FINAL_OWNER_APPROVAL.md](
 ## Decisiones del propietario registradas — 2026-10-07 UTC
 
 Desde `faaa1c71a623e12792e86653e28396251293a897`, aprobadas únicamente para preparación: Meteora DAMM v2 unilateral, ROBUSTO/SOL, OnlyB, objetivo 1M ROBUSTO, fixed 25 bps, sin dynamic fee, rango objetivo 3×, sin permanent lock, metadata mutable, mint authority retenida y Arweave preferido. El propietario acepta continuar con conocimiento explícito de 3 advisories/7 warnings, que siguen sin resolver. Rehearsal P0/Pmax USD y SOL/USD=100 son TEST_ONLY y no se registran como precio final. El precio definitivo se calcula con cotización vigente y requerirá aprobación previa a Mainnet. Vestings aprobados: team 365 días de espera +730 lineales; reserve 180+1095, start=cliff tras espera; fecha/beneficiarios pendientes. Ver `docs/ROBUSTO_FINAL_OWNER_APPROVAL.md` y `docs/ROBUSTO_MAINNET_EXECUTION_PLAN.md`. Sin Mainnet, pagos, firmas, transacciones, wallets definitivas ni publicación autorizados.
+
+
+## Identity & custody preparation
+
+Consultar [ROBUSTO_MAINNET_IDENTITY_CUSTODY.md](ROBUSTO_MAINNET_IDENTITY_CUSTODY.md). El inventario público `config/robusto-mainnet-public-addresses.json` está vacío y es validable con `npm run robusto:custody-inventory`. No se generaron identidades definitivas. Corregir y probar la separación entre mint authority y distribución en el builder antes de crear identidades o preparar transacciones.

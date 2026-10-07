@@ -1,0 +1,10 @@
+{
+  "market": null,
+  "community": null,
+  "reserve": null,
+  "team_founder": null,
+  "operational_payer": null,
+  "mint_authority": null,
+  "metadata_update_authority": null,
+  "program_upgrade_authority": null
+}

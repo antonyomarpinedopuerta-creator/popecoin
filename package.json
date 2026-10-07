@@ -60,6 +60,7 @@
     "backup:public": "python3 scripts/backup-public.py",
     "robusto:launch-policy": "ts-node scripts/robusto-launch-policy.ts",
     "robusto:meteora-local": "ts-node scripts/robusto-meteora-local.ts",
+    "robusto:custody-inventory": "ts-node scripts/robusto-custody-inventory.ts",
     "build:meteora-local": "python3 scripts/build-meteora-local.py",
     "robusto:rehearse-local": "ts-node scripts/robusto-meteora-rehearsal.ts",
     "audit:meteora-local": "python3 scripts/audit-meteora-local.py"

@@ -19,6 +19,8 @@ El objetivo de inventario no autoriza depósito. La política concreta de retira
 
 ## Fase 1 — custodia de identidades
 
+Seguir [ROBUSTO_MAINNET_IDENTITY_CUSTODY.md](ROBUSTO_MAINNET_IDENTITY_CUSTODY.md). El builder actual concentra temporalmente el supply en ATA de mint authority; corregir y probar la separación de source/market distribution antes de crear identidades o producir mensajes de emisión.
+
 1. Solo tras aprobación específica de custodia, generar ocho identidades de producción distintas en dispositivo aislado/seguro; no copiar claves por shell, variables, chat, evidencia, Git o backup público. La política de backup privado requiere medios cifrados independientes, control de acceso, inventario sellado y prueba de restauración sin exponer seeds.
 2. Para market, community, reserve y team, documentar por separado control/recuperación/beneficiarios y doble comprobación de pubkeys. Wallet del NFT de posición pertenece a función market o custodia designada, no al payer.
 3. Payer separado, fondos mínimos con límite acordado y seguimiento. Mint, metadata-update y upgrade authorities separadas. El equipo no obtiene mint authority por ser beneficiario.

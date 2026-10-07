@@ -13,6 +13,11 @@ test-ledger
 **/id.json
 **/wallet*.json
 **/*-wallet.json
+/.robusto-mainnet-private/
+**/robusto-mainnet-private/
+**/robusto-mainnet-private/**
+**/*.key
+**/*.priv
 
 # Local environment and credential material
 .env
