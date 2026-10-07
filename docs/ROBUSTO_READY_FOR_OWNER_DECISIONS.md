@@ -139,3 +139,8 @@ El scanner histórico permanece BLOCKED_FOR_PRODUCTION_REVIEW: tres vulnerabilid
 ## Rehearsal final Meteora — 2026-10-07 UTC
 
 Consultar docs/ROBUSTO_METEORA_FINAL_REHEARSAL.md y evidencia meteora-final-*.json. PASSED_FINAL_LOCAL_REHEARSAL / PRODUCTION_REVIEW_PENDING: 26 transacciones locales exitosas y 10 del intento inicial documentado, 27 negativos, 15 swaps iguales al oracle entero. Fuente/binario público revisados sin cambios; Devnet oficial existe pero binario distinto NOT_VERIFIED, por ello se usó local aislado. Tres vulnerabilidades/siete warnings upstream siguen visibles. No READY_FOR_MAINNET. Autoridad/metadata/locks intactos; authorization local terminada y validator detenido. Ejecutores históricos deshabilitados; próxima ejecución exige nueva autorización y preflight fresco. No reutilizar claves temporales ni global keypair. Backup público excluye keys/ledgers. Decisiones económicas definitivas, custodia, vesting base/beneficiarios, presupuesto/Arweave, política NFT y revisión residual pendientes; supply/distribución aprobados no se alteran. Tercer rehearsal Devnet y calendario sin cambios.
+
+
+## Plan final de preparación (2026-10-07)
+
+Hoja con únicamente aprobaciones pendientes: [ROBUSTO_FINAL_OWNER_APPROVAL.md](ROBUSTO_FINAL_OWNER_APPROVAL.md). Secuencia futura y gates: [ROBUSTO_MAINNET_EXECUTION_PLAN.md](ROBUSTO_MAINNET_EXECUTION_PLAN.md). Son documentos de preparación, sin autorización de firmas/envíos/pagos/publicación. La recomendación Meteora es condicional a revisión independiente del riesgo residual. No rehacer rehearsal general; no cambiar calendario Devnet.

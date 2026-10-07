@@ -35,3 +35,8 @@ Ante fallo de red tras una futura operación aprobada: leer journal de firma, co
 Políticas aprobadas offline: `npm run robusto:production -- economics` y `npm run robusto:launch-policy -- validate`. config/robusto-launch-policy-approved.json conserva importes efectivos/fechas/identidades null y operaciones false. El comando dates solo propone; no ejecutar preparación de wallets definitivas ni adoptar fechas de docs sin aprobación. Siguiente etapa: [ROBUSTO_NEXT_STAGE_FOR_APPROVAL](ROBUSTO_NEXT_STAGE_FOR_APPROVAL.md).
 
 Rehearsal Meteora completada: [evidencia pública](evidence/robusto/meteora-local-runtime.json), 17 transacciones solo locales, validador detenido y autorización expirada. No volver a ejecutar `robusto:rehearse-local` sin permiso nuevo. Reconstruction solo de código/binarios: `npm run build:meteora-local`; la auditoría externa `npm run audit:meteora-local` devuelve actualmente fallo explícito por tres advisories upstream y no debe silenciarse. `.robusto-local-private/` contiene identidades/ledger desechables ignorados; nunca se incluye en backup ni se copia como custodia de producción. Ver límites en [guía](ROBUSTO_METEORA_LOCAL_REHEARSAL.md).
+
+
+## Plan final de preparación (2026-10-07)
+
+Hoja con únicamente aprobaciones pendientes: [ROBUSTO_FINAL_OWNER_APPROVAL.md](ROBUSTO_FINAL_OWNER_APPROVAL.md). Secuencia futura y gates: [ROBUSTO_MAINNET_EXECUTION_PLAN.md](ROBUSTO_MAINNET_EXECUTION_PLAN.md). Son documentos de preparación, sin autorización de firmas/envíos/pagos/publicación. La recomendación Meteora es condicional a revisión independiente del riesgo residual. No rehacer rehearsal general; no cambiar calendario Devnet.
