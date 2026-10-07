@@ -28,3 +28,6 @@ import "./robusto-owner-preparation.test";
 
 import "./robusto-launch-policy.test";
 import "./robusto-meteora-local.test";
+
+import './robusto-local-guard.test';
+import './robusto-meteora-evidence.test';

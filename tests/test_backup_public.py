@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import tarfile
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -14,6 +15,47 @@ spec.loader.exec_module(backup)
 
 
 class PublicBackupTests(unittest.TestCase):
+    def test_private_local_scan_allows_internal_log_alias_without_reading_identity_bytes(self):
+        scanner = backup.load('security-scan')
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            ledger = root / '.robusto-local-private/session/ledger'
+            ledger.mkdir(parents=True, mode=0o700)
+            for folder in [ledger.parent.parent, ledger.parent, ledger]:
+                folder.chmod(0o700)
+            log = ledger / 'validator-actual.log'
+            log.write_text('not read')
+            log.chmod(0o600)
+            (ledger / 'validator.log').symlink_to(log.name)
+            identity = ledger.parent / 'payer-keypair.json'
+            identity.write_text('not read')
+            identity.chmod(0o600)
+            def git_output(args, **kwargs):
+                return 'a' * 40 if args[1] == 'rev-parse' else ('' if args[1] == 'log' else b'')
+            with patch.object(scanner.public, 'check'), patch.object(scanner.subprocess, 'check_output', side_effect=git_output), patch.object(scanner.subprocess, 'run', return_value=SimpleNamespace(returncode=0)), patch.object(Path, 'read_bytes', side_effect=AssertionError('Private bytes must never be read')):
+                self.assertEqual(scanner.scan(root)['status'], 'passed')
+                (ledger / 'validator.log').unlink()
+                outside = root / 'outside.log'
+                outside.write_text('not read')
+                (ledger / 'validator.log').symlink_to(outside)
+                with self.assertRaisesRegex(ValueError, 'escaped'):
+                    scanner.scan(root)
+
+    def test_private_local_scan_rejects_key_alias_even_when_log_alias_is_allowed(self):
+        scanner = backup.load('security-scan')
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            ledger = root / '.robusto-local-private/session/ledger'
+            ledger.mkdir(parents=True, mode=0o700)
+            for folder in [ledger.parent.parent, ledger.parent, ledger]:
+                folder.chmod(0o700)
+            (ledger / 'payer-keypair.json').symlink_to('missing.json')
+            def git_output(args, **kwargs):
+                return 'a' * 40 if args[1] == 'rev-parse' else ('' if args[1] == 'log' else b'')
+            with patch.object(scanner.public, 'check'), patch.object(scanner.subprocess, 'check_output', side_effect=git_output):
+                with self.assertRaisesRegex(ValueError, 'regular file'):
+                    scanner.scan(root)
+
     def test_backup_rejects_failed_dirty_or_stale_dependency_audit(self):
         report = {'head': 'a' * 40, 'sourceHashes': {'README.md': 'b' * 64}}
         audit = {**report, 'status': 'reviewed-findings-only', 'dirty': False}

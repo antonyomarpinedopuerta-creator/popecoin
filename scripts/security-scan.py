@@ -48,8 +48,10 @@ def scan(root=ROOT, history_limit=20):
         if suspect((root / name).read_bytes()):
             findings.append({'path': name, 'reason': 'current public credential heuristic; value redacted'})
     private_modes = []
-    base = root / 'target/rehearsal-identities'
-    if base.exists():
+    for base in [root / 'target/rehearsal-identities', root / '.robusto-local-private']:
+      if base.exists():
+        if base.is_symlink():
+            raise ValueError('Private identity root symlink rejected without opening')
         for current_dir, dirs, names in os.walk(base, followlinks=False):
             directory = Path(current_dir)
             if directory.is_symlink():
@@ -60,6 +62,18 @@ def scan(root=ROOT, history_limit=20):
             for name in names:
                 file = directory / name
                 # Only stat + Git-ignore: never read private identity contents.
+                # Agave creates this internal log alias and admin socket in its private ledger.
+                # Never follow/open their bytes; these are not identity files.
+                local_ledger = base.name == '.robusto-local-private' and directory.name == 'ledger'
+                if local_ledger and name == 'validator.log' and file.is_symlink():
+                    destination = file.resolve()
+                    if destination.parent != directory.resolve() or not destination.is_file():
+                        raise ValueError('Local validator log alias escaped its private ledger')
+                    continue
+                if local_ledger and name == 'admin.rpc' and stat.S_ISSOCK(file.lstat().st_mode):
+                    if stat.S_IMODE(file.lstat().st_mode) != 0o600:
+                        raise ValueError('Private local admin socket must be 0600')
+                    continue
                 if file.is_symlink() or not file.is_file():
                     raise ValueError('Private identity must be a regular file')
                 relative = file.relative_to(root).as_posix()

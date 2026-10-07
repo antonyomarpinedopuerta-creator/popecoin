@@ -24,7 +24,7 @@ function decimal(n:string){if(typeof n!=='string'||n.length>40||!/^(0|[1-9][0-9]
 export function integerSqrt(n:bigint):bigint{if(n<0n)throw Error('Negative radicand');if(n<2n)return n;let x=n,y=(x+1n)/2n;while(y<x){x=y;y=(x+n/x)/2n;}return x;}
 const ceil=(n:bigint,d:bigint)=>(n+d-1n)/d;
 const key=(s:string)=>{const p=new PublicKey(s);if(p.toBase58()!==s)throw Error('Canonical address required');return p;};
-function historicalAddresses(){
+export function historicalAddresses(){
  const found=new Set<string>();
  const visit=(x:any)=>{if(typeof x==='string'){try{found.add(key(x).toBase58());}catch{}}else if(x&&typeof x==='object')Object.values(x).forEach(visit);};
  for(const name of fs.readdirSync('config').filter(n=>/devnet|rehearsal|app-reader/.test(n)&&n.endsWith('.json')))visit(JSON.parse(fs.readFileSync(`config/${name}`,'utf8')));
@@ -44,7 +44,7 @@ export function prepareMeteoraLocal(input:LocalInput,c:any=approved){
  validateLocalApproval(c);
  const allowed=['cluster','rpcUrl','identityScope','expectedMint','tokenA','tokenB','positionNftMint',...roles,'mintAccount','metadataSnapshot','solUsdTrialQuote','slippageBps','fixedFeeBps','permanentLock','vestingLock','revokeMintAuthority'];
  if(!input||Object.keys(input).some(k=>!allowed.includes(k)))throw Error('Unexpected preparation fields or operation flags');
- if(input.cluster!=='localnet'||input.rpcUrl!=='http://127.0.0.1:8899'||input.identityScope!=='ISOLATED_LOCAL_PUBLIC_FIXTURE')throw Error('Only isolated local preparation; Mainnet/Devnet forbidden');
+ if(input.cluster!=='localnet'||input.rpcUrl!=='http://127.0.0.1:8899'||!['ISOLATED_LOCAL_PUBLIC_FIXTURE','ISOLATED_LOCAL_REHEARSAL'].includes(input.identityScope))throw Error('Only isolated local preparation; Mainnet/Devnet forbidden');
  if(input.permanentLock!==false||input.vestingLock!==false||input.revokeMintAuthority!==false)throw Error('Locks and authority revocation forbidden');
  if(!Number.isInteger(input.slippageBps)||input.slippageBps<0||input.slippageBps>100)throw Error('Explicit trial slippage 0..100 bps required');
  if(!Number.isInteger(input.fixedFeeBps)||input.fixedFeeBps<1||input.fixedFeeBps>100)throw Error('Explicit trial fixed fee 1..100 bps required');
