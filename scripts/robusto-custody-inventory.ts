@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {PublicKey} from '@solana/web3.js';
+import {protectedAddresses} from './robusto-production';
 
 export const PUBLIC_ADDRESS_ROLES = [
   'market', 'community', 'reserve', 'team_founder', 'operational_payer',
@@ -16,6 +17,7 @@ export function validatePublicAddressInventory(value: unknown) {
   if (keys.length !== expected.length || keys.some((key, i) => key !== expected[i])) throw new Error('Inventory role set mismatch');
 
   const seen = new Set<string>();
+  const protectedKeys = protectedAddresses();
   const publicAddresses: Record<string, string | null> = {};
   let populated = 0;
   for (const role of PUBLIC_ADDRESS_ROLES) {
@@ -26,6 +28,7 @@ export function validatePublicAddressInventory(value: unknown) {
     try { key = new PublicKey(value); } catch { throw new Error('Invalid public address in inventory'); }
     const address = key.toBase58();
     if (address !== value || key.equals(PublicKey.default) || !PublicKey.isOnCurve(key.toBytes())) throw new Error('Inventory requires canonical on-curve wallet addresses');
+    if (protectedKeys.has(address)) throw new Error('Historical/rehearsal addresses cannot be used for production custody');
     if (seen.has(address)) throw new Error('Custody roles must have distinct public addresses');
     seen.add(address); populated += 1; publicAddresses[role] = address;
   }

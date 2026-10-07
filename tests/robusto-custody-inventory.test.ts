@@ -33,3 +33,9 @@ test('inventory rejects missing/extra roles, duplicate addresses, arrays and key
   assert.throws(() => validatePublicAddressInventory([]));
   assert.throws(() => validatePublicAddressInventory({...empty(), program_upgrade_authority: 'not-a-public-address'}));
 });
+
+test('inventory rejects public addresses reserved by historical PAPA/Devnet/rehearsal configuration', () => {
+  const inventory: Record<string, unknown> = empty();
+  inventory.market = 'ANNSmx2Jww4HUukAvxBRSZeTqzcuqPQTiewSjxx7tgnw';
+  assert.throws(() => validatePublicAddressInventory(inventory), /Historical\/rehearsal/);
+});
