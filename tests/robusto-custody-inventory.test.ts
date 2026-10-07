@@ -1,9 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {Keypair} from '@solana/web3.js';
+import {createHash} from 'node:crypto';
+import {PublicKey} from '@solana/web3.js';
 import {PUBLIC_ADDRESS_ROLES, validatePublicAddressInventory} from '../scripts/robusto-custody-inventory';
 
 const empty = () => Object.fromEntries(PUBLIC_ADDRESS_ROLES.map(role => [role, null]));
+function publicFixture(label: string) {
+  for (let i = 0; ; i++) {
+    const bytes = createHash('sha256').update(`ROBUSTO_CUSTODY_PUBLIC_FIXTURE:${label}:${i}`).digest();
+    if (PublicKey.isOnCurve(bytes)) return new PublicKey(bytes).toBase58();
+  }
+}
 
 test('public custody inventory starts empty and contains only the eight role keys', () => {
   const result = validatePublicAddressInventory(empty());
@@ -14,7 +21,7 @@ test('public custody inventory starts empty and contains only the eight role key
 
 test('inventory accepts distinct public wallet addresses without returning secret material', () => {
   const inventory: Record<string, unknown> = empty();
-  for (const role of PUBLIC_ADDRESS_ROLES) inventory[role] = Keypair.generate().publicKey.toBase58();
+  for (const role of PUBLIC_ADDRESS_ROLES) inventory[role] = publicFixture(role);
   const result = validatePublicAddressInventory(inventory);
   assert.equal(result.status, 'COMPLETE_PUBLIC_ADDRESSES');
   assert.equal(Object.keys(result.publicAddresses).length, PUBLIC_ADDRESS_ROLES.length);
@@ -25,7 +32,7 @@ test('inventory rejects missing/extra roles, duplicate addresses, arrays and key
   const wrongRoles = empty(); delete (wrongRoles as Record<string, unknown>).reserve;
   assert.throws(() => validatePublicAddressInventory(wrongRoles));
   assert.throws(() => validatePublicAddressInventory({...empty(), unexpected: null}));
-  const duplicate: Record<string, unknown> = empty(); const address = Keypair.generate().publicKey.toBase58();
+  const duplicate: Record<string, unknown> = empty(); const address = publicFixture('duplicate');
   duplicate.market = address; duplicate.community = address;
   assert.throws(() => validatePublicAddressInventory(duplicate));
   const privateArray = Array(64).fill(7);
