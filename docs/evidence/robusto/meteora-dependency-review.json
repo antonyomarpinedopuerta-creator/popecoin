@@ -1,0 +1,200 @@
+{
+  "schemaVersion": 1,
+  "reviewedAtUtc": "2026-10-07T00:44:05.067655+00:00",
+  "baseRepositoryCommit": "a5a42b752372045fe7a8ebe87769c28e89f87065",
+  "classification": "CONDITIONALLY_ACCEPTABLE_FOR_NEXT_REHEARSAL",
+  "authorization": "NONE_NEW_REHEARSAL_NOT_AUTHORIZED_MAINNET_DISABLED",
+  "scope": "Pinned concentrated OnlyB fixed-fee ROBUSTO/SOL; no dynamic fees/rewards/compounding/locks. Not a complete protocol audit.",
+  "officialSource": {
+    "commit": "a85c926607433f23f0ea60f4ca7b1ae92f4156cb",
+    "package": "cp-amm",
+    "version": "0.2.4",
+    "lockSha256": "b5ec7c2a5793afc7f8c46169b23cb370bd90f13a86e753beec7bc01f5c42e1d0",
+    "verifiedUnchangedSourceInputs": 129
+  },
+  "upstreamCurrent": {
+    "api": "https://api.github.com/repos/MeteoraAg/damm-v2/commits/main",
+    "head": "a85c926607433f23f0ea60f4ca7b1ae92f4156cb",
+    "tagsCount": 0,
+    "releasesCount": 0,
+    "correctionInPublishedMainTagsReleases": false,
+    "sourceAbiIdlEconomicChangesApplied": false
+  },
+  "deploymentVerification": {
+    "status": "VERIFIED_BYTE_MATCH_AT_OBSERVED_SLOTS",
+    "program": "cpamdpZCGKUy5JxQXB4dcpGPiikHawvSWAd6mEn1sGG",
+    "programData": "AUh8bm2XsMfex3KjYGcM3G4uBqUNSDw6HEhWaWMYnyPH",
+    "programObservationSlot": 454063661,
+    "programDataObservationSlot": 454063708,
+    "lastDeploymentSlot": 445230614,
+    "upgradeAuthorityPresent": true,
+    "artifactSha256": "a30610058262a5c87e1b22144ef6053ff2cd8bc9f97b7e978a51e28f8ec3ea3c",
+    "artifactBytes": 1433928,
+    "programDataCodeAndPaddingSha256": "4d5b920baebc090f89b2e8796a3452ed067c9667a143058c96a312f2c1e6848b",
+    "programDataCodeAndPaddingBytes": 2174352,
+    "exactPrefixAndZeroPaddingMatch": true,
+    "limits": "Saved RPC responses supplied by operator; no independent RPC quorum, no atomic snapshot, no guarantee after upgrades. No transaction support."
+  },
+  "publicRpcRequests": {
+    "endpoint": "https://api.mainnet-beta.solana.com",
+    "method": "getAccountInfo",
+    "commitment": "finalized",
+    "count": 2,
+    "transactionsSigned": 0,
+    "transactionsSent": 0
+  },
+  "advisories": [
+    {
+      "id": "RUSTSEC-2026-0007",
+      "version": "bytes 1.10.1",
+      "lockPath": [
+        "cp-amm 0.2.4",
+        "borsh 1.6.1",
+        "bytes 1.10.1"
+      ],
+      "edge": "optional feature disabled",
+      "classification": "NOT_REACHABLE",
+      "runtimeSbf": false,
+      "hostActiveForProgram": false,
+      "patchedLibrary": ">=1.11.1"
+    },
+    {
+      "id": "RUSTSEC-2025-0137",
+      "version": "ruint 1.14.0",
+      "lockPath": [
+        "cp-amm 0.2.4",
+        "ruint 1.14.0"
+      ],
+      "runtimeSbf": true,
+      "hostArithmetic": true,
+      "classification": "NOT_REACHABLE",
+      "functionReachable": true,
+      "conditionReachable": false,
+      "reason": "Uint division trims zero limbs and normalizes the nonzero top limb before reciprocal lookup. Direct invalid low-level calls not found.",
+      "patchedLibrary": ">=1.17.1"
+    },
+    {
+      "id": "RUSTSEC-2026-0220",
+      "version": "ruint 1.14.0",
+      "lockPath": [
+        "cp-amm 0.2.4",
+        "ruint 1.14.0"
+      ],
+      "runtimeSbf": true,
+      "hostArithmetic": true,
+      "classification": "REACHABLE",
+      "functionReachable": true,
+      "incorrectFlagReproduced": true,
+      "economicImpactDemonstrated": false,
+      "reason": "Right-shift flag is discarded in reviewed truncation callers; left shifts bounded to fit U256. No universal safety claim.",
+      "patchedLibrary": ">=1.20.0"
+    }
+  ],
+  "warnings": [
+    {
+      "id": "RUSTSEC-2025-0141",
+      "package": "bincode 1.3.3",
+      "classification": "REACHABLE",
+      "materiality": "Runtime maintenance risk; no concrete vulnerability stated"
+    },
+    {
+      "id": "RUSTSEC-2024-0388",
+      "package": "derivative 2.2.0",
+      "classification": "NOT_REACHABLE",
+      "materiality": "Optional ark-ff disabled; proc-macro if activated"
+    },
+    {
+      "id": "RUSTSEC-2024-0436",
+      "package": "paste 1.0.15",
+      "classification": "NOT_REACHABLE",
+      "materiality": "Optional ark-ff disabled; proc-macro if activated"
+    },
+    {
+      "id": "RUSTSEC-2026-0190",
+      "package": "anyhow 1.0.97",
+      "classification": "BUILD/HOST_ONLY",
+      "materiality": "Unsound host API; no downcast_mut calls found in reviewed direct consumers; residual tooling risk"
+    },
+    {
+      "id": "RUSTSEC-2026-0012",
+      "package": "keccak 0.1.4",
+      "classification": "BUILD/HOST_ONLY",
+      "materiality": "ARMv8 opt-in asm absent; current host x86_64; not SBF keccak-const"
+    },
+    {
+      "id": "RUSTSEC-2026-0097",
+      "package": "rand 0.8.5",
+      "classification": "BUILD/HOST_ONLY",
+      "materiality": "Host/dev; required log feature absent in inspected graph"
+    },
+    {
+      "id": "RUSTSEC-2026-0097",
+      "package": "rand 0.9.1",
+      "classification": "NOT_REACHABLE",
+      "materiality": "Optional ruint rand-09 disabled"
+    }
+  ],
+  "tests": {
+    "arithmeticCases": 5,
+    "modes": [
+      "debug",
+      "release"
+    ],
+    "publicByteVerifierCases": 3,
+    "blockchainOperations": 0,
+    "unsafeInvalidReciprocalPocExecuted": false
+  },
+  "limits": [
+    "Reachability is our source review, not externally certified",
+    "Whole-lock audit stays failing; no suppression or protocol patch",
+    "RPC is a single public provider; observations non-atomic; deployed program upgradeable",
+    "Conditional classification does not authorize execution or production"
+  ],
+  "evidenceSha256": {
+    "mainApi": "79366fd9e302e09f85b42428bccbbe39d513727227a16a24015b6bbc13c46c88",
+    "tagsApi": "2ba33ca0557f1bb5b7ba88d67f9d0093c7185a36ec51fe2b7bd9372d3e001d6d",
+    "releasesApi": "2ba33ca0557f1bb5b7ba88d67f9d0093c7185a36ec51fe2b7bd9372d3e001d6d",
+    "programAccountResponse": "dfdc042a8c8bc8a96d9f6bf0ba7d61873bea4589e249af6fde079d1cfdec2e94",
+    "programDataResponse": "17d1edd0fabb2c42300a2f1a1d97710dcaf673a83ee2fdc6afa111dc0c2adad6",
+    "sbfDependencyTree": "42cb48f5cab25e7cbf817d1d72b42377d9c4eed82dd4d97f1914ca9e64d71487",
+    "arithmeticTestLog": "41fe71b02a9e17748fb9f0e9a31cb40f3cd923c146dd1cf36ff039bdc0819417"
+  },
+  "compiledFeatures": {
+    "ruint": [
+      "[\"alloc\", \"default\", \"std\"]"
+    ],
+    "borsh": [
+      "[\"borsh-derive\", \"default\", \"derive\", \"std\", \"unstable__schema\"]"
+    ]
+  },
+  "upstreamAudit": {
+    "exitCode": 1,
+    "vulnerabilities": 3,
+    "warnings": 7,
+    "database": {
+      "advisory-count": 1290,
+      "last-commit": null,
+      "last-updated": null
+    },
+    "evidence": "meteora-upstream-audit-reviewed.json",
+    "findingsSuppressed": false,
+    "advisoryDatabaseGitCommit": "ef6173cbc5c50ec8166f9a5b28f07834144373ee"
+  },
+  "projectValidation": {
+    "rustTests": 48,
+    "clientTests": 164,
+    "pythonTests": 54,
+    "arithmeticTestsPerMode": 5,
+    "arithmeticModes": [
+      "debug",
+      "release"
+    ],
+    "rc": "passed",
+    "security": "passed",
+    "projectDependencyAudit": "reviewed-findings-only",
+    "retainedYarnFindings": 10,
+    "retainedRustWarnings": 6,
+    "freshWorkspaceReproduction": "passed",
+    "productionAuthorization": false
+  }
+}
