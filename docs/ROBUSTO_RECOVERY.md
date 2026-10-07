@@ -39,4 +39,9 @@ Rehearsal Meteora completada: [evidencia pública](evidence/robusto/meteora-loca
 
 ## Plan final de preparación (2026-10-07)
 
-Hoja con únicamente aprobaciones pendientes: [ROBUSTO_FINAL_OWNER_APPROVAL.md](ROBUSTO_FINAL_OWNER_APPROVAL.md). Secuencia futura y gates: [ROBUSTO_MAINNET_EXECUTION_PLAN.md](ROBUSTO_MAINNET_EXECUTION_PLAN.md). Son documentos de preparación, sin autorización de firmas/envíos/pagos/publicación. La recomendación Meteora es condicional a revisión independiente del riesgo residual. No rehacer rehearsal general; no cambiar calendario Devnet.
+Hoja con únicamente aprobaciones pendientes: [ROBUSTO_FINAL_OWNER_APPROVAL.md](ROBUSTO_FINAL_OWNER_APPROVAL.md). Secuencia futura y gates: [ROBUSTO_MAINNET_EXECUTION_PLAN.md](ROBUSTO_MAINNET_EXECUTION_PLAN.md). Son documentos de preparación, sin autorización de firmas/envíos/pagos/publicación. El propietario aceptó continuar la preparación con Meteora con conocimiento explícito de los 3 advisories y 7 warnings, aún sin resolver. No rehacer rehearsal general; no cambiar calendario Devnet.
+
+
+## Decisiones del propietario registradas — 2026-10-07 UTC
+
+Desde `faaa1c71a623e12792e86653e28396251293a897`, aprobadas únicamente para preparación: Meteora DAMM v2 unilateral, ROBUSTO/SOL, OnlyB, objetivo 1M ROBUSTO, fixed 25 bps, sin dynamic fee, rango objetivo 3×, sin permanent lock, metadata mutable, mint authority retenida y Arweave preferido. El propietario acepta continuar con conocimiento explícito de 3 advisories/7 warnings, que siguen sin resolver. Rehearsal P0/Pmax USD y SOL/USD=100 son TEST_ONLY y no se registran como precio final. El precio definitivo se calcula con cotización vigente y requerirá aprobación previa a Mainnet. Vestings aprobados: team 365 días de espera +730 lineales; reserve 180+1095, start=cliff tras espera; fecha/beneficiarios pendientes. Ver `docs/ROBUSTO_FINAL_OWNER_APPROVAL.md` y `docs/ROBUSTO_MAINNET_EXECUTION_PLAN.md`. Sin Mainnet, pagos, firmas, transacciones, wallets definitivas ni publicación autorizados.
