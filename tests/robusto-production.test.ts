@@ -13,10 +13,11 @@ const key=()=>Keypair.generate().publicKey.toBase58();
 function fixture(){const p={...JSON.parse(fs.readFileSync('config/robusto-production.json','utf8')),
  payer:key(),mint:key(),program:key(),mintAuthority:key(),metadataUpdateAuthority:key(),upgradeAuthority:key(),
  imageSha256:'a'.repeat(64),metadataSha256:'b'.repeat(64),metadataUri:`ar://${'A'.repeat(43)}`,
+ startUtc:'2027-01-01T00:00:00Z',
  allocations:[{label:'market_ecosystem_launch',beneficiary:key(),basisPoints:5000,baseUnits:'500000000000000'},
  {label:'community_marketing',beneficiary:key(),basisPoints:1500,baseUnits:'150000000000000'},
- {label:'reserve',beneficiary:key(),basisPoints:3000,baseUnits:'300000000000000',vesting:{start:'1800000100',cliff:'1800000100',end:'1894608100'}},
- {label:'team_founder',beneficiary:key(),basisPoints:500,baseUnits:'50000000000000',vesting:{start:'1800000100',cliff:'1800000100',end:'1863072100'}}]};
+ {label:'reserve',beneficiary:key(),basisPoints:3000,baseUnits:'300000000000000',vesting:{start:'1814313600',cliff:'1814313600',end:'1908921600'}},
+ {label:'team_founder',beneficiary:key(),basisPoints:500,baseUnits:'50000000000000',vesting:{start:'1830297600',cliff:'1830297600',end:'1893369600'}}]};
  p.distributionSourceOwner=p.allocations[0].beneficiary;
  const idl={...JSON.parse(fs.readFileSync('target/idl/popecoin_vesting.json','utf8')),address:p.program};return {p,idl};}
 test('ROBUSTO distribution requires independent exact percentage and base-unit totals',()=>{
@@ -31,7 +32,8 @@ test('production rejects role reuse, pending config, historical identities and a
   {distributionSourceOwner:p.mintAuthority},{distributionSourceOwner:key()},{secretKey:'must-not-appear'},{custody:{privateKey:'must-not-appear'}},
   {allocations:p.allocations.map((a:any)=>a.label==='community_marketing'?{...a,beneficiary:'ANNSmx2Jww4HUukAvxBRSZeTqzcuqPQTiewSjxx7tgnw'}:a)},
   {allocations:p.allocations.map((a:any)=>a.label==='market_ecosystem_launch'?{...a,baseUnits:'500000000000001'}:a)},
-  {allocations:p.allocations.map((a:any)=>a.label==='reserve'?{...a,vesting:{...a.vesting,end:'1894608101'}}:a)}])assert.throws(()=>validateProduction({...p,...patch}));
+  {allocations:p.allocations.map((a:any)=>a.label==='reserve'?{...a,vesting:{...a.vesting,end:'1908921601'}}:a)},
+  {allocations:p.allocations.map((a:any)=>a.label==='team_founder'?{...a,vesting:{start:'1830297601',cliff:'1830297601',end:'1893369601'}}:a)}])assert.throws(()=>validateProduction({...p,...patch}));
  assert.throws(()=>validateProduction(JSON.parse(fs.readFileSync('config/robusto-production.json','utf8'))),/pending/);
 });
 test('unsigned production instructions encode exact supply, ATA, distribution and signed vesting ABI',()=>{
@@ -43,7 +45,7 @@ test('unsigned production instructions encode exact supply, ATA, distribution an
  const vesting=steps.find(s=>s.label==='initialize-reserve')!.instructions[0];
  assert.deepEqual(vesting.keys.filter(k=>k.isSigner).map(k=>k.pubkey.toBase58()),[p.payer,p.distributionSourceOwner,p.allocations[2].beneficiary]);
  assert.equal(vesting.data.readBigUInt64LE(8),300000000000000n);
- assert.equal(vesting.data.readBigInt64LE(16),1800000100n);
+ assert.equal(vesting.data.readBigInt64LE(16),1814313600n);
  const mintSteps=steps.filter(s=>s.kind==='mintTo');assert.equal(mintSteps.length,1);
  assert.equal(mintSteps[0].instructions[0].keys[2].pubkey.toBase58(),p.mintAuthority);
  assert.equal(mintSteps[0].instructions[0].keys[1].pubkey.toBase58(),getAssociatedTokenAddressSync(new PublicKey(p.mint),new PublicKey(p.distributionSourceOwner)).toBase58());
@@ -190,7 +192,7 @@ test('future production snapshot verifies one-slot ownership, ABI, metadata, aut
  await assert.rejects(preflightStage(c,p,idl,elf,deposit,network,optIn),/preconditions/);
  values[5].data.writeBigUInt64LE(500000000000000n,64);
  assert.equal((await preflightStage(c,p,idl,elf,deposit,network,optIn)).label,'deposit-reserve');
- clock.writeBigInt64LE(1800000100n,32);await assert.rejects(preflightStage(c,p,idl,elf,deposit,network,optIn),/preconditions/);
+ clock.writeBigInt64LE(1814313600n,32);await assert.rejects(preflightStage(c,p,idl,elf,deposit,network,optIn),/preconditions/);
  values[5].data.writeBigUInt64LE(500000000000000n,64);
  values[9].data.writeBigUInt64LE(299999999999999n,64);await assert.rejects(verifyProductionSnapshot(c,p,idl,elf,network,`READ_ONLY:${MAINNET_GENESIS}`),/allocation mismatch/);
 });

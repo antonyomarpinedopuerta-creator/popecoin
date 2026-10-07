@@ -71,11 +71,11 @@ export function validateDistribution(rows:unknown):Allocation[] {
  if(bps!==10000||total!==SUPPLY)throw Error('Distribution must equal exactly 100% and 1,000,000,000 ROBUSTO');
  return rows;
 }
-const APPROVED_BUCKETS:Record<string,{bps:number;baseUnits:string;vestingDays:number|null}>={
- market_ecosystem_launch:{bps:5000,baseUnits:'500000000000000',vestingDays:null},
- community_marketing:{bps:1500,baseUnits:'150000000000000',vestingDays:null},
- reserve:{bps:3000,baseUnits:'300000000000000',vestingDays:1095},
- team_founder:{bps:500,baseUnits:'50000000000000',vestingDays:730},
+const APPROVED_BUCKETS:Record<string,{bps:number;baseUnits:string;waitDays:number|null;vestingDays:number|null}>={
+ market_ecosystem_launch:{bps:5000,baseUnits:'500000000000000',waitDays:null,vestingDays:null},
+ community_marketing:{bps:1500,baseUnits:'150000000000000',waitDays:null,vestingDays:null},
+ reserve:{bps:3000,baseUnits:'300000000000000',waitDays:180,vestingDays:1095},
+ team_founder:{bps:500,baseUnits:'50000000000000',waitDays:365,vestingDays:730},
 };
 const DAY=86400n;
 function assertPublicConfigOnly(p:any){
@@ -116,6 +116,9 @@ export function validateProduction(p:any){
  const protectedKeys=protectedAddresses();
  if(keys.some(k=>protectedKeys.has(k.toBase58())||!PublicKey.isOnCurve(k.toBytes())))throw Error('Historical/rehearsal identity or unsupported custody');
  const rows=validateDistribution(p.allocations);
+ if(typeof p.startUtc!=='string'||!/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$/.test(p.startUtc))throw Error('Approved vesting base UTC is required');
+ const parsedBase=Date.parse(p.startUtc);if(!Number.isFinite(parsedBase)||new Date(parsedBase).toISOString().replace('.000Z','Z')!==p.startUtc)throw Error('Canonical UTC vesting base required');
+ const baseSeconds=BigInt(parsedBase/1000);
  if(rows.length!==4)throw Error('Production allocations must match the approved four-bucket distribution');
  for(const [label,expected] of Object.entries(APPROVED_BUCKETS)){
   const matches=rows.filter(a=>a.label===label);if(matches.length!==1)throw Error('Missing/duplicate approved allocation bucket');
@@ -124,7 +127,7 @@ export function validateProduction(p:any){
   else {
    if(!a.vesting)throw Error('Reserve/team allocation must use approved vesting');
    const start=integer(a.vesting.start,2n**63n-1n),cliff=integer(a.vesting.cliff,2n**63n-1n),end=integer(a.vesting.end,2n**63n-1n);
-   if(start!==cliff||end-start!==BigInt(expected.vestingDays)*DAY)throw Error('Vesting must start at cliff and use the approved linear duration');
+   if(start!==cliff||start!==baseSeconds+BigInt(expected.waitDays!)*DAY||end-start!==BigInt(expected.vestingDays)*DAY)throw Error('Vesting cliff/base/duration must match the approved schedule');
   }
  }
  const market=rows.find(a=>a.label==='market_ecosystem_launch')!;
