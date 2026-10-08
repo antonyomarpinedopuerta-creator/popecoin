@@ -48,6 +48,8 @@ jobs:
         run: npm run audit:dependencies
       - name: Test encrypted Android backup format with public dummy data
         run: npm run test:robusto-phone-backup-fixture
+      - name: Test USB phone transfer fixture workflow with public dummy data
+        run: npm run test:robusto-phone-transfer-fixture
       - name: Validate local release candidate and isolated Devnet build
         run: npm run check:rc
       - name: Reproduce release with fresh build caches

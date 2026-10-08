@@ -62,6 +62,7 @@
     "robusto:meteora-local": "ts-node scripts/robusto-meteora-local.ts",
     "robusto:custody-inventory": "ts-node scripts/robusto-custody-inventory.ts",
     "test:robusto-phone-backup-fixture": "bash scripts/test-robusto-phone-backup-fixture.sh",
+    "test:robusto-phone-transfer-fixture": "bash scripts/robusto-phone-transfer-fixture.sh self-test",
     "build:meteora-local": "python3 scripts/build-meteora-local.py",
     "robusto:rehearse-local": "ts-node scripts/robusto-meteora-rehearsal.ts",
     "audit:meteora-local": "python3 scripts/audit-meteora-local.py"

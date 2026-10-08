@@ -24,13 +24,28 @@ Inspección realizada el 2026-10-07 desde el WSL que contiene este checkout, sin
 
 La comprobación de Windows falló por la interoperabilidad WSL→Windows y no se sustituyó por inspección de archivos del host. No se inspeccionaron archivos de claves existentes, `~/.config/solana/id.json`, historiales ni patrones de seed/private key.
 
-Revalidación del 2026-10-08: persisten exactamente 3 `BLOCK` (umask `0022`, swap Linux activo, falta `/mnt/robusto-ram`) y 5 `UNKNOWN` del preflight. No hay dispositivo USB/MTP visible; `adb` no está instalado y la interoperabilidad con Windows sigue inaccesible en esta sesión. El Samsung no estaba conectado, por lo que no se leyó ni modificó el teléfono.
+Revalidación del 2026-10-08 desde `53df7a45c88d27c752c172abf63f2a2fb6a6bc9b`: el preflight volvió a dar 3 `BLOCK` (umask `0022`, swap Linux activo, falta `/mnt/robusto-ram`) y 5 `UNKNOWN`. Las consultas Windows de solo lectura (`powershell.exe` y `wsl.exe --status`) fallaron con `UtilBindVsockAnyPort:309: socket failed 1`; BitLocker, hibernación, pagefile, Windows Security, configuración efectiva de red WSL y cloud/sync quedan **NO VERIFICADO**. No se ejecutó PowerShell elevado ni se reinició WSL.
+
+El propietario confirma que el Samsung Galaxy S22 funciona, se puede desbloquear y admite transferencia por USB. Esto se registra como confirmación, no como evidencia de prueba: WSL no enumeró dispositivo USB/MTP y no se hizo ida/vuelta de un fixture. Un preflight en subshell con `umask 077` reduce los bloqueos a 2 (swap y tmpfs); no altera configuración persistente. No se montó tmpfs porque requiere privilegios y no se cambió `.wslconfig`/reinició WSL porque requieren autorización previa.
 
 La laptop podría servir como entorno de contingencia **solo después** de corregir los bloqueos y aceptar explícitamente el mayor riesgo de software frente a hardware signer. WSL2 no protege secretos contra malware/admin en Windows, captura de memoria, pagefile, hibernación, snapshots del VHDX o acceso físico. Desactivar el swap interno de WSL y usar tmpfs reduce exposición, pero no prueba que Windows nunca pagine la memoria de la VM. BitLocker protege datos apagados en disco si está activo, no un host comprometido mientras la sesión está abierta.
 
 ## Conclusión sobre backup con el hardware disponible
 
-El propietario seleccionó el S22 como segunda ubicación de recuperación y fijó presupuesto adicional cero. Laptop + teléfono sí son dos dispositivos físicos, pero **la recuperación aún no está validada** porque el S22 no se conectó y su pantalla está dañada. Hasta probar MTP/unlock, el teléfono no debe contarse como copia recuperable. No hay que comprar USB para el procedimiento elegido; si la pantalla impide usar MTP, habrá que reparar/usar pantalla externa prestada o cambiar la decisión de recuperación.
+El propietario seleccionó el S22 como segunda ubicación de recuperación y fijó presupuesto adicional cero. La confirmación de desbloqueo y USB reduce la incertidumbre de acceso, pero **la recuperación cifrada todavía no está validada** porque falta copiar, devolver, comparar hash y restaurar un fixture. No hay que comprar USB adicional para el procedimiento elegido.
+
+## Preflight actualizado y correcciones propuestas (2026-10-08)
+
+La ejecución solicitada de `bash scripts/robusto-laptop-custody-preflight.sh` observó WSL2, usuario no-root, `umask 0022`, swap `/dev/sdc` de 2 GiB activo (unos 200 MiB usados), más de 1 GiB disponible, ninguna ruta IPv4 predeterminada visible y las herramientas Solana keygen, GPG, OpenSSL, `findmnt` y `swapon` instaladas. `cryptsetup` falta, pero no es requisito para el cifrado GPG por archivo. Resultado: `BLOCK=3`, `UNKNOWN=5`; no se inspeccionaron wallets, shell history ni RPC.
+
+Cambios preparados, no aplicados:
+
+1. En un shell de ceremonia nuevo ejecutar `umask 077` y comprobar `umask`; no hace falta persistirlo en `.bashrc`.
+2. Fusionar (sin sobrescribir otras opciones) en `%UserProfile%\\.wslconfig`, dentro de `[wsl2]`: `swap=0`, `networkingMode=none`, `localhostForwarding=false`. Aplicarlo requiere `wsl --shutdown` y reiniciar la distro; no se hizo.
+3. Después de verificar `swapon --show` vacío, crear el tmpfs dedicado con privilegios: `sudo install -d -o "$(id -u)" -g "$(id -g)" -m 0700 /mnt/robusto-ram`; `sudo mount -t tmpfs -o size=256M,mode=0700,uid="$(id -u)",gid="$(id -g)",nosuid,nodev,noexec tmpfs /mnt/robusto-ram`. Verificar tipo `tmpfs`, montaje `rw`, opciones `nosuid,nodev,noexec`, propietario actual, modo `700` y escritura con un archivo vacío. Si algo falla, detenerse.
+4. Comprobar manualmente en Windows y conservar evidencia no sensible: BitLocker `Protection On` en el volumen que contiene el VHDX, hibernación/Inicio rápido, pagefile y su volumen, Windows Security, ajustes de red WSL y que VHDX/copia local no estén sincronizados. Todo ello sigue **NO VERIFICADO** en esta sesión.
+
+No se modificó Windows, no se reinició WSL y no se ejecutó ningún comando administrativo; se solicitará autorización antes de hacerlo.
 
 La distribución futura de copias será: una copia cifrada local en `~/.local/share/robusto-custody/` (directorio `0700`, ciphertexts `0600`) fuera del repo, en el volumen WSL cuyo VHDX debe estar protegido por BitLocker y excluido de sync/backups cloud; la segunda copia cifrada se transfiere al almacenamiento interno del S22, `Documents/ROBUSTO-CUSTODY/`, por cable. Los keyfiles en claro solo existirán en `/mnt/robusto-ram`. Ningún ciphertext va a OneDrive, Samsung Cloud, Google Drive u otro proveedor.
 
@@ -53,11 +68,13 @@ OpenKeychain es una implementación OpenPGP conocida, de código abierto y dispo
 
 Transferencia prevista sin cloud: generar ciphertext en el tmpfs, conectar el S22 con cable USB-C de datos a Windows, desbloquear el teléfono, aceptar el permiso de datos si aparece y seleccionar MTP/“Transferring files”; copiar únicamente los `.gpg` a una carpeta manual en almacenamiento interno, por ejemplo `Documents/ROBUSTO-CUSTODY`. Samsung indica que se debe desbloquear el dispositivo y permitir el acceso para transferir; Android/One UI puede pedir además cambiar el modo USB. Para verificar el transporte, copiar cada ciphertext de vuelta a un área temporal y comparar `sha256sum` antes/después; luego comprobar decrypt+MDC en WSL solo con fixture ficticio o, en una futura ceremonia aislada, con el keyfile en RAM. No usar Quick Share, Bluetooth, Samsung Flow, Link to Windows, correo, mensajería, OneDrive, Google Drive, Samsung Cloud ni copias automáticas.
 
-**La prueba laptop→teléfono no pudo realizarse aquí:** no había S22 conectado ni mount MTP. La prueba reproducible cubre formato/cifrado, copia de archivo simulada, SHA-256, descifrado y rechazo de alteración con fixture ficticio; no prueba cable, Android, OpenKeychain ni pantalla.
+**La prueba laptop→teléfono no pudo realizarse aquí:** el propietario confirma que el S22 es desbloqueable y admite USB, pero no había dispositivo/mount MTP visible en esta sesión. Se añadió `scripts/robusto-phone-transfer-fixture.sh` para una prueba física con contenido ficticio. La frase incluida es pública e intencionalmente débil, exclusiva del fixture y nunca debe usarse para wallets.
+
+Prueba física pendiente: ejecutar `bash scripts/robusto-phone-transfer-fixture.sh create <directorio-local-no-sincronizado>`, copiar `ROBUSTO_S22_TEST_ONLY.gpg` y su hash por MTP a `Documents/ROBUSTO-CUSTODY-TEST/`, devolver el ciphertext a la laptop y correr `bash scripts/robusto-phone-transfer-fixture.sh verify <archivo-devuelto.gpg> <sha256-original>`. Solo el resultado `PASS returned ciphertext hash and dummy decrypt/restore` demuestra ida/vuelta cifrada y restauración desde el teléfono. No hace falta instalar una app en Android: el descifrado del fixture público se realiza en WSL. El test de CI solo simula el transporte.
 
 ### Pantalla dañada y recuperación
 
-No se puede afirmar ahora que el dueño podrá recuperar el archivo desde este S22. Samsung exige desbloquear el teléfono y, en ciertos casos, aceptar el permiso/cambiar modo USB para transferir por cable. Si la pantalla/touch no permiten hacerlo y el PC no estaba previamente autorizado, MTP no es una ruta de recuperación. DeX puede mostrar el S22 en una pantalla HDMI, pero su primer uso puede requerir interacción en el teléfono; DeX para PC tampoco está soportado en S22 actualizado a Android 15/One UI 7 o posterior. No hay monitor/hub dentro del equipo disponible y no se sabe la versión de One UI ni qué parte de la pantalla funciona.
+La recuperación no se declara completada hasta ejecutar la prueba de fixture. La confirmación del propietario de que puede desbloquear el S22 y usar USB reduce la preocupación por la pantalla, pero no prueba todavía hash ni restauración real del ciphertext.
 
 Antes de considerar el S22 como backup recuperable, el propietario debe probar con un archivo ficticio que puede: (a) desbloquear y habilitar MTP, (b) copiarlo al teléfono y devolverlo al portátil, (c) comparar hashes, y (d) si desea descifrado en el teléfono, abrir el `.gpg` en OpenKeychain desde Google Play y restaurar el fixture. Si la pantalla no permite esas acciones, **con presupuesto cero no hay procedimiento que yo pueda verificar que recupere el backup**. La opción mínima es reparar temporalmente la pantalla o pedir prestado un monitor/TV HDMI y adaptador USB-C compatible; si se requiere teclado/mouse, usar un hub que permita conectarlos. Un teléfono sin pantalla utilizable no debe ser el único backup.
 
@@ -71,7 +88,7 @@ La restauración en Android produce datos descifrados en el teléfono y lo convi
 - No crear una copia en claro en Downloads, Windows `%TEMP%`, repo, `/mnt/c`, OneDrive, clipboard o `~/.config/solana`. En futuro, los `.json` solo existirán en tmpfs; cifrar desde esa ruta. La carpeta de fixture local se elimina al salir del test; el script usa únicamente datos dummy.
 - Durante la prueba Android, hacerla offline, sin depuración USB/ADB y con un fixture no sensible. Al terminar, borrar solo el fixture y verificar que no sigue en papelera/recientes; no usar app de “limpieza” de terceros.
 
-El S22 sí agrega una segunda clase de dispositivo frente a un fallo del SSD/VHDX, pero laptop y teléfono pueden perderse juntos y la pantalla dañada puede impedir el acceso. Hasta pasar la prueba física de transferencia y recuperación, no contarlo como backup válido.
+El S22 sí agrega una segunda clase de dispositivo frente a un fallo del SSD/VHDX, pero laptop y teléfono pueden perderse juntos. Hasta pasar la prueba física de transferencia y recuperación, no contarlo como backup válido.
 
 ## Ceremonia futura propuesta, solo después de autorización específica
 
