@@ -30,7 +30,7 @@ jobs:
       - name: Install build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y libudev-dev pkg-config libssl-dev clang build-essential
+          sudo apt-get install -y libudev-dev pkg-config libssl-dev clang build-essential gnupg openssl
           rustup toolchain install 1.89.0 --profile minimal --component clippy
           # Host CLI dependencies require Rust >=1.91; keep program builds on 1.89.
           rustup toolchain install 1.91.0 --profile minimal
@@ -46,6 +46,8 @@ jobs:
         run: yarn install --frozen-lockfile --ignore-scripts --production=false
       - name: Audit dependencies against documented findings
         run: npm run audit:dependencies
+      - name: Test encrypted Android backup format with public dummy data
+        run: npm run test:robusto-phone-backup-fixture
       - name: Validate local release candidate and isolated Devnet build
         run: npm run check:rc
       - name: Reproduce release with fresh build caches
