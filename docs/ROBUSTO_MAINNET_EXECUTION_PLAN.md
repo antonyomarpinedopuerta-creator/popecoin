@@ -4,6 +4,8 @@
 
 ## Avance offline desde d9f3387 — 2026-10-10
 
+Revisión posterior desde 9735f7f: [matriz de cobertura offline](ROBUSTO_OFFLINE_COVERAGE_REVIEW.md), con 205 tests cliente/63 Python, deployment ficticio canónico, rechazos de estado vesting y candidato Meteora alterado. Supera únicamente las referencias históricas a falta de ensayo unsigned básico de deployment; todavía no hay ejecución de loader ni integración completa del guard de condiciones de todas las etapas. Findings Meteora y controles de producción permanecen pendientes.
+
 ### Condiciones offline previas desde bbd12a8 — 2026-10-10
 
 `createGuardedFixtureSession(journalDirectory?).prepare(...)` valida configuración/IDL, etapa canónica, wire exacto y condiciones antes de devolver un ticket unsigned. Su `review(currentConditions, adapter, options)` exige datos actuales antes y después del adaptador y delega en la sesión canónica existente, incluyendo reservas persistentes cuando se proporciona una ruta. Los helpers anteriores siguen disponibles como ensayos de menor alcance; no adquieren estas garantías automáticamente.

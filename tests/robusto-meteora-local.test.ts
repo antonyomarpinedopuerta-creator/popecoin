@@ -72,3 +72,29 @@ test('historical Devnet payer is rejected without opening any private identity',
 test('extra operation flags and secret-bearing top-level fields are rejected',()=>{
  for(const field of ['send','sign','mainnetAuthorized','privateKey'])assert.throws(()=>prepareMeteoraLocal({...localPublicFixture('100'),[field]:true} as LocalInput),/Unexpected preparation fields/);
 });
+
+import {validatePreparedMeteoraLocal} from '../scripts/robusto-meteora-local';
+test('Meteora mint rejects noncanonical binary option and initialized tags',()=>{
+ for(const [offset,value] of [[0,2],[45,2],[46,2],[0,255]]){
+  const input=localPublicFixture('100'),bytes=Buffer.from(input.mintAccount.dataBase64,'base64');bytes[offset]=value;
+  input.mintAccount.dataBase64=bytes.toString('base64');assert.throws(()=>prepareMeteoraLocal(input),/Canonical/);
+ }
+});
+test('canonical Meteora fixture review rejects altered instruction, accounts, policy and stale quote',()=>{
+ const input=localPublicFixture('100'),candidate=prepareMeteoraLocal(input);
+ assert.equal(validatePreparedMeteoraLocal(input,candidate).authorized,false);
+ const mutations:Array<(x:typeof candidate)=>void>=[
+  x=>x.instruction.dataBase64=Buffer.alloc(1).toString('base64'),
+  x=>x.instruction.programId=input.payer,
+  x=>x.instruction.accounts[0].address=input.payer,
+  x=>x.instruction.accounts[1].isSigner=false,
+  x=>x.instruction.accounts[0].isWritable=!x.instruction.accounts[0].isWritable,
+  x=>x.instruction.accounts.reverse(),
+  x=>x.parameters.tokenABaseUnits='3000000000001',
+  x=>x.parameters.tokenBBaseUnits='0',
+  x=>x.sent=true,
+ ];
+ for(const mutate of mutations){const altered=structuredClone(candidate);mutate(altered);assert.throws(()=>validatePreparedMeteoraLocal(input,altered),/canonical/);}
+ assert.throws(()=>validatePreparedMeteoraLocal({...input,solUsdTrialQuote:'101'},candidate),/canonical/);
+ assert.throws(()=>validatePreparedMeteoraLocal(input,null),/canonical/);
+});

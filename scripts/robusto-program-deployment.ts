@@ -3,13 +3,15 @@ import {PublicKey,SystemProgram,SYSVAR_RENT_PUBKEY,SYSVAR_CLOCK_PUBKEY,Transacti
 import {createHash} from 'node:crypto';
 import {LOADER,loaderData,writeData,deployData,verifiedPrefix} from './rehearsal-one-tx';
 import {address,validateProduction,protectedAddresses,Step} from './robusto-production';
-export function buildProgramDeployment(p:any,elf:Buffer,bufferAddress:string,maxBytes:number,rents:{buffer:number;program:number;programData:number}):Step[]{
- validateProduction(p);
+function validateReviewedElf(p:any,elf:Buffer,maxBytes:number){
  if(!Number.isSafeInteger(maxBytes)||maxBytes<elf.length||maxBytes>10*1024*1024||elf.length<4||!elf.subarray(0,4).equals(Buffer.from([127,69,76,70]))||
  createHash('sha256').update(elf).digest('hex')!==p.programElfSha256||!elf.includes(address(p.program).toBuffer()))throw Error('Approved ELF identity/hash/capacity required');
+}
+export function buildProgramDeployment(p:any,elf:Buffer,bufferAddress:string,maxBytes:number,rents:{buffer:number;program:number;programData:number}):Step[]{
+ validateProduction(p);validateReviewedElf(p,elf,maxBytes);
  for(const role of ['buffer','program','programData'] as const)if(!Number.isSafeInteger(rents?.[role])||rents[role]<=0)throw Error('Exact deployment rents required');
  const buffer=address(bufferAddress),payer=address(p.payer),program=address(p.program),authority=address(p.upgradeAuthority);
- if(protectedAddresses().has(bufferAddress)||!PublicKey.isOnCurve(buffer.toBytes())||[p.payer,p.program,p.mint,p.mintAuthority,p.metadataUpdateAuthority,p.upgradeAuthority].includes(bufferAddress))throw Error('Fresh separate buffer signer address required');
+ if(protectedAddresses().has(bufferAddress)||!PublicKey.isOnCurve(buffer.toBytes())||[p.payer,p.program,p.mint,p.mintAuthority,p.metadataUpdateAuthority,p.upgradeAuthority,...p.allocations.map((a:any)=>a.beneficiary)].includes(bufferAddress))throw Error('Fresh separate buffer signer address required');
  const meta=(pubkey:PublicKey,isSigner=false,isWritable=false)=>({pubkey,isSigner,isWritable});
  const ix=(keys:ReturnType<typeof meta>[],data:Buffer)=>new TransactionInstruction({programId:LOADER,keys,data});
  const steps:Step[]=[{label:'buffer-create',kind:'program-buffer',rentSizes:[37+maxBytes],instructions:[
@@ -25,6 +27,7 @@ export function buildProgramDeployment(p:any,elf:Buffer,bufferAddress:string,max
 }
 /** Validate a resumed buffer against the approved payload before preparing next fragment. */
 export function verifyProductionBuffer(info:any,elf:Buffer,p:any,maxBytes:number){
+ validateProduction(p);validateReviewedElf(p,elf,maxBytes);
  if(!info||info.executable||!info.owner.equals(LOADER))throw Error('Loader buffer ownership mismatch');
  return verifiedPrefix(info.data,elf,address(p.upgradeAuthority),maxBytes);
 }

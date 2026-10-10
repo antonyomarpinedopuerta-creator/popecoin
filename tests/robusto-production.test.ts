@@ -192,6 +192,15 @@ test('future production snapshot verifies one-slot ownership, ABI, metadata, aut
  await assert.rejects(preflightStage(c,p,idl,elf,deposit,network,optIn),/preconditions/);
  values[5].data.writeBigUInt64LE(500000000000000n,64);
  assert.equal((await preflightStage(c,p,idl,elf,deposit,network,optIn)).label,'deposit-reserve');
+ // Mocked reads only: replayed deposits and altered vesting/token account state must fail.
+ for(const [data,offset,value] of [[values[9].data,64,1n],[rv.data,112,1n],[rv.data,120,1814313601n]] as [Buffer,number,bigint][]){
+  const saved=Buffer.from(data);data.writeBigUInt64LE(value,offset);
+  await assert.rejects(preflightStage(c,p,idl,elf,deposit,network,optIn));saved.copy(data);
+ }
+ for(const [offset,value] of [[72,1],[108,2]]){
+  const data=values[5].data,saved=Buffer.from(data);data[offset]=value;
+  await assert.rejects(preflightStage(c,p,idl,elf,deposit,network,optIn));saved.copy(data);
+ }
  clock.writeBigInt64LE(1814313600n,32);await assert.rejects(preflightStage(c,p,idl,elf,deposit,network,optIn),/preconditions/);
  values[5].data.writeBigUInt64LE(500000000000000n,64);
  values[9].data.writeBigUInt64LE(299999999999999n,64);await assert.rejects(verifyProductionSnapshot(c,p,idl,elf,network,`READ_ONLY:${MAINNET_GENESIS}`),/allocation mismatch/);

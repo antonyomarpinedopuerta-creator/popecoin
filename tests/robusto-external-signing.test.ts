@@ -281,3 +281,32 @@ test('guarded review rejects simulated rollback and budget lower than encoded ac
  validateFixtureConditions(encoded,c);
  assert.equal(c.observedAccounts[p.payer].lamports,'10000000');
 });
+
+import {buildProgramDeployment,verifyProductionBuffer} from '../scripts/robusto-program-deployment';
+import {LOADER} from '../scripts/rehearsal-one-tx';
+test('deployment creation, every write fragment and deploy pass canonical unsigned review with fake ELF',async()=>{
+ const {p,idl,wire}=canonicalFixture();const elf=Buffer.alloc(701,7);
+ Buffer.from([127,69,76,70]).copy(elf);new PublicKey(p.program).toBuffer().copy(elf,100);
+ p.programElfSha256=createHash('sha256').update(elf).digest('hex');
+ let n=100;let buffer:PublicKey;
+ do{buffer=new PublicKey(Buffer.alloc(32,n++));}while(!PublicKey.isOnCurve(buffer.toBytes()));
+ const steps=buildProgramDeployment(p,elf,buffer.toBase58(),800,{buffer:1000,program:100,programData:1000});
+ const session=createCanonicalFixtureSession();
+ for(const step of steps){
+  const {encoded,review}=wire(step);
+  const result=await session.review(p,idl,elf,step,encoded,review,{reviewUnsigned:async r=>r.unsignedTransactionBase64},{},800);
+  assert.equal(result.canonicalStageVerified,true);assert.equal(result.sent,false);
+  await assert.rejects(session.review(p,idl,elf,step,encoded,review,{reviewUnsigned:async()=>encoded},{},800),/Duplicate/);
+  const changed={...step,instructions:step.instructions.map(ix=>new TransactionInstruction({programId:ix.programId,keys:ix.keys.map(k=>({...k})),data:Buffer.from(ix.data)}))};
+  changed.instructions.at(-1)!.data[changed.instructions.at(-1)!.data.length-1]^=1;
+  const altered=wire(changed);
+  await assert.rejects(createCanonicalFixtureSession().review(p,idl,elf,changed,altered.encoded,altered.review,{reviewUnsigned:async()=>altered.encoded},{},800));
+ }
+ for(const a of p.allocations)assert.throws(()=>buildProgramDeployment(p,elf,a.beneficiary,800,{buffer:1000,program:100,programData:1000}),/separate buffer/);
+ const data=Buffer.alloc(837);data.writeUInt32LE(1);data[4]=1;new PublicKey(p.upgradeAuthority).toBuffer().copy(data,5);elf.copy(data,37);
+ const info={owner:LOADER,executable:false,data};assert.equal(verifyProductionBuffer(info,elf,p,800),elf.length);
+ const changedElf=Buffer.from(elf);changedElf[500]^=1;assert.throws(()=>verifyProductionBuffer(info,changedElf,p,800),/ELF/);
+ for(const max of [0,700,NaN,10*1024*1024+1])assert.throws(()=>verifyProductionBuffer(info,elf,p,max),/ELF/);
+ assert.throws(()=>verifyProductionBuffer({...info,executable:true},elf,p,800),/ownership/);
+ assert.throws(()=>verifyProductionBuffer({...info,owner:PublicKey.default},elf,p,800),/ownership/);
+});

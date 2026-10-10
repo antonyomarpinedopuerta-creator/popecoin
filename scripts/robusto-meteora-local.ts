@@ -58,6 +58,7 @@ export function prepareMeteoraLocal(input:LocalInput,c:any=approved){
  if(input.mintAccount.owner!==TOKEN_PROGRAM_ID.toBase58())throw Error('Classic SPL mint required');
  const data=Buffer.from(input.mintAccount.dataBase64,'base64');
  if(data.toString('base64')!==input.mintAccount.dataBase64||data.length!==82)throw Error('Exact canonical mint bytes required');
+ if(data.readUInt32LE(0)!==1||data[45]!==1||data.readUInt32LE(46)!==0)throw Error('Canonical initialized mint authority/freeze tags required');
  const decoded=unpackMint(mint,{data,owner:TOKEN_PROGRAM_ID,lamports:0,executable:false,rentEpoch:0},TOKEN_PROGRAM_ID);
  if(!decoded.isInitialized||decoded.decimals!==6||decoded.supply!==integer(c.supplyBaseUnits)||decoded.freezeAuthority!==null||!decoded.mintAuthority?.equals(key(input.mintAuthority)))throw Error('Supply, decimals, freeze or mint authority mismatch');
  if(input.metadataSnapshot?.mint!==input.expectedMint||input.metadataSnapshot.updateAuthority!==input.metadataUpdateAuthority||input.metadataSnapshot.isMutable!==true)throw Error('Mutable metadata/update authority snapshot mismatch');
@@ -102,6 +103,12 @@ export function prepareMeteoraLocal(input:LocalInput,c:any=approved){
   pending:['LOCAL_PROGRAM_DEPLOYMENT','LOCAL_ACCOUNTS_AND_CUSTODY','LOCAL_METADATA_ACCOUNT_VERIFICATION','RUNTIME_REHEARSAL_SEPARATE_AUTHORIZATION'],
   instruction:{programId:PROGRAM.toBase58(),accounts:ix.keys.map(k=>({address:k.pubkey.toBase58(),isSigner:k.isSigner,isWritable:k.isWritable})),dataBase64:ix.data.toString('base64')},
   authorityChanges:[],locks:[],signatures:[],sent:false};
+}
+/** Rebuild and compare the entire public candidate before accepting an offline review. */
+export function validatePreparedMeteoraLocal(input:LocalInput,candidate:unknown){
+ const canonical=prepareMeteoraLocal(input);
+ if(JSON.stringify(candidate)!==JSON.stringify(canonical))throw Error('Meteora candidate differs from canonical offline preparation');
+ return {status:'OFFLINE_CANONICAL_METEORA_FIXTURE_ONLY',mainnetStatus:'NOT_AUTHORIZED_FOR_MAINNET',authorized:false};
 }
 /** Public test addresses only: no keypairs, no signers, no usable custody identities. */
 export function localPublicFixture(solUsdTrialQuote?:string):LocalInput{
