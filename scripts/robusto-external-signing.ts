@@ -8,7 +8,7 @@ import {validatePreparedStage} from './robusto-preflight';
 import {openFixtureJournal} from './robusto-unsigned-journal';
 import {FixtureConditions,validateFixtureConditions,fixtureAccountBytes} from './robusto-fixture-conditions';
 import {LocalInput,prepareMeteoraLocal,validatePreparedMeteoraLocal} from './robusto-meteora-local';
-import {validateTokenSourceFixture} from './robusto-token-fixture';
+import {validateTokenSourceFixture,validateNativeMintFixture} from './robusto-token-fixture';
 import {LOADER,verifiedPrefix} from './rehearsal-one-tx';
 
 const hash = (bytes: Buffer) => createHash('sha256').update(bytes).digest('hex');
@@ -111,7 +111,8 @@ export function createGuardedMeteoraFixtureSession(journalDirectory?:string){
         }
         for(const [index,mint,amount] of [[11,input.tokenA,candidate.parameters.tokenABaseUnits],[12,input.tokenB,candidate.parameters.tokenBBaseUnits]] as const)
           validateTokenSourceFixture(fresh.observedAccounts[ix.accounts[index].address],mint,input.payer,amount);
-        if(fresh.observedAccounts[input.expectedMint].dataSha256!==hash(Buffer.from(input.mintAccount.dataBase64,'base64')))
+        validateNativeMintFixture(fresh.observedAccounts[input.tokenB]);
+        if(!fixtureAccountBytes(fresh.observedAccounts[input.expectedMint]).equals(Buffer.from(input.mintAccount.dataBase64,'base64')))
           throw Error('Meteora snapshot mint bytes mismatch');
       });
   }};

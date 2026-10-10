@@ -20,3 +20,13 @@ export function validateTokenSourceFixture(account:FixtureAccount,mint:string,au
  }else if(native!==0||reserve!==0n)throw Error('Unexpected native token state');
  return {scope:'OFFLINE_FIXTURE_ONLY' as const,authorization:false as const};
 }
+
+/** Immutable classic native-mint semantics, not merely the address/owner. */
+export function validateNativeMintFixture(account:FixtureAccount){
+ if(!account.exists||account.executable||account.owner!==TOKEN_PROGRAM_ID.toBase58())throw Error('Expected classic native mint');
+ const data=fixtureAccountBytes(account);
+ if(data.length!==82||data.readUInt32LE(0)!==0||data.subarray(4,36).some(x=>x!==0)||
+    data.readBigUInt64LE(36)!==0n||data[44]!==9||data[45]!==1||data.readUInt32LE(46)!==0||data.subarray(50,82).some(x=>x!==0))
+  throw Error('Native mint supply/decimals/authority/state mismatch');
+ return {scope:'OFFLINE_FIXTURE_ONLY' as const,authorization:false as const};
+}

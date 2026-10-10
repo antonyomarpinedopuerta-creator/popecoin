@@ -355,7 +355,10 @@ function integrationCases(){
    data.writeBigUInt64LE(BigInt(amount),64);data[108]=1;if(index===12){data.writeUInt32LE(1,109);data.writeBigUInt64LE(100n,113);}
    Object.assign(rows[ix.accounts[index].address],{dataBase64:data.toString('base64'),dataSha256:createHash('sha256').update(data).digest('hex')});
   }
+  rows[input.expectedMint].dataBase64=input.mintAccount.dataBase64;
   rows[input.expectedMint].dataSha256=createHash('sha256').update(Buffer.from(input.mintAccount.dataBase64,'base64')).digest('hex');
+  const nativeMint=Buffer.alloc(82);nativeMint[44]=9;nativeMint[45]=1;
+  Object.assign(rows[input.tokenB],{dataBase64:nativeMint.toString('base64'),dataSha256:createHash('sha256').update(nativeMint).digest('hex')});
  }
  cases.push({...wire,name:'meteora-create',prepare:(root?:string)=>createGuardedMeteoraFixtureSession(root).prepare(input,candidate,wire.encoded,wire.review,wire.c)});
  return cases;
@@ -448,7 +451,7 @@ test('Meteora guarded review rejects binary source mutation before and after ada
  for(const timing of ['prepare','after']){
   const c=integrationCases().find(c=>c.name==='meteora-create')!;
   const alter=()=>{
-   const key=Object.keys(c.c.observedAccounts).find(k=>c.c.observedAccounts[k].dataBase64!==undefined)!;
+   const key=Object.keys(c.c.observedAccounts).find(k=>Buffer.from(c.c.observedAccounts[k].dataBase64??'','base64').length===165)!;
    for(const rows of [c.c.expectedAccounts,c.c.observedAccounts]){
     const data=Buffer.from(rows[key].dataBase64!,'base64');data[108]=2;
     rows[key].dataBase64=data.toString('base64');rows[key].dataSha256=createHash('sha256').update(data).digest('hex');
@@ -456,5 +459,20 @@ test('Meteora guarded review rejects binary source mutation before and after ada
   };
   if(timing==='prepare'){alter();assert.throws(()=>c.prepare(),/source/);}
   else {const ticket=c.prepare();await assert.rejects(ticket.review(()=>c.c,{reviewUnsigned:async()=>{alter();return c.encoded;}}));}
+ }
+});
+
+test('Meteora guarded creation requires exact initialized native mint bytes',()=>{
+ for(const mode of ['missing','decimals','authority','supply','state','size']){
+  const c=integrationCases().find(c=>c.name==='meteora-create')!;
+  const key=localPublicFixture('100').tokenB;
+  for(const rows of [c.c.expectedAccounts,c.c.observedAccounts]){
+   const a=rows[key];if(mode==='missing'){delete a.dataBase64;continue;}
+   const data=Buffer.from(a.dataBase64!,'base64');
+   if(mode==='decimals')data[44]=6;if(mode==='authority')data[0]=1;if(mode==='supply')data[36]=1;if(mode==='state')data[45]=0;
+   const bytes=mode==='size'?data.subarray(1):data;
+   a.dataBase64=bytes.toString('base64');a.dataSha256=createHash('sha256').update(bytes).digest('hex');
+  }
+  assert.throws(()=>c.prepare());
  }
 });

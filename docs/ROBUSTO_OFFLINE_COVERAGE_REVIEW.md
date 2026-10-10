@@ -1,5 +1,7 @@
 # ROBUSTO — revisión de cobertura offline desde 9735f7f
 
+Estado vigente posterior a 5af7313: [finalización técnica](ROBUSTO_TECHNICAL_COMPLETION.md). Se completaron reconciliación ficticia, bytes de ambos mints, compilación SBF ficticia doble, correspondencia IDL y empaquetado local; las limitaciones históricas siguientes no sustituyen ese informe. Runtime/CPI y producción continúan pendientes.
+
 Estado: `NOT_AUTHORIZED_FOR_MAINNET` / `MAINNET_DISABLED`. Revisión técnica cualitativa por rutas y fallos, sin medición instrumental de porcentajes de cobertura. No es auditoría independiente ni certificación del lanzamiento. Sin RPC ni conexiones a Mainnet; los endpoints y genesis que aparecen en tests son datos de mocks. No se cambiaron dependencias.
 
 ## Ampliación desde ee70f80: integración de condiciones

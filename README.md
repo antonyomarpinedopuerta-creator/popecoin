@@ -1,7 +1,9 @@
 # ROBUSTO · vesting
 
+Resultado técnico offline vigente: [ROBUSTO_TECHNICAL_COMPLETION.md](docs/ROBUSTO_TECHNICAL_COMPLETION.md).
+
 Estado actual y límites de lanzamiento: [ROBUSTO_STATUS.md](docs/ROBUSTO_STATUS.md).
-ROBUSTO es la marca pública; los nombres técnicos `popecoin_vesting`, IDs, binarios y metadata PAPA se conservan para reproducibilidad. Los planes PAPA de 10 millones de tokens son históricos: la nueva propuesta ROBUSTO de 1.000 millones está separada y no autorizada.
+ROBUSTO es la marca pública; los nombres técnicos `popecoin_vesting`, IDs, binarios y metadata PAPA se conservan para reproducibilidad. Los planes PAPA de 10 millones de tokens son históricos: ROBUSTO de 1.000 millones tiene parámetros económicos aprobados para preparación; su ejecución permanece no autorizada.
 
 El lector web conserva PAPA para sus cuentas históricas; `config/app-reader.json` define ese perfil. La plantilla Mainnet está deshabilitada y requiere direcciones verificadas y opt-in de lectura explícito antes de usarla.
 
