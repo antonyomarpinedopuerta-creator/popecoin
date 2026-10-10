@@ -310,3 +310,105 @@ test('deployment creation, every write fragment and deploy pass canonical unsign
  assert.throws(()=>verifyProductionBuffer({...info,executable:true},elf,p,800),/ownership/);
  assert.throws(()=>verifyProductionBuffer({...info,owner:PublicKey.default},elf,p,800),/ownership/);
 });
+
+import {createGuardedMeteoraFixtureSession} from '../scripts/robusto-external-signing';
+import {localPublicFixture,prepareMeteoraLocal} from '../scripts/robusto-meteora-local';
+function conditionWire(tx:Transaction){
+ const encoded=tx.serialize({requireAllSignatures:false,verifySignatures:false}).toString('base64');
+ const review:HandoffReview={scope:'OFFLINE_FIXTURE_ONLY',payer:tx.feePayer!.toBase58(),
+  messageSha256:createHash('sha256').update(tx.serializeMessage()).digest('hex'),
+  requiredSigners:tx.compileMessage().accountKeys.slice(0,tx.compileMessage().header.numRequiredSignatures).map(k=>k.toBase58())};
+ const c=guardedFixture().c;const accounts:FixtureConditions['expectedAccounts']={};
+ for(const k of tx.compileMessage().accountKeys)accounts[k.toBase58()]={exists:true,owner:PublicKey.default.toBase58(),lamports:'1000000000',dataSha256:'a'.repeat(64),executable:false};
+ c.expectedAccounts=structuredClone(accounts);c.observedAccounts=structuredClone(accounts);
+ c.budget={fee:'5',rent:'10000000',otherDebit:'0',maxFee:'5',maxRent:'10000000',maxTotal:'10000005',payerReserve:'1'};
+ return {encoded,review,c};
+}
+function integrationCases(){
+ const {p,idl}=canonicalFixture();const elf=Buffer.alloc(701,7);Buffer.from([127,69,76,70]).copy(elf);new PublicKey(p.program).toBuffer().copy(elf,100);
+ p.programElfSha256=createHash('sha256').update(elf).digest('hex');
+ const buffer=new PublicKey(localPublicFixture('100').positionNftMint);
+ const stages=buildProgramDeployment(p,elf,buffer.toBase58(),800,{buffer:1000,program:100,programData:1000});
+ const cases=stages.map(step=>{
+  const wire=conditionWire(new Transaction({feePayer:new PublicKey(p.payer),recentBlockhash:PublicKey.default.toBase58()}).add(...step.instructions));
+  const last=step.instructions.at(-1)!;
+  const absent=(address:string)=>{for(const rows of [wire.c.expectedAccounts,wire.c.observedAccounts])rows[address]={exists:false,owner:null,lamports:'0',dataSha256:null,executable:false};};
+  if(step.kind==='program-buffer')absent(step.instructions[0].keys[1].pubkey.toBase58());
+  else {
+   for(const rows of [wire.c.expectedAccounts,wire.c.observedAccounts])rows[buffer.toBase58()].owner=LOADER.toBase58();
+   if(step.kind==='program-deploy'){absent(p.program);absent(last.keys[1].pubkey.toBase58());}
+  }
+  return {...wire,name:step.kind,prepare:(root?:string)=>createGuardedFixtureSession(root).prepare(p,idl,elf,step,wire.encoded,wire.review,wire.c,800)};
+ });
+ const input=localPublicFixture('100'),candidate=prepareMeteoraLocal(input),ix=candidate.instruction;
+ const wire=conditionWire(new Transaction({feePayer:new PublicKey(input.payer),recentBlockhash:PublicKey.default.toBase58()}).add(new TransactionInstruction({
+  programId:new PublicKey(ix.programId),data:Buffer.from(ix.dataBase64,'base64'),keys:ix.accounts.map(k=>({pubkey:new PublicKey(k.address),isSigner:k.isSigner,isWritable:k.isWritable}))})));
+ for(const rows of [wire.c.expectedAccounts,wire.c.observedAccounts]){
+  for(const index of [1,2,5,6,9,10])rows[ix.accounts[index].address]={exists:false,owner:null,lamports:'0',dataSha256:null,executable:false};
+  for(const index of [7,8,11,12])rows[ix.accounts[index].address].owner=input.mintAccount.owner;
+  rows[input.expectedMint].dataSha256=createHash('sha256').update(Buffer.from(input.mintAccount.dataBase64,'base64')).digest('hex');
+ }
+ cases.push({...wire,name:'meteora-create',prepare:(root?:string)=>createGuardedMeteoraFixtureSession(root).prepare(input,candidate,wire.encoded,wire.review,wire.c)});
+ return cases;
+}
+test('guarded deployment creation/fragments/deploy and Meteora creation validate snapshots around unsigned review',async()=>{
+ for(const c of integrationCases()){
+  const result=await c.prepare().review(()=>c.c,{reviewUnsigned:async r=>r.unsignedTransactionBase64});
+  assert.equal(result.fixtureConditionsVerified,true,c.name);assert.equal(result.authorization,false);assert.equal(result.sent,false);
+ }
+});
+test('all integrated stages reject stale state, expired hash, insufficient balance, budget excess and incomplete accounts',()=>{
+ for(const mode of ['stale','expired','balance','budget','missing','mismatch','wire'])for(const c of integrationCases()){
+  if(mode==='stale')c.c.nowMs=1101;if(mode==='expired')c.c.currentHeight=11;
+  if(mode==='balance')for(const rows of [c.c.observedAccounts,c.c.expectedAccounts])rows[c.review.payer].lamports='0';
+  if(mode==='budget')c.c.budget.maxTotal='1';if(mode==='missing')delete c.c.observedAccounts[c.review.payer];
+  if(mode==='mismatch')c.c.observedAccounts[c.review.payer].dataSha256='b'.repeat(64);
+  if(mode==='wire')c.review.messageSha256='0'.repeat(64);
+  assert.throws(()=>c.prepare(),c.name+mode);
+ }
+});
+test('integrated stages reject post-review mutations and late expiry',async()=>{
+ for(const mode of ['changed','expired'])for(const c of integrationCases()){
+  const ticket=c.prepare();await assert.rejects(ticket.review(()=>c.c,{reviewUnsigned:async()=>{
+   if(mode==='changed')c.c.budget.maxTotal='10000006';else c.c.currentHeight=11;return c.encoded;
+  }}));
+ }
+});
+test('integrated stages share persistent duplicate exclusion across sessions, including concurrent reviews',async()=>{
+ for(const c of integrationCases()){
+  const parent=fs.mkdtempSync(path.join(os.tmpdir(),'robusto-integrated-fixture-')),root=path.join(parent,'journal');
+  try{
+   initializeFixtureJournal(root);const first=c.prepare(root),second=c.prepare(root);let done!:(s:string)=>void;
+   const pending=first.review(()=>c.c,{reviewUnsigned:()=>new Promise(r=>{done=r;})});
+   await assert.rejects(second.review(()=>c.c,{reviewUnsigned:async()=>c.encoded}),/Duplicate or uncertain/);
+   done(c.encoded);await pending;
+   await assert.rejects(c.prepare(root).review(()=>c.c,{reviewUnsigned:async()=>c.encoded}),/Duplicate or uncertain/);
+  }finally{fs.rmSync(parent,{recursive:true,force:true});}
+ }
+});
+test('integrated stages retain persistent reservation after cancellation, timeout and adapter errors',async()=>{
+ for(const mode of ['cancel','timeout','error'])for(const c of integrationCases()){
+  const parent=fs.mkdtempSync(path.join(os.tmpdir(),'robusto-integrated-failure-')),root=path.join(parent,'journal');
+  try{
+   initializeFixtureJournal(root);const controller=new AbortController();
+   await assert.rejects(c.prepare(root).review(()=>c.c,{reviewUnsigned:async()=>{
+    if(mode==='error')throw Error('fixture adapter failure');if(mode==='cancel')controller.abort();return new Promise<string>(()=>{});
+   }},{signal:controller.signal,timeoutMs:5}),mode==='cancel'?/cancelled/:mode==='timeout'?/timed out/:/adapter failure/);
+   await assert.rejects(c.prepare(root).review(()=>c.c,{reviewUnsigned:async()=>c.encoded}),/Duplicate or uncertain/);
+  }finally{fs.rmSync(parent,{recursive:true,force:true});}
+ }
+});
+
+test('stage-specific guards reject occupied creation accounts and wrong loader ownership even when expectations match',()=>{
+ for(const c of integrationCases()){
+  const address=Object.keys(c.c.observedAccounts).find(k=>!c.c.observedAccounts[k].exists);
+  if(address){for(const rows of [c.c.expectedAccounts,c.c.observedAccounts])rows[address]={exists:true,owner:PublicKey.default.toBase58(),lamports:'1',dataSha256:'a'.repeat(64),executable:false};}
+  else {const buffer=Object.keys(c.c.observedAccounts).find(k=>c.c.observedAccounts[k].owner===LOADER.toBase58())!;
+   for(const rows of [c.c.expectedAccounts,c.c.observedAccounts])rows[buffer].owner=PublicKey.default.toBase58();}
+  assert.throws(()=>c.prepare(),/absent|loader buffer/);
+ }
+});
+
+test('integrated unsigned adapter cannot substitute a different message',async()=>{
+ for(const c of integrationCases())await assert.rejects(c.prepare().review(()=>c.c,{reviewUnsigned:async()=>fixture().encoded}));
+});
