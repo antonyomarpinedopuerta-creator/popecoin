@@ -50,3 +50,11 @@ El ticket guarded exige ahora bytes base64 canónicos acotados y ligados al SHA-
 Limitación: el cursor inferido de bytes cero puede ser ambiguo cuando un fragmento del ELF contiene ceros; se rechaza la discrepancia, sin inventar historial de escritura. Se requiere historial independiente para resolverla. No prueba efectos del loader, CPI, estado de producción ni reanudación real.
 
 Validación de este conjunto: 214 pruebas cliente, 63 Python, TypeScript, diff --check, metadata y scan heurístico de seguridad. Fixtures de bytes ausentes, hash incorrecto, autoridad incorrecta, cola no cero, prefijo alterado, tamaño y desbordamiento agregado. NOT_AUTHORIZED_FOR_MAINNET.
+
+## Diagnóstico conservador del journal
+
+`openFixtureJournal(...).inspect(digest)` consulta únicamente el claim ficticio: UNRESERVED, CONSUMED_NOT_AUTHORIZED o UNCERTAIN. Ningún estado permite retry ni concede autorización. Detecta archivos incompletos, corrupción, digest restaurado diferente, permisos incorrectos, symlinks y entradas adicionales, sin reparar ni eliminar. Un root inválido produce error; apertura no bloqueante evita esperar indefinidamente sobre un archivo especial sustituido.
+
+La consulta no prueba ejecución ni reconciliación on-chain. Un claim consumido solo acredita reserva local. Snapshot diagnóstico sujeto a concurrencia; la exclusión sigue dependiendo del mkdir atómico en reserve. Borrado/rollback por el mismo usuario o administrador no se detecta de forma universal. No se habilitan reintentos automáticos ni restauraciones de producción.
+
+Validación del journal: 217 pruebas cliente aprobadas con el guard de fuentes integrado; TypeScript, diff --check y escaneo heurístico sin hallazgos. La prueba de subproceso/FIFO recibió EPERM dentro del sandbox y pasó al repetir fuera del sandbox con permiso; no se desactivó ningún control Git.

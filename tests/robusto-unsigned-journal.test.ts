@@ -75,3 +75,42 @@ test('failed durability barrier leaves a blocked reservation and incomplete init
   assert.throws(()=>openFixtureJournal(incomplete));assert.throws(()=>initializeFixtureJournal(incomplete));
  }finally{fs.fsyncSync=original;fs.rmSync(parent,{recursive:true,force:true});}
 });
+
+test('read-only reconciliation distinguishes unreserved and consumed without granting retry or execution',()=>{
+ const {parent,root}=setup();try{
+  assert.deepEqual(openFixtureJournal(root).inspect(digest),{scope:'OFFLINE_FIXTURE_ONLY',state:'UNRESERVED',authorization:false,retryAllowed:false});
+  openFixtureJournal(root).reserve(digest);
+  const file=path.join(root,digest,'record.json'),before=fs.readFileSync(file);
+  const status=openFixtureJournal(root).inspect(digest);
+  assert.equal(status.state,'CONSUMED_NOT_AUTHORIZED');assert.equal(status.retryAllowed,false);assert.equal(status.authorization,false);
+  assert(Object.isFrozen(status));assert.deepEqual(fs.readFileSync(file),before);
+  assert.throws(()=>openFixtureJournal(root).reserve(digest),/Duplicate/);
+ }finally{fs.rmSync(parent,{recursive:true,force:true});}
+});
+
+test('reconciliation refuses corrupt, incomplete, restored-mismatch and unsafe claims without repairs',()=>{
+ for(const mode of ['empty','partial','corrupt','mismatch','permission','symlink','extra']){
+  const {parent,root}=setup();try{
+   openFixtureJournal(root).reserve(digest);const claim=path.join(root,digest),file=path.join(claim,'record.json');
+   if(mode==='empty')fs.unlinkSync(file);
+   if(mode==='partial')fs.writeFileSync(path.join(claim,'record.pending'),'{',{mode:0o600});
+   if(mode==='corrupt')fs.writeFileSync(file,'{');
+   if(mode==='mismatch')fs.writeFileSync(file,fs.readFileSync(file,'utf8').replace(digest,'b'.repeat(64)));
+   if(mode==='permission')fs.chmodSync(file,0o644);
+   if(mode==='symlink'){fs.unlinkSync(file);fs.symlinkSync(path.join(root,'record.json'),file);}
+   if(mode==='extra')fs.writeFileSync(path.join(claim,'extra'),'synthetic');
+   const names=fs.readdirSync(claim);const result=openFixtureJournal(root).inspect(digest);
+   assert.equal(result.state,'UNCERTAIN');assert.equal(result.retryAllowed,false);assert.equal(result.authorization,false);
+   assert.deepEqual(fs.readdirSync(claim),names);assert.throws(()=>openFixtureJournal(root).reserve(digest));
+  }finally{fs.rmSync(parent,{recursive:true,force:true});}
+ }
+});
+
+test('special-file root marker fails closed without waiting for a writer',()=>{
+ const {parent,root}=setup();try{
+  const file=path.join(root,'record.json');fs.unlinkSync(file);
+  const fifo=spawnSync('mkfifo',['-m','600',file]);assert.equal(fifo.status,0);
+  const check=spawnSync(process.execPath,['--require','ts-node/register','-e',childCode,root,digest],{encoding:'utf8',timeout:10000});
+  assert.equal(check.status,23,check.error?.message);assert.equal(check.error,undefined);
+ }finally{fs.rmSync(parent,{recursive:true,force:true});}
+});

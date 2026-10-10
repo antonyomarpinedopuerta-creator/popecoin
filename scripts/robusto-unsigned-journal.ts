@@ -21,7 +21,7 @@ function atomicRecord(directory: string, value: object) {
 function validateRoot(directory: string) {
   privateDirectory(directory);
   const file = path.join(directory, 'record.json');
-  const fd = fs.openSync(file, fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW);
+  const fd = fs.openSync(file, fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW | fs.constants.O_NONBLOCK);
   try {
     const s=fs.fstatSync(fd);
     if (!s.isFile() || s.size > 256 || (s.mode & 0o777)!==0o600 || s.uid!==process.getuid?.() || s.nlink!==1)
@@ -42,7 +42,31 @@ export function initializeFixtureJournal(directory: string) {
 }
 export function openFixtureJournal(directory: string) {
   directory=path.resolve(directory);validateRoot(directory);
-  return Object.freeze({reserve(messageSha256: string) {
+  return Object.freeze({
+    /** Diagnostic only. Never frees a reservation or establishes execution/authorization. */
+    inspect(messageSha256:string) {
+      if(!/^[0-9a-f]{64}$/.test(messageSha256))throw Error('Public message digest required');
+      validateRoot(directory);
+      const claim=path.join(directory,messageSha256);
+      const result=(state:'UNRESERVED'|'CONSUMED_NOT_AUTHORIZED'|'UNCERTAIN')=>Object.freeze({
+        scope:'OFFLINE_FIXTURE_ONLY' as const,state,authorization:false as const,retryAllowed:false as const});
+      try {fs.lstatSync(claim);}catch(e){
+        if((e as NodeJS.ErrnoException).code==='ENOENT')return result('UNRESERVED');throw e;
+      }
+      try {
+        privateDirectory(claim);
+        if(fs.readdirSync(claim).sort().join(',')!=='record.json')return result('UNCERTAIN');
+        const fd=fs.openSync(path.join(claim,'record.json'),fs.constants.O_RDONLY|fs.constants.O_NOFOLLOW|fs.constants.O_NONBLOCK);
+        try {
+          const st=fs.fstatSync(fd);
+          if(!st.isFile()||st.size>512||(st.mode&0o777)!==0o600||st.uid!==process.getuid?.()||st.nlink!==1)return result('UNCERTAIN');
+          const expected={format:FORMAT,messageSha256,state:'CONSUMED_NOT_AUTHORIZED',authorization:false};
+          if(fs.readFileSync(fd,'utf8')!==JSON.stringify(expected)+'\n')return result('UNCERTAIN');
+        }finally{fs.closeSync(fd);}
+        return result('CONSUMED_NOT_AUTHORIZED');
+      }catch{return result('UNCERTAIN');}
+    },
+    reserve(messageSha256: string) {
     if (!/^[0-9a-f]{64}$/.test(messageSha256)) throw Error('Public message digest required');
     validateRoot(directory);
     const claim=path.join(directory,messageSha256);
