@@ -79,3 +79,9 @@ Validación ejecutada: **221/221 cliente** (9 más que la línea base), **63/63 
 | Metadata/Arweave/mercado | PNG y contenido local preparados; proveedor, coste, URI, precio, fondos y publicación pendientes de decisión/autorización. |
 
 Estado obligatorio: NOT_AUTHORIZED_FOR_MAINNET / MAINNET_DISABLED. Los snapshots son suministrados por el llamador; coincidir con una expectativa ficticia no prueba estado real. No se recomienda lanzamiento hasta revisión independiente, RC verificable, custodia y autorizaciones explícitas.
+
+## Verificación acotada del backup público
+
+Se reforzó `backup-public.py --verify`: archivo regular sin seguir symlink final, sidecar acotado y checksum previo a descompresión; límites de 64 MiB comprimidos, 128 MiB expandidos, 32 MiB por entrada y 4096 entradas. Se rechazan sparse files, nombres no canónicos, enlaces, duplicados y campos JSON duplicados. No se extrae contenido. Fixtures prueban los límites sin crear archivos grandes, symlinks, rutas ambiguas, tipos de manifest incorrectos y gzip inválido.
+
+Validación posterior: **67/67 Python**, diff --check y escaneo heurístico aprobados. La última suite cliente ejecutada conserva **221/221**; este conjunto solo cambia Python y documentación. Los límites son una política conservadora del formato público actual. Verificar hashes y sidecar suministrados juntos no autentica el origen: se necesita un hash de referencia conservado independientemente. No se creó un backup/RC del HEAD ni se verificaron archivos privados.

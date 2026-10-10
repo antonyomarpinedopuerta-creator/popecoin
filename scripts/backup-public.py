@@ -6,6 +6,9 @@ import hashlib
 import importlib.util
 import io
 import json
+import os
+import stat
+import re
 import subprocess
 import tarfile
 
@@ -68,29 +71,78 @@ def validate_audit(audit, report):
         raise ValueError('Dependency audit must validate the exact clean backup candidate')
 
 
+# Conservative local public package limits; never extract archive members.
+MAX_COMPRESSED = 64 * 1024 * 1024
+MAX_EXPANDED = 128 * 1024 * 1024
+MAX_MEMBER = 32 * 1024 * 1024
+MAX_ENTRIES = 4096
+
+
+def bounded_regular(path, limit):
+    fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    try:
+        info = os.fstat(fd)
+        if not stat.S_ISREG(info.st_mode) or info.st_size > limit:
+            raise ValueError('Backup input is not a bounded regular file')
+        with os.fdopen(fd, 'rb', closefd=False) as source:
+            value = source.read(limit + 1)
+        if len(value) > limit:
+            raise ValueError('Backup input exceeds size limit')
+        return value
+    finally:
+        os.close(fd)
+
+
+def unique_object(pairs):
+    result = {}
+    for name, value in pairs:
+        if name in result:
+            raise ValueError('Duplicate manifest field')
+        result[name] = value
+    return result
+
+
 def verify_backup(path):
-    raw = Path(path).read_bytes()
+    path = Path(path)
+    if load('check-public').sensitive_name(path.name):
+        raise ValueError('Sensitive backup filename')
+    raw = bounded_regular(path, MAX_COMPRESSED)
+    expected = f'{hashlib.sha256(raw).hexdigest()}  {path.name}\n'.encode()
+    if bounded_regular(path.with_suffix('.sha256'), 512) != expected:
+        raise ValueError('Backup checksum sidecar mismatch')
+    # Bound decompression itself, including tar headers, padding and trailing data.
+    try:
+        with gzip.GzipFile(fileobj=io.BytesIO(raw)) as zipped:
+            expanded = zipped.read(MAX_EXPANDED + 1)
+    except (OSError, EOFError) as error:
+        raise ValueError('Invalid compressed backup') from error
+    if len(expanded) > MAX_EXPANDED:
+        raise ValueError('Backup expansion exceeds size limit')
     seen, hashes = set(), {}
-    with tarfile.open(fileobj=io.BytesIO(raw), mode='r:gz') as archive:
+    with tarfile.open(fileobj=io.BytesIO(expanded), mode='r:') as archive:
         manifest = None
         for item in archive:
-            if not item.isfile() or item.name in seen or Path(item.name).is_absolute() or '..' in Path(item.name).parts:
-                raise ValueError('Unsafe archive entry')
-            seen.add(item.name)
-            if load('check-public').sensitive_name(item.name):
+            name = item.name
+            if (len(seen) >= MAX_ENTRIES or not item.isfile() or item.issparse() or name in seen or
+                    Path(name).is_absolute() or '..' in Path(name).parts or
+                    Path(name).as_posix() != name or '\\' in name or item.size > MAX_MEMBER or item.size < 0):
+                raise ValueError('Unsafe or oversized archive entry')
+            seen.add(name)
+            if load('check-public').sensitive_name(name):
                 raise ValueError('Sensitive backup filename')
-            value = archive.extractfile(item).read()
+            value = archive.extractfile(item).read(item.size + 1)
+            if len(value) != item.size:
+                raise ValueError('Incomplete archive member')
             if load('security-scan').suspect(value):
                 raise ValueError('Credential heuristic rejected archive member')
-            if item.name == 'backup-manifest.json':
-                manifest = json.loads(value)
+            if name == 'backup-manifest.json':
+                manifest = json.loads(value, object_pairs_hook=unique_object)
             else:
-                hashes[item.name] = hashlib.sha256(value).hexdigest()
-    if not manifest or hashes != manifest['files']:
+                hashes[name] = hashlib.sha256(value).hexdigest()
+    files = manifest.get('files') if isinstance(manifest, dict) else None
+    if (not isinstance(files, dict) or not files or
+            any(not isinstance(v, str) or not re.fullmatch('[0-9a-f]{64}', v) for v in files.values()) or hashes != files):
         raise ValueError('Backup inventory/hash mismatch')
-    expected = f'{hashlib.sha256(raw).hexdigest()}  {Path(path).name}\n'
-    if Path(path).with_suffix('.sha256').read_text() != expected:
-        raise ValueError('Backup checksum sidecar mismatch')
     return manifest
 
 

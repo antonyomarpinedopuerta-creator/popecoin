@@ -93,6 +93,57 @@ class PublicBackupTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     backup.verify_backup(self.archive(temp, **patch))
 
+    def test_resource_limits_fail_closed_without_large_test_files(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path = self.archive(temp)
+            for name, limit in [('MAX_COMPRESSED', 1), ('MAX_EXPANDED', 1024), ('MAX_MEMBER', 5), ('MAX_ENTRIES', 1)]:
+                with self.subTest(name=name), patch.object(backup, name, limit):
+                    with self.assertRaises(ValueError):
+                        backup.verify_backup(path)
+
+    def test_symlink_archive_and_sidecar_are_rejected_without_following(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path = self.archive(temp)
+            linked = Path(temp) / 'linked.tar.gz'
+            linked.symlink_to(path)
+            with self.assertRaises(OSError):
+                backup.verify_backup(linked)
+            sidecar = path.with_suffix('.sha256')
+            other = Path(temp) / 'checksum'
+            sidecar.rename(other)
+            sidecar.symlink_to(other)
+            with self.assertRaises(OSError):
+                backup.verify_backup(path)
+
+    def custom_archive(self, folder, rows):
+        output = io.BytesIO()
+        with tarfile.open(fileobj=output, mode='w:gz') as archive:
+            for name, value in rows:
+                item = tarfile.TarInfo(name)
+                item.size = len(value)
+                archive.addfile(item, io.BytesIO(value))
+        path = Path(folder) / 'custom.tar.gz'
+        path.write_bytes(output.getvalue())
+        path.with_suffix('.sha256').write_text(f'{hashlib.sha256(output.getvalue()).hexdigest()}  {path.name}\n')
+        return path
+
+    def test_noncanonical_paths_and_duplicate_manifest_fields_are_rejected(self):
+        with tempfile.TemporaryDirectory() as temp:
+            for name in ['../README.md', '/README.md', 'a//b', 'a/./b', 'a\\b']:
+                with self.subTest(name=name), self.assertRaises(ValueError):
+                    backup.verify_backup(self.custom_archive(temp, [(name, b'public')]))
+            for manifest in [b'{"files":{},"files":{}}', b'{"files":[]}', b'[]', b'{"files":{"README.md":7}}']:
+                with self.subTest(manifest=manifest), self.assertRaises(ValueError):
+                    backup.verify_backup(self.custom_archive(temp, [('backup-manifest.json', manifest)]))
+
+    def test_invalid_gzip_with_matching_sidecar_fails_safely(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / 'invalid.tar.gz'
+            path.write_bytes(b'not gzip')
+            path.with_suffix('.sha256').write_text(f'{hashlib.sha256(path.read_bytes()).hexdigest()}  {path.name}\n')
+            with self.assertRaises(ValueError):
+                backup.verify_backup(path)
+
     def test_redacted_inline_secret_heuristic(self):
         scanner = backup.load('security-scan')
         data = json.dumps({'private': list(range(64))}).encode()

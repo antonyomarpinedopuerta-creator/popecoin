@@ -65,3 +65,5 @@ Desarrollo offline posterior a 2257b45: el guard de deployment exige bytes públ
 Journal offline: consulta diagnóstica de reservas completas/inciertas implementada, sin permitir reintentos, autorización ni inferir ejecución. Corrupción, restauración con digest distinto y archivos especiales se rechazan de forma conservadora. Pendiente reconciliación de ejecución real y protección externa frente a rollback del almacenamiento.
 
 Guard de creación Meteora ampliado con decodificación de cuentas fuente SPL, autoridad/mint/estado, inventario suficiente y respaldo wSOL. Resultado de sesión: 221 tests cliente y 63 Python aprobados, TypeScript y scan heurístico sin hallazgos; no nueva RC/SBF/Rust de runtime. Plan priorizado y limitaciones en ROBUSTO_OFFLINE_COVERAGE_REVIEW.md. Los avisos Meteora continúan abiertos. NOT_AUTHORIZED_FOR_MAINNET / MAINNET_DISABLED.
+
+Backup público: verificación de archivos y descompresión acotada, rechazo de enlaces/rutas ambiguas/manifest duplicado. Suite Python ampliada a 67/67; cliente última ejecución 221/221. Integridad del archivo no equivale a autenticidad de origen ni recuperación de custodia. Sin nueva RC de producción.
