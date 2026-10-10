@@ -38,3 +38,4 @@ import './robusto-external-signing.test';
 import './robusto-publication-offline.test';
 import './robusto-unsigned-journal.test';
 import './robusto-token-fixture.test';
+import './robusto-fixture-reconciliation.test';
