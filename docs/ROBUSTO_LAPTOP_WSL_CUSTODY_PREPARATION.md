@@ -6,6 +6,42 @@
 
 ## Resultado de la auditoría del entorno disponible
 
+### Estado vigente comunicado por el propietario — 2026-10-10, después de 18d88d1
+
+`NOT_AUTHORIZED_FOR_MAINNET` / `MAINNET_DISABLED`. Se mantiene Internet para desarrollo; no hay ceremonia de custodia autorizada. Esta actualización documenta comprobaciones, no cambia configuraciones. Las observaciones de 7–8 de octubre que siguen son históricas y no prevalecen sobre este registro.
+
+| Control | Evidencia y estado | Límite |
+|---|---|---|
+| RAM dedicada | Propietario confirma tmpfs y propietario corregidos; reporta `SUMMARY blocks=1 unknowns=5`, único bloqueo IPv4 | Repetir antes de cada sesión; tmpfs es volátil y el preflight no prueba escritura efectiva |
+| BitLocker C: | Verificación manual del propietario: activado, XTS-AES 128, 100 % | No se recopila recovery key; no certifica protección contra malware con Windows desbloqueado |
+| Defender/firewall | Propietario confirma ambos activos | No equivale a auditoría de malware o de todas las reglas |
+| Inicio rápido | Propietario confirma desactivado | No implica hibernación desactivada |
+| Suspensión con cargador | Propietario confirma suspensión automática desactivada | No demuestra ausencia de suspensión manual, con batería, hibernación o fallos de alimentación |
+| Ubicación Ubuntu | Propietario confirma AppData local, fuera de las carpetas habituales de OneDrive | No demuestra exclusión de todos los agentes de backup/sync o snapshots |
+| Pagefile Windows | Propietario confirma activo y protegido por cifrado del volumen | No equivale a ausencia de paginación de memoria WSL; no desactivarlo por este procedimiento |
+| Swap Linux | Consulta directa del diagnóstico anterior y de esta sesión: inactivo | Revalidar; independiente del pagefile de Windows |
+| Red | IPv4 activa deliberadamente para desarrollo, según propietario | Sigue bloqueando una futura ceremonia offline; no se desconecta ahora |
+
+La ejecución dentro del aislamiento de Codex observa tmpfs, `0700`, propietario actual y `nosuid,nodev,noexec`, pero lo ve `ro` y no ve ruta predeterminada: su `blocks=1` corresponde a solo lectura, **no** al bloqueo IPv4 comunicado por el propietario. No confundir dos resúmenes numéricamente iguales. Esa vista restringida no diagnostica un fallo del montaje real ni demuestra desconexión del host.
+
+Revalidación directa fuera del aislamiento, solo lectura y con `umask 077` limitado al proceso: `SUMMARY blocks=1 unknowns=5`. Se observan tmpfs `rw`, propietario actual, modo `0700`, `nosuid,nodev,noexec`, swap Linux inactivo y único bloqueo por ruta IPv4. Esto corrobora el montaje comunicado por el propietario; no se escribió un archivo de prueba. Las verificaciones Windows de la tabla conservan su origen manual y no se presentan como repetidas en esta actualización.
+
+La evidencia del diagnóstico previo confirma cierre inesperado del 9 de octubre a las 16:00:19 (EventLog 6008), fallo de reanudación del 10 de octubre con `0xC000007B` (Kernel-Boot 16), Kernel-Power 41 y recuperación ext4 completada. No determina causa raíz ni demuestra avería física. SSD `Healthy/OK` y ausencia de errores de almacenamiento en la consulta acotada no son una certificación completa. La estabilidad tras los cambios comunicados aún requiere observación con uso normal, sin estrés ni descargas profundas de batería.
+
+### Los cinco UNKNOWN y cómo resolverlos sin cambios ni secretos
+
+El script conserva cinco mensajes genéricos: las verificaciones manuales pueden aclarar partes sin cambiar su contador. Registrar para cada control fecha, método, resultado y origen (`OWNER_CONFIRMED`, `DIRECTLY_OBSERVED` o `PENDING`); no marcar todo el grupo resuelto por una sola comprobación. Guardar solo resultados públicos, nunca recovery keys, contraseñas, historiales, capturas completas o contenido de archivos privados.
+
+| UNKNOWN del preflight | Estado actual | Procedimiento de lectura / criterio de cierre |
+|---|---|---|
+| Desconexión física de Windows | Conexión conocida y deliberada; requisito diferido | Ahora solo observar adaptadores en Configuración de Windows o `Get-NetAdapter`. Antes de una ceremonia futura, el propietario deberá verificar presencialmente ausencia de conectividad y repetir el preflight; no desconectar ni cambiar adaptadores en esta etapa. No se puede cerrar como aislado mientras siga online |
+| Controles del host: pagefile, hibernación, BitLocker, telemetría, red WSL y sync | BitLocker/pagefile/Inicio rápido parcialmente aclarados por propietario; hibernación, telemetría y configuración efectiva WSL pendientes | En Windows consultar `powercfg /a`, opciones avanzadas del plan sin guardar cambios, estado BitLocker (solo estado, nunca protectores/recovery key) y ubicación del pagefile. `powercfg /a` informa disponibilidad, no todas las políticas. Revisar visualmente opciones relevantes de `.wslconfig` sin publicar su contenido completo; contrastar rutas reales. Revisar privacidad/diagnóstico y agentes de respaldo; registrar riesgos residuales, no prometer ausencia de telemetría. Inicio rápido y suspensión con cargador desactivados no cierran hibernación |
+| Historial interactivo y grabación del terminal | Pendiente | En la terminal que se usaría revisar únicamente flags de history/xtrace y opciones de guardado; no ejecutar `history` ni abrir archivos de historial. Revisar visualmente transcripción PowerShell, grabadores, asistencia remota y clipboard managers, sin detener procesos ni alterar políticas. Una sesión no interactiva de Codex no certifica la terminal del propietario; si hay grabación o no se puede determinar, sigue bloqueada la custodia |
+| Ausencia de cryptsetup/LUKS | Herramienta ausente; no bloquea el diseño GPG por archivo elegido | Documentar que S22 almacena ciphertext OpenPGP y que no se usa LUKS. Revisar evidencia ficticia ya completada y política de recuperación/passphrase separada sin crear una nueva. Puede cerrarse manualmente como `NOT_APPLICABLE` al flujo GPG, no como herramienta instalada. Recuperación en otro equipo y custodia real siguen pendientes; no instalar software |
+| Sync Windows y ubicación del VHDX | AppData fuera de OneDrive confirmado; alcance completo del backup pendiente | Revisar rutas de inclusión de OneDrive y otros clientes, backup de Windows/terceros y snapshots; cotejar ubicación real del VHDX y de la futura carpeta de ciphertext sin abrir el VHDX. Verificar también el alcance de backup/sync del S22 mediante consulta visual, sin cambiarlo. Cerrar solo cuando cada ruta tenga evidencia de exclusión o riesgo residual explícitamente identificado; una ruta local no basta |
+
+Orden seguro: completar primero las consultas manuales pendientes; observar estabilidad; revalidar montaje/swap/permisos con el preflight real; mantener separado el bloqueo de red aceptado para desarrollo. Cualquier cambio de configuración, reinicio, instalación, desconexión o ceremonia queda fuera de esta etapa y requiere autorización posterior. No se crean wallets, secretos ni transacciones. La prueba física ficticia S22 sigue válida en su alcance, sin equivaler a recuperación de identidades reales.
+
 Inspección realizada el 2026-10-07 desde el WSL que contiene este checkout, sin buscar archivos de wallet:
 
 | Área | Observación | Evaluación para secretos |
