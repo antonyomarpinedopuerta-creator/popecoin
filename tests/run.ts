@@ -34,3 +34,5 @@ import './robusto-meteora-evidence.test';
 import './robusto-meteora-final.test';
 import './robusto-meteora-final-evidence.test';
 import './robusto-custody-inventory.test';
+import './robusto-external-signing.test';
+import './robusto-publication-offline.test';

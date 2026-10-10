@@ -2,6 +2,47 @@
 
 **Estado:** plan preparado; `MAINNET_DISABLED` / `NOT_AUTHORIZED_FOR_MAINNET`. No contiene comandos de firma/envío y ningún paso se activa por generar este archivo. No reutilizar las identidades de rehearsal ni el global Solana keypair. Ninguna aprobación económica local constituye autorización de operación.
 
+## Avance offline desde d9f3387 — 2026-10-10
+
+| Área | Completado y probado | Bloqueado o pendiente |
+|---|---|---|
+| Software base | Builders unsigned, guards, aritmética y evidencia histórica de rehearsal; nuevo ensayo de handoff externo | Nueva RC/reproducción del candidato definitivo y revisión independiente; no inferir vigencia de artefactos anteriores |
+| Firma externa | Contrato `prepareExternalHandoff` y adaptador ficticio `reviewUnsigned`: mensaje/hash, payer y lista ordenada de firmantes ligados a revisión independiente; rechazo de alteraciones y cualquier firma | Elegir dispositivo/proveedor/derivaciones; implementar conector y verificación criptográfica de respuestas; probar firma parcial/múltiple, cancelación, expiración, transporte y rechazo de mensajes alterados con el dispositivo elegido |
+| Custodia | Fixture físico S22 completado con hashes/descifrado verificados y transporte USB confirmado por el propietario | Controles y estabilidad del host, diseño/custodios y ceremonia privada expresamente autorizada; ocho direcciones, mint/program y recuperación real aún pendientes |
+| Metadata | PNG oficial validado; nueva inspección offline coteja nombre/símbolo/descripción/logo contra aprobación de contenido y mantiene pagos/uploads desautorizados | Proveedor/cuenta/cotización Arweave; autorización de publicación/pago, URI de imagen, bytes/hash JSON final, URI metadata y verificación desde gateway independiente |
+| Meteora | Revisión de evidencia fijada y tests offline del perfil concentrado OnlyB; preflight de red ahora exige opt-in explícito antes de consultar o reemplazar evidencia | Findings sin corregir; revisión externa y revalidación futura autorizada de fuente, lock/features, IDL, binario y upgrade authority; sin consulta actual de red en esta etapa |
+| Economía y vesting | Supply/distribución/duraciones y perfil de preparación conservados | Precio P0/Pmax en SOL, cotización SOL/USD, cantidades efectivas, circulación, fecha base/beneficiarios y política de posición/NFT |
+| Ejecución | Ningún envío ni firma habilitado por esta preparación | Decisión de programa propio, presupuesto/capital, simulaciones y preflight frescos, autorización específica de cada mensaje y reconciliación/journal |
+
+### Prioridad técnica y límites de la firma externa
+
+1. Ejecutar las suites offline y la inspección de metadata. El ensayo nuevo solo usa direcciones públicas ficticias y un adaptador simulado; no crea keypairs ni usa un validador.
+2. El handoff soporta transacciones legacy de hasta 1232 bytes. Rechaza base64 no canónico, instrucciones/payer/firmantes/blockhash distintos del mensaje revisado y firmas presentes. Su scope es `OFFLINE_FIXTURE_ONLY`; no consume aprobación de producción, no prueba posesión ni firma Ed25519 y no sustituye una wallet/hardware real. `productionSignerIntegrated=false` sigue siendo obligatorio.
+3. No conectar ese adaptador de ensayo a un firmante de producción. La futura integración debe verificar canonical stage (`validatePreparedStage`), snapshot/genesis, blockhash/expiry, presupuesto, dispositivo/rol y aprobación exacta antes de solicitar firmas. Debe validar criptográficamente cada firma devuelta contra los mismos bytes y conservar firmas parciales sin permitir instrucciones adicionales. Versioned transactions/multisig requieren diseño y pruebas separados.
+4. Solo después de elegir el dispositivo se pueden cerrar compatibilidad, derivaciones, transporte y UX de confirmación. Ninguna prueba ficticia permite declarar esos gates completados. Evitar añadir dependencias o escoger un proveedor sin esa decisión.
+
+Comandos actuales sin red ni subida:
+
+```bash
+npm run test:client
+python3 -m unittest discover -s tests -p 'test_*.py'
+./node_modules/.bin/tsc --noEmit
+node --require ts-node/register scripts/robusto-metadata-publication.ts inspect-offline
+npm run check:security
+```
+
+La inspección de metadata no escribe JSON final mientras `imageUri=null`: informa `finalBytesReady=false` y hash final pendiente. No usa IDs ficticios como artefactos publicables. `prepare`/`verify` existentes siguen separados de cualquier uploader; `verify` coteja bytes descargados, no certifica permanencia ni pago.
+
+Validación de este avance: 181 pruebas de cliente y 63 de Python aprobadas; TypeScript `--noEmit`, `check:metadata`, `check:security` y `git diff --check` aprobados. El inventario de custodia continúa `EMPTY_NO_IDENTITIES` (ocho roles sin dirección). El scan es heurístico, sin hallazgos; no demuestra ausencia absoluta de secretos. No se reconstruyó SBF ni se generó una RC completa nueva; las pruebas de RC dentro de la suite Python usan fixtures, no artefactos de lanzamiento.
+
+### Riesgos Meteora revisados offline
+
+La evidencia de 2026-10-07 fija `cp-amm 0.2.4`, commit `a85c926607433f23f0ea60f4ca7b1ae92f4156cb`: **3 advisories y 7 warnings históricos permanecen**. `bytes 1.10.1` es dependencia opcional desactivada en el build revisado; el recíproco vulnerable de `ruint 1.14.0` recibe divisores normalizados en los callers revisados; el defecto de flags de shifts se alcanza, pero sus resultados problemáticos se descartan en esos callers acotados. Son argumentos de alcance, no fixes ni auditoría completa. El scanner histórico sigue `BLOCKED_FOR_PRODUCTION_REVIEW`.
+
+No se afirmó que upstream o deployment estén sin cambios hoy. No se ejecutó `robusto-meteora-readonly-preflight.py`: ese script consulta Mainnet y queda fuera del alcance actual. Ahora rechaza ejecución accidental sin el opt-in explícito de lectura; dicho opt-in requeriría autorización futura y nunca autoriza firmas, envíos ni producción. Riesgos no cubiertos por los ensayos: upgrades, cambios de features/callers, otras instrucciones, economía global, slippage/liquidez real y custodia del NFT.
+
+**Criterio de salida:** cerrar todas las decisiones y gates de la tabla, demostrar recuperación de custodia y firma externa real en una etapa autorizada, obtener revisión independiente, fijar artefactos/metadata verificables, disponer de presupuesto/capital y revisar/simular cada mensaje actualizado. No es posible completar lanzamiento sin identidades, fondos y operaciones reales expresamente autorizadas. Hasta entonces: `NOT_AUTHORIZED_FOR_MAINNET`.
+
 ## Baseline aprobado para preparación; ejecución pendiente
 
 Decisiones registradas por el propietario para preparación: Meteora DAMM v2 unilateral; par ROBUSTO/SOL; SPL clásico; OnlyB; fee fija 25 bps; dynamic fee NO; inventario objetivo 1.000.000 ROBUSTO; rango objetivo 3×; sin permanent lock; metadata mutable; conservar metadata update authority y mint authority; Arweave preferido. El propietario acepta continuar la preparación con los tres advisories y siete warnings documentados, sin tratarlos como resueltos. Vesting aprobado: equipo 365 días sin acceso + 730 lineales; reserva 180 días sin acceso + 1.095 lineales; `start=cliff=base+espera`, `end=start+linealidad`.

@@ -6,6 +6,7 @@ import datetime
 import hashlib
 import importlib.util
 import json
+import os
 import urllib.request
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -16,6 +17,11 @@ SPL = {'token': 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA',
        'token2022': 'TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb',
        'ata': 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'}
 READ_ADDRESSES = {PROGRAM, DATA, *SPL.values()}
+READ_ONLY_OPT_IN = 'READ_ONLY:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d'
+
+def require_read_only_authorization():
+    if os.environ.get('ROBUSTO_MAINNET_READ_ONLY') != READ_ONLY_OPT_IN:
+        raise ValueError('MAINNET_DISABLED: explicit future public read-only authorization required')
 
 def request(url, payload=None):
     allowed = ['https://api.github.com/repos/MeteoraAg/damm-v2/commits/main',
@@ -24,6 +30,7 @@ def request(url, payload=None):
         raise ValueError('Non-allowlisted read endpoint')
     if payload and (payload['method'] != 'getAccountInfo' or payload['params'][0] not in READ_ADDRESSES):
         raise ValueError('Only public Meteora account reads are permitted')
+    require_read_only_authorization()
     req = urllib.request.Request(url, data=json.dumps(payload).encode() if payload else None,
                                  headers={'Content-Type': 'application/json', 'User-Agent': 'ROBUSTO-readonly-review'})
     with urllib.request.urlopen(req, timeout=30) as response:
@@ -38,6 +45,8 @@ def load_verifier():
     return verifier
 
 def main():
+    # Reject accidental execution before network access or replacing prior evidence.
+    require_read_only_authorization()
     destination = ROOT / 'target/robusto-final-preflight.json'
     destination.write_text(json.dumps({'status': 'INCOMPLETE'}) + '\n')
     head = request('https://api.github.com/repos/MeteoraAg/damm-v2/commits/main')['sha']

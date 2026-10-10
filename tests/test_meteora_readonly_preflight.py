@@ -7,6 +7,7 @@ import contextlib
 import hashlib
 import io
 import json
+import os
 import tempfile
 from types import SimpleNamespace
 
@@ -15,6 +16,16 @@ module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 
 class ReadOnlyPreflight(unittest.TestCase):
+    def test_missing_authorization_blocks_before_network_and_evidence_writes(self):
+        with tempfile.TemporaryDirectory() as directory, patch.object(module, 'ROOT', Path(directory)), \
+                patch.dict(os.environ, {}, clear=True), patch.object(module.urllib.request, 'urlopen') as network:
+            with self.assertRaisesRegex(ValueError, 'MAINNET_DISABLED'):
+                module.main()
+            with self.assertRaisesRegex(ValueError, 'MAINNET_DISABLED'):
+                module.request('https://api.mainnet-beta.solana.com', {'method': 'getAccountInfo', 'params': [module.PROGRAM]})
+            network.assert_not_called()
+            self.assertEqual(list(Path(directory).iterdir()), [])
+
     def test_non_readonly_methods_and_other_endpoints_never_reach_network(self):
         with patch.object(module.urllib.request, 'urlopen') as network:
             for method in ['sendTransaction', 'requestAirdrop', 'simulateTransaction']:
@@ -43,7 +54,7 @@ class ReadOnlyPreflight(unittest.TestCase):
                     return {'sha': module.COMMIT}
                 return {'result': {'context': {'slot': 1}, 'value': {'owner': 'BPFLoader2111111111111111111111111111111111',
                         'executable': True, 'data': [base64.b64encode(code).decode(), 'base64']}}}
-            with patch.object(module, 'ROOT', root), patch.object(module, 'load_verifier', return_value=fake), patch.object(module, 'request', side_effect=response), contextlib.redirect_stdout(io.StringIO()):
+            with patch.dict(os.environ, {'ROBUSTO_MAINNET_READ_ONLY': module.READ_ONLY_OPT_IN}), patch.object(module, 'ROOT', root), patch.object(module, 'load_verifier', return_value=fake), patch.object(module, 'request', side_effect=response), contextlib.redirect_stdout(io.StringIO()):
                 module.main()
             report = json.loads((root / 'target/robusto-final-preflight.json').read_text())
             self.assertEqual(report['status'], 'PASSED_READONLY_PREFLIGHT')
