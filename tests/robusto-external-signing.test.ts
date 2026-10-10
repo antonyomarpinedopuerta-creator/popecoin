@@ -335,7 +335,11 @@ function integrationCases(){
   const absent=(address:string)=>{for(const rows of [wire.c.expectedAccounts,wire.c.observedAccounts])rows[address]={exists:false,owner:null,lamports:'0',dataSha256:null,executable:false};};
   if(step.kind==='program-buffer')absent(step.instructions[0].keys[1].pubkey.toBase58());
   else {
-   for(const rows of [wire.c.expectedAccounts,wire.c.observedAccounts])rows[buffer.toBase58()].owner=LOADER.toBase58();
+   const data=Buffer.alloc(837);data.writeUInt32LE(1);data[4]=1;new PublicKey(p.upgradeAuthority).toBuffer().copy(data,5);
+   const cursor=step.kind==='program-write'?last.data.readUInt32LE(4):elf.length;
+   elf.subarray(0,cursor).copy(data,37);
+   for(const rows of [wire.c.expectedAccounts,wire.c.observedAccounts])Object.assign(rows[buffer.toBase58()],{
+    owner:LOADER.toBase58(),dataBase64:data.toString('base64'),dataSha256:createHash('sha256').update(data).digest('hex')});
    if(step.kind==='program-deploy'){absent(p.program);absent(last.keys[1].pubkey.toBase58());}
   }
   return {...wire,name:step.kind,prepare:(root?:string)=>createGuardedFixtureSession(root).prepare(p,idl,elf,step,wire.encoded,wire.review,wire.c,800)};
@@ -411,4 +415,26 @@ test('stage-specific guards reject occupied creation accounts and wrong loader o
 
 test('integrated unsigned adapter cannot substitute a different message',async()=>{
  for(const c of integrationCases())await assert.rejects(c.prepare().review(()=>c.c,{reviewUnsigned:async()=>fixture().encoded}));
+});
+
+test('deployment rejects missing, corrupt, discontinuous and wrong-authority buffer bytes',()=>{
+ for(const mode of ['missing','hash','authority','tail','prefix','size'])for(const c of integrationCases().filter(c=>['program-write','program-deploy'].includes(c.name))){
+  const key=Object.keys(c.c.observedAccounts).find(k=>c.c.observedAccounts[k].owner===LOADER.toBase58())!;
+  for(const rows of [c.c.expectedAccounts,c.c.observedAccounts]){
+   const a=rows[key];if(mode==='missing'){delete a.dataBase64;continue;}
+   const data=Buffer.from(a.dataBase64!,'base64');
+   if(mode==='hash'){a.dataBase64=Buffer.alloc(data.length).toString('base64');continue;}
+   if(mode==='authority')data[5]^=1;
+   if(mode==='tail')data[data.length-1]=1;
+   if(mode==='prefix')data[37]^=1;
+   const altered=mode==='size'?data.subarray(1):data;
+   a.dataBase64=altered.toString('base64');a.dataSha256=createHash('sha256').update(altered).digest('hex');
+  }
+  assert.throws(()=>c.prepare());
+ }
+});
+
+test('fixture budgets reject aggregate u64 overflow even with individually valid amounts',()=>{
+ const f=guardedFixture();f.c.budget.fee='18446744073709551615';f.c.budget.rent='1';
+ assert.throws(()=>validateFixtureConditions(f.encoded,f.c),/aggregate debit/);
 });

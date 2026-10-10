@@ -1,7 +1,7 @@
 /** Synthetic, independently supplied expectations only. Never RPC evidence or authorization. */
 import {createHash} from 'node:crypto';
 import {PublicKey,Transaction,SystemProgram} from '@solana/web3.js';
-export type FixtureAccount = {exists:boolean;owner:string|null;lamports:string;dataSha256:string|null;executable:boolean};
+export type FixtureAccount = {exists:boolean;owner:string|null;lamports:string;dataSha256:string|null;executable:boolean;dataBase64?:string};
 export type FixtureConditions = {
  scope:'OFFLINE_FIXTURE_ONLY'; authorization:false; cluster:'SIMULATED';
  snapshotSlot:number;snapshotAtMs:number;nowMs:number;currentSlot:number;maxAgeMs:number;maxSlotLag:number;
@@ -12,9 +12,18 @@ export type FixtureConditions = {
 const digest=(value:unknown)=>createHash('sha256').update(JSON.stringify(value)).digest('hex');
 function number(v:unknown){if(!Number.isSafeInteger(v)||Number(v)<0)throw Error('Missing or invalid simulated integer');return v as number;}
 function amount(v:unknown){if(typeof v!=='string'||! /^(0|[1-9][0-9]*)$/.test(v)||v.length>20||BigInt(v)>2n**64n-1n)throw Error('Missing or invalid simulated amount');return BigInt(v);}
+/** Bounded public synthetic bytes, cryptographically bound to the snapshot hash. */
+export function fixtureAccountBytes(a:FixtureAccount):Buffer {
+ if(!a?.exists||typeof a.dataBase64!=='string'||a.dataBase64.length>14*1024*1024)throw Error('Missing or oversized fixture account bytes');
+ const bytes=Buffer.from(a.dataBase64,'base64');
+ if(bytes.toString('base64')!==a.dataBase64||createHash('sha256').update(bytes).digest('hex')!==a.dataSha256)
+  throw Error('Fixture account bytes/hash mismatch');
+ return bytes;
+}
 function account(a:FixtureAccount){
  if(!a||typeof a.exists!=='boolean'||typeof a.executable!=='boolean')throw Error('Missing account state');
  amount(a.lamports);
+ if(a.dataBase64!==undefined)fixtureAccountBytes(a);
  if(a.exists){if(typeof a.owner!=='string'||new PublicKey(a.owner).toBase58()!==a.owner||! /^[a-f0-9]{64}$/.test(a.dataSha256??''))throw Error('Invalid account state');}
  else if(a.owner!==null||a.dataSha256!==null||a.lamports!=='0'||a.executable!==false)throw Error('Inconsistent absent account');
  return [a.exists,a.owner,a.lamports,a.dataSha256,a.executable];
@@ -39,6 +48,7 @@ export function validateFixtureConditions(encoded:string,c:FixtureConditions){
  });
  if(!c.budget)throw Error('Missing fixture budget');
  const b=c.budget,fee=amount(b.fee),rent=amount(b.rent),other=amount(b.otherDebit),total=fee+rent+other;
+ if(total>2n**64n-1n||total+amount(b.payerReserve)>2n**64n-1n)throw Error('Fixture aggregate debit exceeds u64');
  let explicitRent=0n,explicitTransfers=0n;
  for(const ix of tx.instructions)if(ix.programId.equals(SystemProgram.programId)){
   if(ix.data.length===52&&ix.data.readUInt32LE(0)===0)explicitRent+=ix.data.readBigUInt64LE(4);

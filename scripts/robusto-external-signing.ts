@@ -6,9 +6,9 @@ import {Idl} from '@coral-xyz/anchor';
 import {Step, validateProduction, address, describeSteps} from './robusto-production';
 import {validatePreparedStage} from './robusto-preflight';
 import {openFixtureJournal} from './robusto-unsigned-journal';
-import {FixtureConditions,validateFixtureConditions} from './robusto-fixture-conditions';
+import {FixtureConditions,validateFixtureConditions,fixtureAccountBytes} from './robusto-fixture-conditions';
 import {LocalInput,prepareMeteoraLocal,validatePreparedMeteoraLocal} from './robusto-meteora-local';
-import {LOADER} from './rehearsal-one-tx';
+import {LOADER,verifiedPrefix} from './rehearsal-one-tx';
 
 const hash = (bytes: Buffer) => createHash('sha256').update(bytes).digest('hex');
 export type HandoffReview = {
@@ -55,6 +55,10 @@ export function createGuardedFixtureSession(journalDirectory?:string) {
           const buffer=last.keys[step.kind==='program-write'?0:3].pubkey;
           const state=fresh.observedAccounts[buffer.toBase58()];
           if(!state.exists||state.owner!==LOADER.toBase58()||state.executable)throw Error('Expected non-executable loader buffer');
+          const bytes=fixtureAccountBytes(state);
+          const cursor=verifiedPrefix(bytes,elf,new PublicKey(p.upgradeAuthority),maxProgramBytes??elf.length);
+          const required=step.kind==='program-write'?last.data.readUInt32LE(4):elf.length;
+          if(cursor!==required)throw Error('Deployment buffer cursor/complete ELF mismatch');
           if(step.kind==='program-deploy'){absent(new PublicKey(p.program));absent(last.keys[1].pubkey);}
         }
       });

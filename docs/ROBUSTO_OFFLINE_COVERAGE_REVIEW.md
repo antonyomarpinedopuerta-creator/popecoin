@@ -42,3 +42,11 @@ Se revisaron builders/validadores de deployment, preflight canónico, flujo unsi
 5. **Propietario/manual:** custodia y recuperación real, controles/estabilidad del host, fecha/beneficiarios, precios/cantidades, política NFT/retiro, presupuesto/capital y publicación Arweave verificada. Ninguna prueba offline satisface estas autorizaciones.
 
 La preparación segura puede continuar sin fondos; el lanzamiento real permanece bloqueado. No se autorizan identidades, firmas, deploys, pagos ni Mainnet.
+
+## Refuerzo del buffer desde 2257b45
+
+El ticket guarded exige ahora bytes base64 canónicos acotados y ligados al SHA-256 del snapshot para program-write y program-deploy. Reutiliza verifiedPrefix: comprueba cabecera, autoridad, tamaño, prefijo ELF y cola cero; cada write debe corresponder exactamente al cursor observado y deploy al ELF completo. Se repite antes y después de revisión. También se rechaza suma de débitos/reserva fuera de u64. Esto supera únicamente la limitación binaria del buffer descrita arriba.
+
+Limitación: el cursor inferido de bytes cero puede ser ambiguo cuando un fragmento del ELF contiene ceros; se rechaza la discrepancia, sin inventar historial de escritura. Se requiere historial independiente para resolverla. No prueba efectos del loader, CPI, estado de producción ni reanudación real.
+
+Validación de este conjunto: 214 pruebas cliente, 63 Python, TypeScript, diff --check, metadata y scan heurístico de seguridad. Fixtures de bytes ausentes, hash incorrecto, autoridad incorrecta, cola no cero, prefijo alterado, tamaño y desbordamiento agregado. NOT_AUTHORIZED_FOR_MAINNET.
