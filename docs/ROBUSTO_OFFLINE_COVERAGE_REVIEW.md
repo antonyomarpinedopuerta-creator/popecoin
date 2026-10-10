@@ -58,3 +58,24 @@ Validación de este conjunto: 214 pruebas cliente, 63 Python, TypeScript, diff -
 La consulta no prueba ejecución ni reconciliación on-chain. Un claim consumido solo acredita reserva local. Snapshot diagnóstico sujeto a concurrencia; la exclusión sigue dependiendo del mkdir atómico en reserve. Borrado/rollback por el mismo usuario o administrador no se detecta de forma universal. No se habilitan reintentos automáticos ni restauraciones de producción.
 
 Validación del journal: 217 pruebas cliente aprobadas con el guard de fuentes integrado; TypeScript, diff --check y escaneo heurístico sin hallazgos. La prueba de subproceso/FIFO recibió EPERM dentro del sandbox y pasó al repetir fuera del sandbox con permiso; no se desactivó ningún control Git.
+
+## Fuentes SPL de Meteora y prioridades de continuidad
+
+El ticket de creación Meteora integra `validateTokenSourceFixture`: bytes clásicos de 165, mint y autoridad payer exactos, estado inicializado, ausencia de delegado/close authority y payloads de opciones limpios, saldo token suficiente para el inventario calculado y semilla B. wSOL exige native option y lamports que respalden reserva más amount. Se revalida alrededor del adaptador unsigned. Exclusivo de fixtures públicos; no admite Token-2022, swaps, depósitos posteriores ni retiradas.
+
+Validación ejecutada: **221/221 cliente** (9 más que la línea base), **63/63 Python**, TypeScript, diff --check, metadata local y escaneo heurístico sin hallazgos. No se ejecutó nueva compilación SBF, tests Rust de runtime, reproducción ni RC completa. Las pruebas Python de empaquetado usan fixtures y no certifican un artefacto compilado del HEAD. No se modificaron dependencias, economía ni programas on-chain.
+
+| Prioridad | Estado y dependencia |
+|---|---|
+| Buffer binario y cursor en guard | Completado en el modelo; ceros ambiguos requieren historial independiente. |
+| Diagnóstico persistente de claims | Completado; no acredita ejecución ni impide rollback privilegiado. |
+| Fuentes token de creación Meteora | Completado en fixtures; falta autenticidad del snapshot, semántica completa de ambos mints/metadata y runtime CPI. |
+| Reconciliación de ejecución | Pendiente: máquina de estados y evidencia independiente; nunca liberar una reserva incierta. |
+| Costes CPI y presupuestos | Pendiente: modelo de rent/fees por etapa contrastado con runtime en futura etapa autorizada. |
+| RC reproducible definitiva | Pendiente: revisar herramientas para impedir generación automática de keypairs antes de ejecutar builds; construir y verificar artefactos en alcance autorizado. |
+| Distribución/vesting | Invariantes cliente existentes pasan; no se repitió ejecución Rust/SBF ni revisión independiente. Direcciones/calendario definitivos pendientes. |
+| Riesgo Meteora | 3 advisories/7 warnings históricos abiertos; no hubo verificación independiente nueva. |
+| Custodia y firma externa | Decisión del propietario y autorización específica. Solo adaptador ficticio implementado. |
+| Metadata/Arweave/mercado | PNG y contenido local preparados; proveedor, coste, URI, precio, fondos y publicación pendientes de decisión/autorización. |
+
+Estado obligatorio: NOT_AUTHORIZED_FOR_MAINNET / MAINNET_DISABLED. Los snapshots son suministrados por el llamador; coincidir con una expectativa ficticia no prueba estado real. No se recomienda lanzamiento hasta revisión independiente, RC verificable, custodia y autorizaciones explícitas.

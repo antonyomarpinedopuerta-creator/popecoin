@@ -21,7 +21,7 @@ npm run check:security          # heurística + últimos 20 commits
 npm run robusto:third-status    # lectura Devnet, evidencia nueva, sin firmas
 ```
 
-El lifecycle rápido completo ejecuta SBF/SPL en LiteSVM con Clock aislado; no es evidencia Devnet. El ensayo público mantiene sus fechas exactas y 10.000.000 raw depositados. Imagen ROBUSTO: PENDING_USER_ASSET. Distribución: PROPOSED_NOT_APPROVED. Ningún Mainnet, publicación on-chain, mint adicional, liquidez ni revocación.
+El lifecycle rápido completo ejecuta SBF/SPL en LiteSVM con Clock aislado; no es evidencia Devnet. El ensayo público mantiene sus fechas exactas y 10.000.000 raw depositados. Imagen ROBUSTO: OFFICIAL_USER_ASSET_VALIDATED; hosting/URI pendientes. Distribución: PROPOSED_NOT_APPROVED. Ningún Mainnet, publicación on-chain, mint adicional, liquidez ni revocación.
 
 ## Validación local
 

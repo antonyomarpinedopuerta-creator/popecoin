@@ -350,6 +350,11 @@ function integrationCases(){
  for(const rows of [wire.c.expectedAccounts,wire.c.observedAccounts]){
   for(const index of [1,2,5,6,9,10])rows[ix.accounts[index].address]={exists:false,owner:null,lamports:'0',dataSha256:null,executable:false};
   for(const index of [7,8,11,12])rows[ix.accounts[index].address].owner=input.mintAccount.owner;
+  for(const [index,mint,amount] of [[11,input.tokenA,candidate.parameters.tokenABaseUnits],[12,input.tokenB,candidate.parameters.tokenBBaseUnits]] as const){
+   const data=Buffer.alloc(165);new PublicKey(mint).toBuffer().copy(data);new PublicKey(input.payer).toBuffer().copy(data,32);
+   data.writeBigUInt64LE(BigInt(amount),64);data[108]=1;if(index===12){data.writeUInt32LE(1,109);data.writeBigUInt64LE(100n,113);}
+   Object.assign(rows[ix.accounts[index].address],{dataBase64:data.toString('base64'),dataSha256:createHash('sha256').update(data).digest('hex')});
+  }
   rows[input.expectedMint].dataSha256=createHash('sha256').update(Buffer.from(input.mintAccount.dataBase64,'base64')).digest('hex');
  }
  cases.push({...wire,name:'meteora-create',prepare:(root?:string)=>createGuardedMeteoraFixtureSession(root).prepare(input,candidate,wire.encoded,wire.review,wire.c)});
@@ -437,4 +442,19 @@ test('deployment rejects missing, corrupt, discontinuous and wrong-authority buf
 test('fixture budgets reject aggregate u64 overflow even with individually valid amounts',()=>{
  const f=guardedFixture();f.c.budget.fee='18446744073709551615';f.c.budget.rent='1';
  assert.throws(()=>validateFixtureConditions(f.encoded,f.c),/aggregate debit/);
+});
+
+test('Meteora guarded review rejects binary source mutation before and after adapter',async()=>{
+ for(const timing of ['prepare','after']){
+  const c=integrationCases().find(c=>c.name==='meteora-create')!;
+  const alter=()=>{
+   const key=Object.keys(c.c.observedAccounts).find(k=>c.c.observedAccounts[k].dataBase64!==undefined)!;
+   for(const rows of [c.c.expectedAccounts,c.c.observedAccounts]){
+    const data=Buffer.from(rows[key].dataBase64!,'base64');data[108]=2;
+    rows[key].dataBase64=data.toString('base64');rows[key].dataSha256=createHash('sha256').update(data).digest('hex');
+   }
+  };
+  if(timing==='prepare'){alter();assert.throws(()=>c.prepare(),/source/);}
+  else {const ticket=c.prepare();await assert.rejects(ticket.review(()=>c.c,{reviewUnsigned:async()=>{alter();return c.encoded;}}));}
+ }
 });
