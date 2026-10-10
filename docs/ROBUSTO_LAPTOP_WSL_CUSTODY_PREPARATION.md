@@ -1,5 +1,7 @@
 # ROBUSTO — preparación de custodia en la laptop Windows/WSL
 
+**Actualización 2026-10-10:** la prueba física del fixture S22 ya pasó: transporte por USB confirmado por el propietario, ambos hashes y descifrado verificados desde la carpeta nueva `-03`. [Evidencia completa](evidence/robusto/s22-physical-fixture-2026-10-10.md). Las referencias a prueba física pendiente o no realizada en las auditorías históricas siguientes quedan superadas únicamente para este fixture. Custodia real, restauración en otro equipo y controles del host siguen pendientes; `NOT_AUTHORIZED_FOR_MAINNET` permanece vigente. No se borraron archivos del teléfono.
+
 **Estado:** `NOT_AUTHORIZED_FOR_MAINNET`. Documento de preparación, no ceremonia. No se generaron ni leyeron keys, seeds o frases; no se consultó RPC ni se firmó/transaccionó. La prueba descrita abajo es de propiedades del entorno, no una certificación forense del equipo.
 
 ## Resultado de la auditoría del entorno disponible
