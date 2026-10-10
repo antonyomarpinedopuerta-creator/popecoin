@@ -5,6 +5,7 @@ import {performance} from 'node:perf_hooks';
 import {Idl} from '@coral-xyz/anchor';
 import {Step, validateProduction, address} from './robusto-production';
 import {validatePreparedStage} from './robusto-preflight';
+import {openFixtureJournal} from './robusto-unsigned-journal';
 
 const hash = (bytes: Buffer) => createHash('sha256').update(bytes).digest('hex');
 export type HandoffReview = {
@@ -86,9 +87,10 @@ export async function rehearseExternalHandoff(encoded: string, review: HandoffRe
     signed: false, sent: false, productionSignerIntegrated: false};
 }
 
-/** One local fixture session; consumed messages cannot be retried, including after failure.
- * Not a durable production journal and never an authorization to sign/send. */
-export function createCanonicalFixtureSession() {
+/** Fixture session: optionally shares permanent local tombstones across processes.
+ * Omitting journalDirectory keeps memory-only behavior. Never authorizes sign/send. */
+export function createCanonicalFixtureSession(journalDirectory?: string) {
+  const journal = journalDirectory === undefined ? undefined : openFixtureJournal(journalDirectory);
   const consumed = new Set<string>();
   return {async review(p: any, idl: Idl, elf: Buffer, step: Step, encoded: string,
     expected: HandoffReview, adapter: FixtureReviewAdapter,
@@ -103,6 +105,7 @@ export function createCanonicalFixtureSession() {
     if (canonical.serialize({requireAllSignatures: false, verifySignatures: false}).toString('base64') !== encoded)
       throw Error('Unsigned transaction differs from canonical stage');
     if (consumed.has(request.messageSha256)) throw Error('Duplicate fixture request; message already consumed');
+    journal?.reserve(request.messageSha256);
     consumed.add(request.messageSha256);
     // Snapshot immutable primitives before the adapter can mutate caller-owned config/stage/review.
     const bound = {scope: request.scope, messageSha256: request.messageSha256,

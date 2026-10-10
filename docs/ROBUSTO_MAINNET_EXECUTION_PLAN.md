@@ -4,6 +4,22 @@
 
 ## Avance offline desde d9f3387 — 2026-10-10
 
+### Journal persistente unsigned desde b9372f7 — 2026-10-10
+
+Se implementó `scripts/robusto-unsigned-journal.ts`, exclusivamente para fixtures offline. `initializeFixtureJournal(directory)` crea explícitamente un directorio nuevo; `createCanonicalFixtureSession(directory)` abre uno ya inicializado y reserva el digest validado después de comprobar la etapa canónica y antes de llamar al adaptador. Sin argumento se conserva el comportamiento anterior solo en memoria. Todas las instancias/procesos que deban compartir deduplicación tienen que usar la misma ruta estable.
+
+Persistencia mínima: marcador de formato y un directorio por SHA-256 del mensaje, con registro `CONSUMED_NOT_AUTHORIZED` y `authorization=false`. No se guardan transacciones, payer, firmantes, config, claves, contraseñas ni respuestas del adaptador. Directorios `0700`, registros `0600`, propietario actual; se rechazan symlinks en la ruta y marcador, permisos inseguros y marcador inválido. El journal no es un permiso ni registra éxito de producción.
+
+La creación exclusiva del directorio de cada digest es el arbitraje entre procesos. Se sincroniza el directorio padre antes de continuar; el JSON se escribe con creación exclusiva, fsync, rename atómico y fsync del directorio. Cualquier error impide llamar al adaptador. Si el proceso muere, un directorio existente basta para bloquear el digest aunque falte el JSON, quede `.pending`, haya corrupción o sea un symlink. Nunca se reanuda la revisión ni se elimina una reserva automáticamente. Una cancelación, timeout o fallo conservan la reserva; el siguiente proceso rechaza el mismo mensaje.
+
+Recuperación conservadora: ante inicialización incompleta/corrupta se rechaza abrir el journal entero; ante una reserva incompleta/corrupta se rechaza ese digest. Conservar evidencia y revisar manualmente sin borrar ni recrear el journal. No hay comando de reparación/desbloqueo. Revisar mensajes distintos solo si el marcador raíz sigue válido. Borrar/restaurar un snapshot antiguo o elegir otra ruta pierde la cobertura de deduplicación: no hacerlo para reintentar. No hay garantía frente a manipulación por el mismo usuario/admin, rollback del almacenamiento ni pérdida física del disco.
+
+Uso futuro del ensayo: elegir una ruta local estable, privada, fuera del repo, cloud/sync y tmpfs (que no sobrevive un reinicio de WSL). El padre debe existir y ser confiable. Esta implementación depende de semántica POSIX y fsync/rename de almacenamiento local Linux; no certifica NTFS/DrvFS, NFS, firmware ni durabilidad ante corte físico. Los tests usan exclusivamente carpetas temporales con fixtures; no se inicializó un journal operativo permanente ni se cambió configuración del equipo.
+
+Validación: **197 tests cliente y 63 Python**, TypeScript `--noEmit`, `git diff --check` y escaneo de seguridad aprobados, sin hallazgos dentro de su alcance heurístico. Siete tests nuevos: reinicio mediante proceso nuevo, competencia de dos procesos, claims vacíos/parciales/corruptos/symlinks, raíz corrupta/permisos, crash antes de rename, fallo de fsync/inicialización incompleta y enlace canónico después de éxito/cancelación/timeout. Pruebas de muerte de proceso y fsync simulado no equivalen a ensayo de corte de energía real. Sin build SBF o RC completa nuevos.
+
+Pendientes: journal de ejecución de producción y reconciliación, autorización exacta/presupuesto/snapshot/genesis/expiry, conector/dispositivo y verificación criptográfica, cobertura del puente para deployment/Meteora, RC definitiva, revisión independiente y riesgos Meteora, custodia y Arweave. `NOT_AUTHORIZED_FOR_MAINNET` / `MAINNET_DISABLED` permanecen vigentes.
+
 ### Integración unsigned canónica desde 1aeed59 — 2026-10-10
 
 `createCanonicalFixtureSession().review(...)` une la configuración pública validada, IDL/program, `validatePreparedStage`, construcción canónica con payer y blockhash del mensaje y revisión independiente de hash/firmantes. Exige igualdad exacta del wire unsigned; una revisión de hash que incluya instrucciones extra no basta para pasar el gate canónico. Solo permite `OFFLINE_FIXTURE_ONLY`, sin firmar/enviar ni RPC. El helper de handoff básico sigue siendo de bajo nivel y no certifica etapas canónicas por sí solo.

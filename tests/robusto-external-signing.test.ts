@@ -182,3 +182,26 @@ test('canonical timeout and pending cancellation consume requests and discard la
     await assert.rejects(session.review(p,idl,Buffer.alloc(0),step,encoded,review,{reviewUnsigned:async()=>encoded}),/Duplicate/);
   }
 });
+
+import os from 'node:os';
+import path from 'node:path';
+import {initializeFixtureJournal} from '../scripts/robusto-unsigned-journal';
+test('canonical journal rejects duplicate after restart following success, cancellation or timeout',async()=>{
+ for(const mode of ['success','cancel','timeout']){
+  const parent=fs.mkdtempSync(path.join(os.tmpdir(),'robusto-canonical-fixture-')),root=path.join(parent,'journal');
+  try{
+   initializeFixtureJournal(root);
+   const {p,idl,steps,wire}=canonicalFixture(),step=steps[2],{encoded,review}=wire(step);
+   const controller=new AbortController();let calls=0;
+   const pending=createCanonicalFixtureSession(root).review(p,idl,Buffer.alloc(0),step,encoded,review,{reviewUnsigned:async()=>{
+    calls++;if(mode==='success')return encoded;
+    if(mode==='cancel')controller.abort();return new Promise<string>(()=>{});
+   }},{signal:controller.signal,timeoutMs:10});
+   if(mode==='success')assert.equal((await pending).canonicalStageVerified,true);
+   else await assert.rejects(pending,mode==='cancel'?/cancelled/:/timed out/);
+   await assert.rejects(createCanonicalFixtureSession(root).review(p,idl,Buffer.alloc(0),step,encoded,review,
+    {reviewUnsigned:async()=>{calls++;return encoded;}}),/Duplicate or uncertain/);
+   assert.equal(calls,1);
+  }finally{fs.rmSync(parent,{recursive:true,force:true});}
+ }
+});
