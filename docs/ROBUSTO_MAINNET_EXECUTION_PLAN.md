@@ -4,6 +4,23 @@
 
 ## Avance offline desde d9f3387 — 2026-10-10
 
+### Revisión técnica desde f21ffae — 2026-10-10
+
+La laptop permanecerá conectada al cargador por decisión del propietario; el diagnóstico de batería queda pendiente. Esto no certifica estabilidad ni cierra la recuperación fallida de hibernación. Internet permanece activo para desarrollo. `NOT_AUTHORIZED_FOR_MAINNET` se conserva.
+
+| Clasificación | Estado y siguientes pasos |
+|---|---|
+| Terminado y probado en su alcance | Builders unsigned y guards; aritmética/políticas locales; logo y contenido aprobados; prueba física ficticia S22; preflight Linux. El nuevo ensayo de revisión externa mantiene bytes/hash exactos y rechaza firmas, alteraciones, cancelación, timeout y fallos de transporte |
+| Completado autónomamente en esta revisión | Cancelación mediante AbortSignal y timeout de revisión de 30 segundos por defecto (rango 1–60000 ms), notificación al adaptador, rechazo aun si ignora cancelación y limpieza de temporizador/listeners. Cuatro regresiones nuevas sin keypairs, firmas ni RPC. Revalidación de metadata e inventario público vacío |
+| Trabajo técnico que sigue siendo posible offline | Ampliar escenarios unsigned y revisar enlace con etapas canónicas; preparar/reproducir el candidato definitivo tras fijar alcance del programa. Estas tareas no cierran compatibilidad de dispositivo, revisión independiente ni controles físicos. No hace falta generar identidades para esos ensayos |
+| Bloqueos técnicos de producción | Conector de firma real y validación criptográfica todavía ausentes; compatibilidad del dispositivo, firmas parciales/múltiples y UX real pendientes. Falta RC completa/reproducción del candidato final y verificación actual autorizada del deployment externo. Metadata final depende de URI de imagen publicada; no hay uploader seleccionado/integrado. Findings Meteora históricos continúan sin resolver |
+| Decisiones/autorización del propietario | Dispositivo y diseño de custodia/recuperación de ocho roles; identidades/mint/program públicos; programa de vesting y autoridad de upgrade; fecha/beneficiarios; P0/Pmax y cantidades efectivas, circulación y política NFT/retiro; proveedor Arweave, presupuesto y capital; autorización separada de publicación/pago y de cada operación real |
+| Verificación externa/manual | Revisión independiente de código/riesgos Meteora y evidencia de artefactos; recuperación en otro equipo; historial/transcripción, hibernación, telemetría, backup/sync y estabilidad sostenida del host. Red conectada es válida para desarrollo, pero bloquea una ceremonia offline |
+
+Resultados ejecutados en esta revisión: **185/185 tests cliente**, **63/63 tests Python**, `tsc --noEmit`, inspección offline de publicación y `check:metadata` aprobados; inventario `EMPTY_NO_IDENTITIES` (0/8 roles). `git diff --check` y scan de seguridad sin hallazgos dentro de su alcance heurístico. Sin nuevo build SBF, RC completa ni audit de dependencias actualizado; los tests Python de RC usan fixtures. La evidencia histórica de Meteora (3 advisories/7 warnings) no se refrescó mediante red.
+
+El timeout nuevo limita la espera del ensayo local: no comprueba expiración de blockhash on-chain ni garantiza detener operaciones internas de un adaptador que ignore AbortSignal. El adaptador sigue sin capacidad sign/send y `productionSignerIntegrated=false`. Integrarlo con un dispositivo de producción requiere diseño/revisión y autorización posteriores. El lanzamiento no queda desbloqueado por pruebas ficticias ni por mantener el cargador conectado.
+
 | Área | Completado y probado | Bloqueado o pendiente |
 |---|---|---|
 | Software base | Builders unsigned, guards, aritmética y evidencia histórica de rehearsal; nuevo ensayo de handoff externo | Nueva RC/reproducción del candidato definitivo y revisión independiente; no inferir vigencia de artefactos anteriores |

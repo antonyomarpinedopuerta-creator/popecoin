@@ -38,12 +38,34 @@ export function prepareExternalHandoff(encoded: string, review: HandoffReview) {
 export type ExternalHandoff = ReturnType<typeof prepareExternalHandoff>;
 export interface FixtureReviewAdapter {
   // Deliberately no sign/send capability. Hardware compatibility remains pending.
-  reviewUnsigned(request: ExternalHandoff): Promise<string>;
+  reviewUnsigned(request: ExternalHandoff, signal: AbortSignal): Promise<string>;
 }
 
-export async function rehearseExternalHandoff(encoded: string, review: HandoffReview, adapter: FixtureReviewAdapter) {
+export async function rehearseExternalHandoff(encoded: string, review: HandoffReview, adapter: FixtureReviewAdapter,
+  options: {signal?: AbortSignal; timeoutMs?: number} = {}) {
+  const timeoutMs = options.timeoutMs ?? 30_000;
+  if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 60_000) throw Error('Review timeout must be 1..60000 ms');
+  if (options.signal?.aborted) throw Error('Unsigned review cancelled');
   const request = prepareExternalHandoff(encoded, review);
-  const returned = await adapter.reviewUnsigned(request);
+  const controller = new AbortController();
+  const cancel = () => controller.abort(new Error('Unsigned review cancelled'));
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  let rejectAbort: (() => void) | undefined;
+  let returned: string;
+  try {
+    const interrupted = new Promise<never>((_, reject) => {
+      rejectAbort = () => reject(controller.signal.reason);
+      controller.signal.addEventListener('abort', rejectAbort, {once: true});
+    });
+    options.signal?.addEventListener('abort', cancel, {once: true});
+    timer = setTimeout(() => controller.abort(new Error('Unsigned review timed out')), timeoutMs);
+    returned = await Promise.race([adapter.reviewUnsigned(request, controller.signal), interrupted]);
+    if (controller.signal.aborted) throw controller.signal.reason;
+  } finally {
+    clearTimeout(timer);
+    options.signal?.removeEventListener('abort', cancel);
+    if (rejectAbort) controller.signal.removeEventListener('abort', rejectAbort);
+  }
   prepareExternalHandoff(returned, {scope: request.scope, messageSha256: request.messageSha256,
     payer: request.payer, requiredSigners: request.requiredSigners});
   if (returned !== request.unsignedTransactionBase64) throw Error('External adapter changed transaction bytes');

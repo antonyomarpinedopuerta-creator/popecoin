@@ -51,3 +51,39 @@ test('handoff rejects adapter tampering, signatures and malformed or oversized w
   await assert.rejects(rehearseExternalHandoff(encoded, review, {reviewUnsigned: async () => dummySigned}));
   assert.throws(() => prepareExternalHandoff(encoded, {...review, scope: 'MAINNET' as any}));
 });
+
+test('unsigned review rejects pre-cancellation and invalid timeouts before calling adapter', async () => {
+  const {encoded, review} = fixture(); let calls = 0;
+  const adapter = {reviewUnsigned: async () => {calls++; return encoded;}};
+  const controller = new AbortController(); controller.abort();
+  await assert.rejects(rehearseExternalHandoff(encoded, review, adapter, {signal: controller.signal}), /cancelled/);
+  for (const timeoutMs of [0, -1, 1.5, NaN, Infinity, 60001])
+    await assert.rejects(rehearseExternalHandoff(encoded, review, adapter, {timeoutMs}), /timeout/);
+  assert.equal(calls, 0);
+});
+
+test('unsigned review cancellation rejects even when adapter ignores cancellation and returns bytes', async () => {
+  const {encoded, review} = fixture(); const controller = new AbortController();
+  let received: AbortSignal | undefined;
+  await assert.rejects(rehearseExternalHandoff(encoded, review, {reviewUnsigned: async (_, signal) => {
+    received = signal; controller.abort(); return encoded;
+  }}, {signal: controller.signal}), /cancelled/);
+  assert.equal(received?.aborted, true);
+});
+
+test('unsigned review timeout settles a stalled adapter and rejects a late response', async () => {
+  const {encoded, review} = fixture(); let complete!: (value: string) => void;
+  let received: AbortSignal | undefined;
+  const pending = rehearseExternalHandoff(encoded, review, {reviewUnsigned: (_, signal) => {
+    received = signal; return new Promise(resolve => {complete = resolve;});
+  }}, {timeoutMs: 5});
+  await assert.rejects(pending, /timed out/);
+  assert.equal(received?.aborted, true); complete(encoded);
+});
+
+test('unsigned review propagates adapter failures without claiming success', async () => {
+  const {encoded, review} = fixture();
+  await assert.rejects(rehearseExternalHandoff(encoded, review, {reviewUnsigned: async () => {
+    throw Error('fixture transport unavailable');
+  }}), /transport unavailable/);
+});
