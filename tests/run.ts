@@ -1,3 +1,4 @@
+import './offline-safety';
 // Import every suite explicitly: node:test runs them and propagates failures.
 import "./devnet-client.test";
 import "./reader.test";
@@ -39,3 +40,5 @@ import './robusto-publication-offline.test';
 import './robusto-unsigned-journal.test';
 import './robusto-token-fixture.test';
 import './robusto-fixture-reconciliation.test';
+
+import './offline-safety.test';

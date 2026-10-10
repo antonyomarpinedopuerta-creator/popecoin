@@ -1,6 +1,6 @@
 # ROBUSTO — finalización técnica offline desde 5af7313
 
-NOT_AUTHORIZED_FOR_MAINNET / MAINNET_DISABLED. No se generan wallets, keypairs o secretos ni se firman/envían transacciones. No hay autorizaciones de producción derivadas de estos resultados.
+NOT_AUTHORIZED_FOR_MAINNET / MAINNET_DISABLED. Restricción vigente: no generar wallets, keypairs o secretos ni firmar/enviar transacciones. No hay autorizaciones de producción derivadas de estos resultados.
 
 ## Diagnóstico y clasificación
 
@@ -33,3 +33,11 @@ Dos workspaces nuevos con el Program ID público determinista `YMN9Qj5jPNp7j14VP
 Cuatro tests Python nuevos cubren determinismo/lectura del paquete, workspace repetido, herramienta/binary alterados, árbol sucio y cambio de metadata durante empaquetado. Suite completa Python: 71 aprobados. El candidato real de esta sesión se generará después del commit limpio; sus paths/hashes quedan en el reporte local. No se afirma que el IDL adaptado haya sido generado independientemente ni que el runtime haya sido validado.
 
 Para reproducir sin generar claves: ejecutar build-rehearsal.py dos veces con ese Program ID y `--build --platform-tools RUTA_INSTALADA`; después ejecutar el empaquetador anterior con las dos rutas nuevas. Evitar npm run check/check:rc/build:safe y los tests LiteSVM bajo las restricciones actuales: sus rutas invocan herramientas no aprobadas para este alcance o generación/firma de identidades.
+
+## Restricción activa de identidades en la suite cliente
+
+La primera pasada de la suite heredada ejecutó un helper de robusto-production.test.ts que generaba keypairs efímeros en memoria y conservaba solo la dirección pública; no persistía claves ni firmaba. Se detectó después de esa ejecución y se sustituyó por hashes públicos deterministas filtrados on-curve, sin derivación de claves privadas. tests/run.ts carga ahora primero offline-safety.ts, que bloquea Keypair.generate/fromSeed/fromSecretKey y las funciones de firma de transacciones legacy/versionadas. El guard falla si una ruta futura intenta usarlas. Esto no certifica todas las bibliotecas criptográficas ni vuelve segura la suite Rust LiteSVM, que permanece omitida.
+
+El candidato local del commit d725d59 se generó y verificó sin extracción: SHA-256 730ce8eae77e8a2fc91d08d37fe9630d1025ab97936f8adcc59d7f49605491ff. Su manifest conserva ese HEAD; no se presenta como candidato de commits posteriores. Inspección ROBUSTO inspect-offline confirmó contenido/logo aprobados, uploadConfigured=false, publicationVerified=false y URI/JSON final pendientes.
+
+Validación con el guard activo: 225/225 cliente, TypeScript, diff --check y escaneo heurístico aprobados. No se ejecutaron firmas ni las rutas Rust de generación de identidades. La generación efímera de la primera pasada se registra arriba como desviación corregida, sin convertirla en evidencia de custodia.

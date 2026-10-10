@@ -2,14 +2,19 @@ import {pngFixture,pngChunk} from './png-fixture';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {Keypair,PublicKey,Transaction,SystemProgram} from '@solana/web3.js';
+import {createHash} from 'node:crypto';
+import {PublicKey,Transaction,SystemProgram} from '@solana/web3.js';
 import {decodeMintToCheckedInstruction,decodeTransferCheckedInstruction,decodeInitializeMint2Instruction} from '@solana/spl-token';
 import {getCreateV1InstructionDataSerializer,getUpdateV1InstructionDataSerializer} from '@metaplex-foundation/mpl-token-metadata';
 import {MAINNET_GENESIS,SUPPLY,integer,validateDistribution,validateProduction,buildProductionSteps,metadataInstructions,
  requireMainnetReadOnly,assertMainnet,quoteSteps,reconcileDistribution,prepareMintRevocation,verifyProgramAccounts} from '../scripts/robusto-production';
 import {pinThirdPlan} from '../scripts/robusto-third-status';
 import {LOADER} from '../scripts/rehearsal-one-tx';
-const key=()=>Keypair.generate().publicKey.toBase58();
+let fixtureAddressIndex=0;
+const key=()=>{for(;;){
+ const bytes=createHash('sha256').update(`ROBUSTO_PUBLIC_TEST_ADDRESS_${fixtureAddressIndex++}`).digest();
+ if(PublicKey.isOnCurve(bytes))return new PublicKey(bytes).toBase58();
+}};
 function fixture(){const p={...JSON.parse(fs.readFileSync('config/robusto-production.json','utf8')),
  payer:key(),mint:key(),program:key(),mintAuthority:key(),metadataUpdateAuthority:key(),upgradeAuthority:key(),
  imageSha256:'a'.repeat(64),metadataSha256:'b'.repeat(64),metadataUri:`ar://${'A'.repeat(43)}`,
@@ -107,7 +112,7 @@ test('third rehearsal frozen schedule cannot be retimed by config',()=>{
 import {buildProgramDeployment,verifyProductionBuffer} from '../scripts/robusto-program-deployment';
 import {publicationManifest,verifyPublishedRobusto} from '../scripts/robusto-metadata-publication';
 import {validateReaderConfig} from '../app/config';
-import {createHash} from 'node:crypto';
+
 test('offline deployment chunks reconstruct exact ELF and keep upgrade authority',()=>{
  const {p}=fixture(),elf=Buffer.alloc(1450);Buffer.from([127,69,76,70]).copy(elf);new PublicKey(p.program).toBuffer().copy(elf,100);
  p.programElfSha256=createHash('sha256').update(elf).digest('hex');const rents={buffer:1000000,program:100000,programData:1000000};
