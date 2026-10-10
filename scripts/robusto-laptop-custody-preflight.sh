@@ -31,19 +31,27 @@ case "$umask_value" in
   *) block 'umask is not 077; future private files would need stricter defaults' ;;
 esac
 
-swap_lines="$(swapon --noheadings 2>/dev/null || true)"
-if [ -z "$swap_lines" ]; then pass 'Linux swap is inactive'; else block 'Linux swap is active; WSL swap must be disabled and verified before any secret generation'; fi
+if swap_lines="$(swapon --noheadings 2>/dev/null)"; then
+  if [ -z "$swap_lines" ]; then pass 'Linux swap is inactive'; else block 'Linux swap is active; WSL swap must be disabled and verified before any secret generation'; fi
+else
+  block 'Linux swap status could not be verified'
+fi
 
 ram_dir="${ROBUSTO_RAM_DIR:-/mnt/robusto-ram}"
 if [ ! -d "$ram_dir" ]; then
   block 'dedicated RAM directory is absent; expected /mnt/robusto-ram (or ROBUSTO_RAM_DIR override)'
 else
-  fs="$(findmnt -T "$ram_dir" -n -o FSTYPE 2>/dev/null || true)"
-  opts="$(findmnt -T "$ram_dir" -n -o OPTIONS 2>/dev/null || true)"
+  fs="$(findmnt -T "$ram_dir" -n -o FSTYPE 2>/dev/null)" || fs=''
+  opts="$(findmnt -T "$ram_dir" -n -o OPTIONS 2>/dev/null)" || opts=''
   mode="$(stat -c '%a' "$ram_dir" 2>/dev/null || true)"
   owner="$(stat -c '%u' "$ram_dir" 2>/dev/null || true)"
   if [ "$fs" != tmpfs ]; then block 'dedicated RAM directory is not on tmpfs'; else pass 'dedicated RAM directory is on tmpfs'; fi
-  case ",$opts," in *,ro,*) block 'dedicated tmpfs is read-only';; *) pass 'dedicated tmpfs is writable';; esac
+  case ",$opts," in
+    *,ro,*) block 'dedicated RAM filesystem is read-only';;
+    *,rw,*)
+      if [ "$fs" = tmpfs ]; then pass 'dedicated tmpfs mount reports rw; actual write access still requires owner verification'; fi ;;
+    *) block 'dedicated RAM filesystem rw/ro mount status could not be verified';;
+  esac
   for opt in nosuid nodev noexec; do
     case ",$opts," in *,$opt,*) pass "tmpfs has $opt";; *) block "tmpfs is missing mount option $opt";; esac
   done
@@ -53,8 +61,16 @@ fi
 avail_kb="$(awk '/MemAvailable:/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)"
 if [ "${avail_kb:-0}" -gt 1048576 ] 2>/dev/null; then pass 'more than 1 GiB currently available in guest RAM'; else block 'less than 1 GiB currently available in guest RAM'; fi
 
-routes="$(awk 'NR>1 && $2=="00000000" {n++} END {print n+0}' /proc/net/route 2>/dev/null || echo 0)"
-if [ "$routes" -eq 0 ]; then pass 'no Linux default IPv4 route currently visible'; else block 'Linux default IPv4 route exists; this is not an offline ceremony environment'; fi
+if routes="$(awk 'NR>1 && $2=="00000000" {n++} END {print n+0}' /proc/net/route 2>/dev/null)" && [[ "$routes" =~ ^[0-9]+$ ]]; then
+  if [ "$routes" -eq 0 ]; then pass 'no Linux default IPv4 route currently visible'; else block 'Linux default IPv4 route exists; this is not an offline ceremony environment'; fi
+else
+  block 'Linux default IPv4 route status could not be verified'
+fi
+if routes6="$(awk '$1=="00000000000000000000000000000000" && $2=="00" && $10!="lo" {n++} END {print n+0}' /proc/net/ipv6_route 2>/dev/null)" && [[ "$routes6" =~ ^[0-9]+$ ]]; then
+  if [ "$routes6" -eq 0 ]; then pass 'no Linux default IPv6 route currently visible'; else block 'Linux default IPv6 route exists; this is not an offline ceremony environment'; fi
+else
+  block 'Linux default IPv6 route status could not be verified'
+fi
 unknown 'guest route status cannot prove Windows Wi-Fi/Ethernet is physically disconnected'
 unknown 'Windows host pagefile, hibernation, BitLocker, telemetry, WSL networking config, and cloud sync are not verifiable from this guest audit'
 unknown 'interactive shell history and terminal recording are not verifiable from this non-interactive audit'

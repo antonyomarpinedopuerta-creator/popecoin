@@ -107,7 +107,9 @@ La generación de las ocho identidades, aunque sea offline, requiere una autoriz
 
 ## Herramienta de preflight
 
-`scripts/robusto-laptop-custody-preflight.sh` solo informa propiedades de Linux/WSL, permisos, mounts, swap, rutas visibles y existencia de herramientas. No abre archivos de wallet ni contacta RPC. Es deliberadamente conservador y deja como `UNKNOWN` lo que solo puede verificarse en el host Windows. **Un resultado PASS no constituye aprobación para generar keys**; para la condición actual se espera `BLOCK` por swap activo, umask permisivo y ausencia de `/mnt/robusto-ram`.
+`scripts/robusto-laptop-custody-preflight.sh` solo informa propiedades de Linux/WSL, permisos, mounts, swap, rutas visibles y existencia de herramientas. No abre archivos de wallet ni contacta RPC. Es deliberadamente conservador y deja como `UNKNOWN` lo que solo puede verificarse en el host Windows. **Un resultado PASS no constituye aprobación para generar keys**. Los bloqueos descritos en las auditorías anteriores son observaciones fechadas, no el estado actual del equipo; repetir el preflight antes de cualquier futura ceremonia autorizada.
+
+Desde 2026-10-10, fallos de consulta de swap, opciones rw/ro y rutas producen `BLOCK`, nunca un PASS por salida vacía. Se verifican rutas predeterminadas IPv4 e IPv6; eso no demuestra aislamiento completo ni desconexión de Windows. La opción `rw` no prueba escritura efectiva bajo permisos, ACL o sandbox: el script permanece de solo lectura y deja esa comprobación al propietario en la futura preparación autorizada. Los tests de regresión usan observaciones simuladas y no certifican la laptop.
 
 ## Fuentes oficiales
 
