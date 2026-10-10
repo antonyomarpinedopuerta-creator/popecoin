@@ -1,5 +1,7 @@
 # ROBUSTO — estado vigente
 
+Integración offline desde 1aeed59: [puente unsigned con etapas canónicas](ROBUSTO_MAINNET_EXECUTION_PLAN.md#integración-unsigned-canónica-desde-1aeed59--2026-10-10), con rechazo de wire alterado, duplicados por sesión, cancelación y timeout incluso si el adaptador bloquea el event loop. 190 tests cliente, 63 Python y TypeScript aprobados. No journal persistente, firmas, RPC ni certificación de producción; `NOT_AUTHORIZED_FOR_MAINNET` permanece vigente.
+
 Avance de desarrollo desde f21ffae: [clasificación de bloqueos y validación offline](ROBUSTO_MAINNET_EXECUTION_PLAN.md#revisión-técnica-desde-f21ffae--2026-10-10). Ensayo unsigned externo con cancelación/timeout y fallos de transporte cubiertos; 185 tests cliente, 63 Python y TypeScript aprobados. Firma real/dispositivo, RC definitiva, publicación Arweave y revisión residual Meteora siguen pendientes. Laptop con cargador según propietario; diagnóstico de batería diferido, sin certificar estabilidad. No se generan identidades ni se habilita Mainnet.
 
 Documento vigente para el propietario y continuidad sin Astra: [ROBUSTO_READY_FOR_OWNER_DECISIONS](ROBUSTO_READY_FOR_OWNER_DECISIONS.md). Los parámetros económicos aprobados no autorizan allocations operativas ni transacciones.

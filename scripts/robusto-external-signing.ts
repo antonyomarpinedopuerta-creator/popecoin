@@ -1,6 +1,10 @@
 /** Offline rehearsal of the external signer handoff. No keys, signatures or RPC. */
 import {createHash} from 'node:crypto';
 import {Transaction} from '@solana/web3.js';
+import {performance} from 'node:perf_hooks';
+import {Idl} from '@coral-xyz/anchor';
+import {Step, validateProduction, address} from './robusto-production';
+import {validatePreparedStage} from './robusto-preflight';
 
 const hash = (bytes: Buffer) => createHash('sha256').update(bytes).digest('hex');
 export type HandoffReview = {
@@ -47,6 +51,7 @@ export async function rehearseExternalHandoff(encoded: string, review: HandoffRe
   if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 60_000) throw Error('Review timeout must be 1..60000 ms');
   if (options.signal?.aborted) throw Error('Unsigned review cancelled');
   const request = prepareExternalHandoff(encoded, review);
+  const started = performance.now();
   const controller = new AbortController();
   const cancel = () => controller.abort(new Error('Unsigned review cancelled'));
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -59,8 +64,15 @@ export async function rehearseExternalHandoff(encoded: string, review: HandoffRe
     });
     options.signal?.addEventListener('abort', cancel, {once: true});
     timer = setTimeout(() => controller.abort(new Error('Unsigned review timed out')), timeoutMs);
-    returned = await Promise.race([adapter.reviewUnsigned(request, controller.signal), interrupted]);
+    returned = await Promise.race([Promise.resolve().then(() => {
+      if (controller.signal.aborted) throw controller.signal.reason;
+      return adapter.reviewUnsigned(request, controller.signal);
+    }), interrupted]);
     if (controller.signal.aborted) throw controller.signal.reason;
+    if (performance.now() - started >= timeoutMs) {
+      controller.abort(new Error('Unsigned review timed out'));
+      throw controller.signal.reason;
+    }
   } finally {
     clearTimeout(timer);
     options.signal?.removeEventListener('abort', cancel);
@@ -72,4 +84,31 @@ export async function rehearseExternalHandoff(encoded: string, review: HandoffRe
   return {status: 'PASSED_UNSIGNED_HANDOFF_ONLY', mainnetMode: 'MAINNET_DISABLED',
     messageSha256: request.messageSha256, requiredSigners: [...request.requiredSigners],
     signed: false, sent: false, productionSignerIntegrated: false};
+}
+
+/** One local fixture session; consumed messages cannot be retried, including after failure.
+ * Not a durable production journal and never an authorization to sign/send. */
+export function createCanonicalFixtureSession() {
+  const consumed = new Set<string>();
+  return {async review(p: any, idl: Idl, elf: Buffer, step: Step, encoded: string,
+    expected: HandoffReview, adapter: FixtureReviewAdapter,
+    options: {signal?: AbortSignal; timeoutMs?: number} = {}, maxProgramBytes?: number) {
+    validateProduction(p);
+    if (idl.address !== p.program) throw Error('Canonical IDL/program mismatch');
+    validatePreparedStage(p, idl, elf, step, maxProgramBytes);
+    const request = prepareExternalHandoff(encoded, expected);
+    const observed = Transaction.from(Buffer.from(encoded, 'base64'));
+    const canonical = new Transaction({feePayer: address(p.payer), recentBlockhash: observed.recentBlockhash})
+      .add(...step.instructions);
+    if (canonical.serialize({requireAllSignatures: false, verifySignatures: false}).toString('base64') !== encoded)
+      throw Error('Unsigned transaction differs from canonical stage');
+    if (consumed.has(request.messageSha256)) throw Error('Duplicate fixture request; message already consumed');
+    consumed.add(request.messageSha256);
+    // Snapshot immutable primitives before the adapter can mutate caller-owned config/stage/review.
+    const bound = {scope: request.scope, messageSha256: request.messageSha256,
+      payer: request.payer, requiredSigners: request.requiredSigners};
+    const label = step.label, kind = step.kind;
+    const result = await rehearseExternalHandoff(encoded, bound, adapter, options);
+    return {...result, label, kind, canonicalStageVerified: true};
+  }};
 }

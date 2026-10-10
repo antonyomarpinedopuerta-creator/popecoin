@@ -4,6 +4,18 @@
 
 ## Avance offline desde d9f3387 — 2026-10-10
 
+### Integración unsigned canónica desde 1aeed59 — 2026-10-10
+
+`createCanonicalFixtureSession().review(...)` une la configuración pública validada, IDL/program, `validatePreparedStage`, construcción canónica con payer y blockhash del mensaje y revisión independiente de hash/firmantes. Exige igualdad exacta del wire unsigned; una revisión de hash que incluya instrucciones extra no basta para pasar el gate canónico. Solo permite `OFFLINE_FIXTURE_ONLY`, sin firmar/enviar ni RPC. El helper de handoff básico sigue siendo de bajo nivel y no certifica etapas canónicas por sí solo.
+
+La sesión consume el hash del mensaje antes de invocar al adaptador: bloquea duplicados concurrentes, repetidos y reintentos tras error, cancelación o timeout. No hay reintento automático; un ensayo nuevo requiere una sesión nueva y revisión nueva. Esta protección vive en memoria: no sustituye journal persistente, control entre procesos ni autorización de producción; cambiar blockhash cambia el mensaje. Copias inmutables de los campos revisados y snapshots de label/kind evitan que el adaptador cambie el resultado mutando objetos del llamador.
+
+Se corrigió el timeout cuando el adaptador bloquea el event loop: además del timer se verifica tiempo transcurrido monotónico antes de aceptar respuesta. Las excepciones síncronas del adaptador se canalizan por la misma promesa; las respuestas/fallos tardíos no convierten una solicitud cancelada o vencida en éxito. AbortSignal notifica cancelación, pero no puede forzar la detención de un adaptador no cooperativo.
+
+Validación offline: **190 tests cliente y 63 Python aprobados**, TypeScript `--noEmit`, `git diff --check` y scan de seguridad sin hallazgos dentro de su alcance heurístico. Cinco tests nuevos cubren las 12 etapas de token/distribución/vesting, sustitución de etapa, IDL incorrecto, instrucciones extra, duplicados, mutación del llamador, timeout con event loop bloqueado, cancelación pendiente, excepciones síncronas y fallos tardíos. Direcciones nuevas de estos tests construidas únicamente con bytes públicos ficticios; no keypairs ni firmas criptográficas. No se reconstruyó SBF ni RC completa.
+
+Límites pendientes: no se declara ensayo extremo a extremo de deployment ELF/buffer ni Meteora mediante este puente. El validador canónico no sustituye revisión independiente de rent/presupuesto, snapshot/genesis, blockhash/expiry o estado de cuentas. Hardware/conector, verificación de firmas reales/parciales, transporte real y journal persistente requieren trabajo posterior y decisiones/autorizaciones. Metadata/Arweave, custodia y riesgos históricos Meteora permanecen abiertos. `NOT_AUTHORIZED_FOR_MAINNET` / `MAINNET_DISABLED` continúan vigentes.
+
 ### Revisión técnica desde f21ffae — 2026-10-10
 
 La laptop permanecerá conectada al cargador por decisión del propietario; el diagnóstico de batería queda pendiente. Esto no certifica estabilidad ni cierra la recuperación fallida de hibernación. Internet permanece activo para desarrollo. `NOT_AUTHORIZED_FOR_MAINNET` se conserva.
