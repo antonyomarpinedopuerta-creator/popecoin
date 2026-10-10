@@ -205,3 +205,79 @@ test('canonical journal rejects duplicate after restart following success, cance
   }finally{fs.rmSync(parent,{recursive:true,force:true});}
  }
 });
+
+import {createGuardedFixtureSession} from '../scripts/robusto-external-signing';
+import {FixtureConditions,validateFixtureConditions} from '../scripts/robusto-fixture-conditions';
+function guardedFixture(){
+ const f=canonicalFixture(),step=f.steps[2],wire=f.wire(step);
+ const tx=Transaction.from(Buffer.from(wire.encoded,'base64'));
+ const accounts:FixtureConditions['expectedAccounts']={};
+ for(const k of tx.compileMessage().accountKeys)accounts[k.toBase58()]={exists:true,owner:PublicKey.default.toBase58(),lamports:'10000',dataSha256:'a'.repeat(64),executable:false};
+ const c:FixtureConditions={scope:'OFFLINE_FIXTURE_ONLY',authorization:false,cluster:'SIMULATED',
+ snapshotSlot:100,snapshotAtMs:1000,nowMs:1100,currentSlot:101,maxAgeMs:100,maxSlotLag:1,
+ currentHeight:10,blockhash:tx.recentBlockhash!,knownBlockhashes:[tx.recentBlockhash!],firstValidHeight:9,lastValidHeight:10,
+ expectedAccounts:structuredClone(accounts),observedAccounts:structuredClone(accounts),
+ budget:{fee:'5',rent:'10',otherDebit:'2',maxFee:'5',maxRent:'10',maxTotal:'17',payerReserve:'9983'}};
+ return {...f,step,...wire,c};
+}
+test('guarded canonical preparation/review accepts exact simulated validity, budget and freshness limits',async()=>{
+ const {p,idl,step,encoded,review,c}=guardedFixture();
+ const ticket=createGuardedFixtureSession().prepare(p,idl,Buffer.alloc(0),step,encoded,review,c);
+ const result=await ticket.review(()=>c,{reviewUnsigned:async r=>r.unsignedTransactionBase64});
+ assert.equal(result.fixtureConditionsVerified,true);assert.equal(result.authorization,false);assert.equal(result.sent,false);
+ assert.equal(result.scope,'OFFLINE_FIXTURE_ONLY');assert.equal(result.cluster,'SIMULATED');
+ validateFixtureConditions(encoded,{...c,currentHeight:c.firstValidHeight});
+});
+test('fixture conditions reject missing data, unknown/expired hashes, stale/future snapshots and budget overflow',()=>{
+ const {encoded,c}=guardedFixture();
+ const patches:any[]=[{scope:'PRODUCTION'},{authorization:true},{cluster:'mainnet-beta'},
+ {nowMs:1101},{nowMs:999},{currentSlot:102},{currentSlot:99},{currentHeight:11},{currentHeight:8},
+ {knownBlockhashes:[]},{blockhash:authority.toBase58()},{lastValidHeight:8},{currentHeight:NaN},
+ {observedAccounts:{}},{expectedAccounts:{}},{budget:null},
+ ...['fee','rent','otherDebit','maxFee','maxRent','maxTotal','payerReserve'].map(k=>({budget:{...c.budget,[k]:undefined}})),
+ {budget:{...c.budget,maxFee:'4'}},{budget:{...c.budget,maxRent:'9'}},{budget:{...c.budget,maxTotal:'16'}},
+ {budget:{...c.budget,payerReserve:'9984'}},{budget:{...c.budget,fee:'05'}},{budget:{...c.budget,otherDebit:'18446744073709551616'}}];
+ for(const patch of patches)assert.throws(()=>validateFixtureConditions(encoded,{...c,...patch}));
+ for(const k of Object.keys(c)){
+  const missing:any={...c};delete missing[k];assert.throws(()=>validateFixtureConditions(encoded,missing),k);
+ }
+});
+test('fixture account state validates presence, owner, data hash, executable flag and balance for every key',()=>{
+ const {encoded,c,p}=guardedFixture();
+ for(const patch of [{owner:authority.toBase58()},{dataSha256:'b'.repeat(64)},{lamports:'9999'},{executable:true},
+  {exists:false},{owner:null},{dataSha256:null}]){
+  const changed=structuredClone(c);Object.assign(changed.observedAccounts[p.payer],patch);
+  assert.throws(()=>validateFixtureConditions(encoded,changed));
+ }
+ const absent=structuredClone(c);absent.observedAccounts[p.payer]={exists:false,owner:null,lamports:'0',dataSha256:null,executable:false};
+ absent.expectedAccounts=structuredClone(absent.observedAccounts);
+ assert.throws(()=>validateFixtureConditions(encoded,absent),/payer/);
+});
+test('guarded review rejects changed data before adapter and rechecks after asynchronous review',async()=>{
+ for(const mode of ['before','after','stale','config']){
+  const {p,idl,step,encoded,review,c}=guardedFixture();let calls=0;
+  const ticket=createGuardedFixtureSession().prepare(p,idl,Buffer.alloc(0),step,encoded,review,c);
+  if(mode==='before')c.budget.maxTotal='18';if(mode==='config')p.startUtc='2028-01-01T00:00:00Z';
+  await assert.rejects(ticket.review(()=>c,{reviewUnsigned:async()=>{
+   calls++;if(mode==='after')c.budget.maxTotal='18';if(mode==='stale')c.currentHeight=11;return encoded;
+  }}));
+  assert.equal(calls,mode==='before'||mode==='config'?0:1);
+ }
+});
+
+test('guarded review rejects simulated rollback and budget lower than encoded account-creation rent',async()=>{
+ for(const patch of [{nowMs:1099},{currentSlot:100},{currentHeight:9}]){
+  const {p,idl,step,encoded,review,c}=guardedFixture();
+  const ticket=createGuardedFixtureSession().prepare(p,idl,Buffer.alloc(0),step,encoded,review,c);
+  Object.assign(c,patch);
+  await assert.rejects(ticket.review(()=>c,{reviewUnsigned:async()=>encoded}),/backwards/);
+ }
+ const {p,steps,wire,c}=guardedFixture();const {encoded}=wire(steps[0]);
+ const tx=Transaction.from(Buffer.from(encoded,'base64'));const accounts:FixtureConditions['expectedAccounts']={};
+ for(const k of tx.compileMessage().accountKeys)accounts[k.toBase58()]={exists:true,owner:PublicKey.default.toBase58(),lamports:'10000000',dataSha256:'a'.repeat(64),executable:false};
+ c.expectedAccounts=structuredClone(accounts);c.observedAccounts=structuredClone(accounts);
+ assert.throws(()=>validateFixtureConditions(encoded,c),/understates/);
+ c.budget={fee:'5',rent:'1461600',otherDebit:'0',maxFee:'5',maxRent:'1461600',maxTotal:'1461605',payerReserve:'0'};
+ validateFixtureConditions(encoded,c);
+ assert.equal(c.observedAccounts[p.payer].lamports,'10000000');
+});
