@@ -289,3 +289,29 @@ y findings malformados. Un fallo invalida el informe local previo. Cinco regresi
 aprobadas; no supresión, allowlist ni actualización del protocolo. Ninguno de los diez
 hallazgos queda cerrado. Cambiar ruint o el lock oficial produciría otro candidato que
 requiere reproducción y revisión; no se presenta un fork distinto como fix desplegado.
+
+## Decisiones técnicas por hallazgo — alcance offline 10B9/USDC6
+
+No se consultó upstream actual ni se modificó el lock oficial. Fuentes fijadas y
+snapshot RustSec anteriores, no promesa de vigencia. Prioridades internas (no CVSS):
+alta para ruint activo, media para mantenimiento/host, baja para edges excluidos en
+este build. Se conservan los diez hallazgos abiertos.
+
+| Hallazgo / componente | Afectación concreta | Mitigación verificable existente | Cambio necesario / riesgo residual |
+| --- | --- | --- | --- |
+| 2026-0007 bytes 1.10.1 | Indirecta en lock; sin inclusión activa SBF revisada | Borsh sin feature bytes, fingerprints/árbol fijados | Revalidar features; fix dependencia upstream >=1.11.1, no aplicado |
+| 2025-0137 ruint 1.14.0 | Directa a aritmética Meteora por CPI; reciprocal inseguro con divisor no normalizado | Callers Uint normalizan divisor no cero antes de low-level API | Upstream >=1.17.1 y compatibilidad/reproducción; mientras tanto revisión externa de callers, no PoC UB |
+| 2026-0220 ruint 1.14.0 | Directa; flags de desplazamientos defectuosos alcanzables | Shifts izquierdos acotados y flags derechos descartados en helpers revisados; defecto reproducido | Upstream >=1.20.0, nueva evaluación de límites del perfil 9/6; sin cierre por tests |
+| 2025-0141 bincode 1.3.3 | Directa transitiva SBF/host; mantenimiento | Lock/artefacto fijados para evitar deriva; no corrige abandono | Plan upstream o sustitución compatible auditada; aceptar residual requiere decisión informada |
+| 2024-0388 derivative 2.2.0 | Sin ruta activa; opcional vía ark-ff | Features/fingerprints excluyen crate | Revalidar configuración; resolver mantenimiento upstream |
+| 2024-0436 paste 1.0.15 | Sin ruta activa; mismo edge opcional | Exclusión del build fijado | Igual; no suprimir warning por exclusión |
+| 2026-0190 anyhow 1.0.97 | Indirecta host; UB context/downcast_mut | Consumers revisados sin llamada downcast_mut encontrada | Host >=1.0.103 compatible y revisión de consumidores; ausencia en búsqueda no prueba universal |
+| 2026-0012 keccak 0.1.4 | Indirecta host; backend ARM afectado | Host x86_64 y feature ARM opt-in ausente | >=0.1.6 compatible; revalidar al cambiar arquitectura/flags |
+| 2026-0097 rand 0.8.5 | Indirecta host/dev; reentrada por logger | Feature log ausente en perfil revisado | >=0.8.6 compatible; no ejecutar RNG prohibido ni suponer todos los loggers seguros |
+| 2026-0097 rand 0.9.1 | Sin ruta activa por edge rand-09 opcional | Feature desactivada | >=0.9.3 upstream si se activa; aviso del lock permanece |
+
+Ninguno se corrige cambiando precios, decimales, supply o flags del builder. No se
+implementó fix upstream por nuestra cuenta. Cambiar las dependencias oficiales crearía
+otro candidato que exige compatibilidad, reproducción, pruebas y revisión; no equivale
+a actualizar el programa externo usado por usuarios. No hay hallazgo cerrado ni
+aceptación definitiva de riesgo. Estado: BLOCKED_FOR_PRODUCTION_REVIEW.

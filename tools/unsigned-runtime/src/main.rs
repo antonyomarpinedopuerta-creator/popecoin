@@ -1,4 +1,5 @@
 mod adversarial;
+mod custody;
 mod engine;
 mod liquidity;
 mod meteora;
@@ -602,6 +603,10 @@ fn main() {
     let args: Vec<_> = std::env::args().collect();
     if args.len() == 4 && args[3] == "--meteora-10b9-usdc-only" {
         meteora::test_profile(Path::new(&args[1]), true);
+        return;
+    }
+    if args.len() == 4 && args[3] == "--vesting-custody-only" {
+        custody::test(Path::new(&args[1]), Path::new(&args[2]));
         return;
     }
     if args.len() == 4 && args[3] == "--10b9-only" {

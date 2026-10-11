@@ -129,7 +129,7 @@ python3 scripts/check-10b9-runtime.py --fixture-elf target/rehearsal-builds/YMN9
 python3 scripts/package-external-audit.py
 ```
 
-Gate exige HEAD limpio, repite 150 casos, liga fuentes/ELF/fixtures a hashes y no
+Gate exige HEAD limpio, repite 157 casos, liga fuentes/ELF/fixtures a hashes y no
 acredita atomicidad nativa. Paquete incluye fuentes públicas versionadas, fuentes
 oficiales según los 129 hashes del build-record, locks, IDL, cuatro ELF fijados,
 fuentes del harness y reportes/fixtures. El ejecutable host (51 MiB) no se incluye;
@@ -146,3 +146,9 @@ Criterio de auditoría: informe independiente con commit/artefactos exactos, alc
 hallazgos/severidad, fixes y retest, discrepancias de fuente/ELF, pruebas nativas y
 riesgo residual aceptado explícitamente. Propietario decide después de revisar informe,
 financiación/capital, custodia y autorización por etapas; no hay aprobación implícita.
+
+Ampliación: [atomicidad y custodia](ROBUSTO_ATOMICITY_AND_CUSTODY_REVIEW.md) documenta
+herramientas instaladas/ausentes, criterio de rollback nativo y siete nuevos casos de
+excedentes/permisos. Gate actual: 157 casos; custodyCases=7 obligatorio en paquete.
+Los diez hallazgos incluyen ahora acción de mitigación/cambio por cada componente;
+ninguna actualización upstream ni cierre se presume.

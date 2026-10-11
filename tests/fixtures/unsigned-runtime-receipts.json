@@ -93,9 +93,10 @@
     "tools/unsigned-runtime/Cargo.toml": "652ed8ca1650503a392c1d19a5b94f8a4b7567539905fa27ef53498ef4bc2ed8",
     "tools/unsigned-runtime/src/adversarial.rs": "a8c8e011ad0aa76cb05b86e9a034497c809506946604cd865b0aadea1961ee21",
     "tools/unsigned-runtime/src/engine.rs": "a0ef1b346502ca8356b08c0bda89aa3cdced69b900f768f639158b5acba03a57",
-    "tools/unsigned-runtime/src/main.rs": "db330ff2e9b3fe6298c2c98d77d3aba5e254ca4617b4b326f6ad600be6a230a4",
+    "tools/unsigned-runtime/src/main.rs": "8e27dde21ac30962124e778da4e5bfcf65fed99a08f5620b576fab20a605ffb4",
     "tools/unsigned-runtime/src/meteora.rs": "218465239c2ef58953acba2f5d38d86645dcf381fc6f11e179af038c1102cc28",
     "tools/unsigned-runtime/src/liquidity.rs": "b30711f8674c9f6c57378d0839a9aed43bee8f5401842588f5025048e5b96dfd",
-    "tools/unsigned-runtime/src/tokenomics_10b9.rs": "ebd9e370842e94be824253aff74195a976c0671544b2fb751d1ecad08c412aa2"
+    "tools/unsigned-runtime/src/tokenomics_10b9.rs": "ebd9e370842e94be824253aff74195a976c0671544b2fb751d1ecad08c412aa2",
+    "tools/unsigned-runtime/src/custody.rs": "c1f6b1b33133136e24ac07f2eab988e1abb129dadf6f3d2dc1c41a9f101fa9fe"
   }
 }

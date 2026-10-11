@@ -31,13 +31,15 @@ def check(elf):
         run = subprocess.run(['cargo','run','--offline','--locked','--manifest-path','tools/unsigned-runtime/Cargo.toml','--',str(ROOT),str(Path(elf).absolute()),mode],cwd=ROOT,env=env,text=True,capture_output=True)
         evaluate(run.stdout,run.returncode,markers)
         suites[label] = dict(cases=count,fixtureSha256=baseline.sha(fixture),stdoutSha256=baseline.sha(run.stdout.encode()))
+    custody = subprocess.run(['cargo','run','--offline','--locked','--manifest-path','tools/unsigned-runtime/Cargo.toml','--',str(ROOT),str(Path(elf).absolute()),'--vesting-custody-only'],cwd=ROOT,env=env,text=True,capture_output=True)
+    evaluate(custody.stdout,custody.returncode,['7 vesting custody SBF cases passed'])
     if baseline.inventory(ROOT) != original['sourceHashes'] or subprocess.check_output(['git','status','--porcelain'],cwd=ROOT).strip():
         raise ValueError('Source changed during alternative verification')
     if subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()!=original['head']:
         raise ValueError('HEAD changed during alternative verification')
     if any(baseline.sha(baseline.load('build-rehearsal').public_read(ROOT,p)) != h for p,h in original['artifactHashes'].items()):
         raise ValueError('Artifact changed during verification')
-    report = dict(original, suites=suites, legacySuites=original['suites'], status='passed', profile='PROPOSED_NOT_APPROVED_10B9_USDC6', baselineReportSha256=baseline.sha((ROOT/'target/unsigned-runtime-report.json').read_bytes()))
+    report = dict(original, custodyCases=7, custodyStdoutSha256=baseline.sha(custody.stdout.encode()), suites=suites, legacySuites=original['suites'], status='passed', profile='PROPOSED_NOT_APPROVED_10B9_USDC6', baselineReportSha256=baseline.sha((ROOT/'target/unsigned-runtime-report.json').read_bytes()))
     return report
 
 if __name__=='__main__':
@@ -53,4 +55,4 @@ if __name__=='__main__':
     save(dict(status='FAILED_INCOMPLETE_EVIDENCE',scope='OFFLINE_FIXTURE_ONLY',authorization=False))
     report=check(args.fixture_elf)
     save(report)
-    print(json.dumps(dict(head=report['head'],status=report['status'],suites=report['suites'],reportSha256=hashlib.sha256(output.read_bytes()).hexdigest()),indent=2))
+    print(json.dumps(dict(head=report['head'],status=report['status'],suites=report['suites'],custodyCases=report['custodyCases'],reportSha256=hashlib.sha256(output.read_bytes()).hexdigest()),indent=2))

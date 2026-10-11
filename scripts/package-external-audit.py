@@ -26,7 +26,7 @@ def validate_report(report, head, sources):
         report.get('scope')!='OFFLINE_FIXTURE_ONLY' or report.get('authorization') is not False or
         report.get('mainnetDisabled') is not True or report.get('mainnetStatus')!='NOT_AUTHORIZED_FOR_MAINNET' or
         report.get('nativeAtomicityVerified') is not False or report.get('productionExecutionVerified') is not False or
-        report.get('profile')!='PROPOSED_NOT_APPROVED_10B9_USDC6' or
+        report.get('profile')!='PROPOSED_NOT_APPROVED_10B9_USDC6' or report.get('custodyCases')!=7 or
         report.get('legacySuites')!={'baselineInstructions':24,'boundedSequences':8,'meteora':20,'meteoraLiquidity':13,'meteoraSwaps':12,'adversarialScenarios':15}):
         raise ValueError('Stale, incomplete or non-fixture runtime evidence')
     suites=report.get('suites',{})
