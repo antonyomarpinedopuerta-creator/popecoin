@@ -11,7 +11,7 @@ import tempfile
 
 ROOT=Path(__file__).resolve().parents[1]
 MARKERS=['24 unsigned instruction-runtime cases passed','8 bounded atomicity cases passed',
-         '20 Meteora cases passed','15 ROBUSTO adversarial SBF cases passed']
+         '20 Meteora cases passed','12 Meteora liquidity cases passed','5 Meteora swap cases passed','15 ROBUSTO adversarial SBF cases passed']
 
 def sha(value): return hashlib.sha256(value).hexdigest()
 def evaluate(stdout,returncode):
@@ -91,7 +91,7 @@ def check(program_path):
         mainnetDisabled=True,status='passed',head=head,sourceHashes=sources,artifactHashes=artifacts,receipts=records,
         fixtureSha256=sha(fixture),binarySha256=sha(builder.public_read(root,'target/debug/robusto-unsigned-runtime')),
         dependencyTreeSha256=sha(tree.encode()),stdoutSha256=sha(run.stdout.encode()),
-        suites={'baselineInstructions':24,'boundedSequences':8,'meteora':20,'adversarialScenarios':15},
+        suites={'baselineInstructions':24,'boundedSequences':8,'meteora':20,'meteoraLiquidity':12,'meteoraSwaps':5,'adversarialScenarios':15},
         nativeAtomicityVerified=False,productionExecutionVerified=False,
         limitations=['Explicit fixture discard is not Bank transaction rollback','No signatures, network confirmation, fees or production authorization','Local source/binary hashes are not independent attestations'])
     output=target/'unsigned-runtime-report.json'

@@ -1,5 +1,6 @@
 mod adversarial;
 mod engine;
+mod liquidity;
 mod meteora;
 // Instruction runtime only: signer flags are synthetic permissions, never signatures.
 use sha2::{Digest, Sha256};

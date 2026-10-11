@@ -166,3 +166,31 @@ no es un entorno hermético ni una certificación de procedencia.
 No se agotaron todas las ampliaciones offline posibles. Continuar por swaps/retiros
 y atomicidad con herramientas compatibles; no repetir suites o compilaciones sin
 cambios pertinentes. NOT_AUTHORIZED_FOR_MAINNET / MAINNET_DISABLED permanecen vigentes.
+
+## Cierre: liquidez y swap unsigned — 2026-10-11
+
+`liquidity.rs` añade 12 casos add/remove y cinco swap2 sobre las cuentas resultantes
+reales de la creación ficticia. No presupone autoridad payer: el NFT de posición
+pertenece a creator; fuentes de operaciones posteriores se construyen ficticiamente
+con ese owner, inventario inferior al supply conocido y wSOL respaldado por lamports.
+La configuración inicial y economía de producción no se modifican.
+
+Add exitoso duplica el vault A de 1e12 a 2e12; remove devuelve inventario; swap2
+ExactIn B→A consume exactamente 1.000.000 lamports tokenizados y entrega A positivo.
+Conservación de A, B y lamports en todos los estados raw/aceptados comprobados.
+Errores exactos: liquidez cero/insuficiente, u128 máximo, límites slippage, signer
+faltante, fuentes/destinos congelados y fondos insuficientes. La primera ejecución
+con payer fue rechazada InvalidAuthority(6053), antes de corregir el fixture para
+usar al propietario del NFT; no se debilitó el control del programa.
+
+Las ABI se cotejaron con el código fuente oficial local fijado (Add/RemoveLiquidity
+Parameters u128/u64/u64, SwapParameters2 u64/u64/u8, discriminadores Anchor y orden de
+cuentas), además del IDL runtime local. Swap usa program ID como sentinel de referral
+None. No cubre ExactOut/PartialFill, delegados, rewards ni todas las extensiones.
+Los modelos de preparación siguen separados de estas ejecuciones CPI.
+
+El gate y empaquetado exigen ahora también estas dos suites. Recibos de secuencias
+ROBUSTO conservan su contenido; sus referencias ligan además la nueva fuente.
+La atomicidad nativa continúa bloqueada: búsqueda actual del registro Cargo no
+encuentra solana-svm/solana-runtime completos. No se ejecutó LiteSVM ni se descargó
+infraestructura. El journal conserva su carácter ficticio y no habilita retries.

@@ -216,6 +216,7 @@ pub fn test(root: &Path) {
         assert_eq!(*state.owner(), program);
         assert_eq!(&state.data()[..8], &Sha256::digest(disc)[..8]);
     }
+    crate::liquidity::test(&result.committed, named, program);
     let check = |label: &str, state: &engine::Accounts, instruction: Instruction| {
         let failure = engine::execute(state, &[instruction], None);
         println!("Meteora {label}: {:?}", failure.outcome);
