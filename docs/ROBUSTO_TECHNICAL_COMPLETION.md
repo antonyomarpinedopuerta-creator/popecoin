@@ -87,3 +87,13 @@ solana-keypair ni LiteSVM. No se recompiló el contrato: se compiló el harness 
 Los flags signer son permisos sintéticos; no prueba autenticación de usuarios.
 Initialize, lifecycle secuencial, CPI Meteora y transacciones atómicas completas no
 quedan acreditados por estos doce casos. Detalles/comando/límites en el README.
+
+## Integridad frente a sustitución del backup
+
+`backup-public.py --verify ARCHIVE --trusted-sha256 DIGEST` permite cotejar el paquete
+con un digest público conservado por el propietario/revisor en otro canal. Rechaza
+sustitución conjunta de archivo y sidecar aunque el manifest interno sea consistente.
+El digest no autentica por sí mismo quién lo emitió: debe proceder de revisión previa
+fiable. El modo sin digest sigue siendo comprobación de integridad interna, sin
+atestación de origen. Regresión de sustitución y formatos inválidos: 11 tests del
+verificador de backups aprobados. No requiere claves ni firmas.

@@ -93,6 +93,22 @@ class PublicBackupTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     backup.verify_backup(self.archive(temp, **patch))
 
+    def test_independent_digest_rejects_archive_and_sidecar_replacement(self):
+        with tempfile.TemporaryDirectory() as temp:
+            path = self.archive(temp)
+            trusted = hashlib.sha256(path.read_bytes()).hexdigest()
+            self.assertIn('README.md', backup.verify_backup(path, trusted)['files'])
+            # A different internally consistent package has a valid sidecar.
+            manifest = {'files': {'README.md': hashlib.sha256(b'replacement').hexdigest()}}
+            replacement = self.custom_archive(temp, [('README.md', b'replacement'),
+                ('backup-manifest.json', json.dumps(manifest).encode())])
+            backup.verify_backup(replacement)
+            with self.assertRaisesRegex(ValueError, 'independently retained'):
+                backup.verify_backup(replacement, trusted)
+            for invalid in ['', 'A'*64, '0'*63, 123]:
+                with self.assertRaisesRegex(ValueError, 'Invalid independently'):
+                    backup.verify_backup(path, invalid)
+
     def test_resource_limits_fail_closed_without_large_test_files(self):
         with tempfile.TemporaryDirectory() as temp:
             path = self.archive(temp)

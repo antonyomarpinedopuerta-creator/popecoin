@@ -102,11 +102,18 @@ def unique_object(pairs):
     return result
 
 
-def verify_backup(path):
+def verify_backup(path, trusted_sha256=None):
     path = Path(path)
     if load('check-public').sensitive_name(path.name):
         raise ValueError('Sensitive backup filename')
     raw = bounded_regular(path, MAX_COMPRESSED)
+    # A sidecar beside the archive detects corruption, but an attacker can replace
+    # both. An independently retained digest binds these bytes to prior review.
+    if trusted_sha256 is not None:
+        if not isinstance(trusted_sha256, str) or not re.fullmatch('[0-9a-f]{64}', trusted_sha256):
+            raise ValueError('Invalid independently retained SHA-256')
+        if hashlib.sha256(raw).hexdigest() != trusted_sha256:
+            raise ValueError('Backup differs from independently retained SHA-256')
     expected = f'{hashlib.sha256(raw).hexdigest()}  {path.name}\n'.encode()
     if bounded_regular(path.with_suffix('.sha256'), 512) != expected:
         raise ValueError('Backup checksum sidecar mismatch')
@@ -148,9 +155,11 @@ def verify_backup(path):
 
 if __name__ == '__main__':
     import sys
-    if len(sys.argv) == 3 and sys.argv[1] == '--verify':
+    if len(sys.argv) == 5 and sys.argv[1] == '--verify' and sys.argv[3] == '--trusted-sha256':
+        print(json.dumps(verify_backup(sys.argv[2], sys.argv[4]), indent=2))
+    elif len(sys.argv) == 3 and sys.argv[1] == '--verify':
         print(json.dumps(verify_backup(sys.argv[2]), indent=2))
     elif len(sys.argv) == 1:
         make_backup()
     else:
-        raise SystemExit('Use no arguments to create, or --verify archive to validate')
+        raise SystemExit('Use no arguments to create, or --verify archive [--trusted-sha256 DIGEST] to validate')
