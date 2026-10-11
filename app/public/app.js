@@ -1,53 +1,63 @@
 "use strict";
-const role = document.querySelector("#role");
-const button = document.querySelector("#refresh");
-const status = document.querySelector("#status");
-const result = document.querySelector("#result");
-let displaySymbol="PAPA", displayCluster="devnet", decimals=6;
-async function loadConfig(){
- const response=await fetch("/api/config");if(!response.ok)throw Error("Configuración no disponible");const c=await response.json();
- if(c.decimals!==6||!["PAPA","ROBUSTO"].includes(c.symbol)||!Array.isArray(c.roles))throw Error("Configuración inválida");
- displaySymbol=c.symbol;displayCluster=c.cluster;decimals=c.decimals;
- role.replaceChildren(...c.roles.map(label=>{const o=document.createElement("option");o.value=label;o.textContent=label;return o;}));
- document.querySelector(".badge").textContent=c.cluster==="devnet"?"SOLANA DEVNET · TOKENS DE PRUEBA":"SOLANA MAINNET · CONSULTA DE SOLO LECTURA";
- document.querySelector("header p").textContent=c.symbol==="PAPA"?"Archivo de pruebas históricas PAPA. No corresponde al rehearsal ROBUSTO ni a producción.":"ROBUSTO: consulta de las direcciones verificadas en configuración.";
- button.textContent=`Consultar ${displayCluster}`;
- if(c.cluster==="mainnet-beta")document.querySelector("footer").textContent="ROBUSTO: lectura de cuentas configuradas; sin firma, envío ni conexión de wallet. Crear el token no garantiza un mercado público.";
-}
-button.disabled=true;loadConfig().then(()=>{button.disabled=false;}).catch(e=>{status.textContent=e.message;});
+
+// This page is a local proposal preview. It deliberately has no wallet,
+// Solana SDK, RPC URL, external asset, or transaction code.
+const allocationRoot = document.querySelector("#allocations");
+const marketRoot = document.querySelector("#market-data");
+
 function amount(value) {
-  const n = BigInt(value), scale=10n**BigInt(decimals);
-  return `${(n / scale).toLocaleString("es-ES")},${(n % scale).toString().padStart(decimals, "0")} ${displaySymbol}`;
+  return BigInt(value).toLocaleString("es-ES");
 }
-function date(value) {
-  const d = new Date(Number(BigInt(value) * 1000n));
-  return Number.isNaN(d.getTime()) ? `Timestamp ${value}` : d.toISOString().replace("T", " ").replace(".000Z", " UTC");
+
+async function loadProposal() {
+  const response = await fetch("/api/product", { headers: { Accept: "application/json" } });
+  if (!response.ok) throw new Error("No fue posible verificar la propuesta local.");
+  const product = await response.json();
+  if (product.name !== "ROBUSTO" || product.projectStatus !== "NOT_DEPLOYED" ||
+      product.availability !== "NOT_AVAILABLE_FOR_PURCHASE" ||
+      product.scope !== "OFFLINE_FIXTURE_ONLY" || product.mainnetDisabled !== true ||
+      product.authorization !== false || product.supply?.decimals !== 9 ||
+      product.supply?.tokens !== "10000000000" || !Array.isArray(product.allocations)) {
+    throw new Error("La respuesta local no coincide con la propuesta esperada.");
+  }
+  const total = product.allocations.reduce((sum, allocation) => sum + BigInt(allocation.tokens), 0n);
+  if (total !== BigInt(product.supply.tokens)) throw new Error("La distribución no conserva el suministro propuesto.");
+
+  document.querySelector("#total-supply").textContent = amount(product.supply.tokens);
+  allocationRoot.replaceChildren(...product.allocations.map((allocation, index) => {
+    const row = document.createElement("article");
+    row.className = `allocation-row${allocation.label === "Fundador" ? " founder-row" : ""}`;
+    const number = document.createElement("span"); number.className = "allocation-index";
+    number.textContent = String(index + 1).padStart(2, "0");
+    const name = document.createElement("div"); name.className = "allocation-name";
+    const title = document.createElement("strong"); title.textContent = allocation.label;
+    const detail = document.createElement("small");
+    detail.textContent = allocation.label === "Mercado y liquidez"
+      ? "Asignación de tokens; no significa liquidez depositada"
+      : allocation.label === "Fundador" ? "Asignación propuesta, sujeta a vesting" : "Parámetros de uso y beneficiarios pendientes";
+    name.append(title, detail);
+    const value = document.createElement("strong"); value.className = "allocation-value";
+    value.textContent = amount(allocation.tokens);
+    const percent = document.createElement("span"); percent.className = "allocation-percent";
+    percent.textContent = allocation.percent;
+    row.append(number, name, value, percent);
+    return row;
+  }));
 }
-function list(id, entries) {
-  const node = document.querySelector(id); node.replaceChildren();
-  for (const [label, value] of entries) {
-    const dt = document.createElement("dt"), dd = document.createElement("dd");
-    dt.textContent = label; dd.textContent = value; node.append(dt, dd);
+
+async function loadMarketStatus() {
+  const response = await fetch("/api/market", { headers: { Accept: "application/json" } });
+  if (!response.ok) throw new Error("Estado de mercado local no disponible.");
+  const market = await response.json();
+  if (market.status !== "NOT_DEPLOYED" || market.data !== null || market.source !== "NONE_CONFIGURED") {
+    throw new Error("No se acepta información de mercado sin una fuente autorizada.");
   }
 }
-button.addEventListener("click", async () => {
-  button.disabled = true; role.disabled = true; result.hidden = true;
-  status.textContent = `Consultando y verificando cuentas en ${displayCluster}…`;
-  try {
-    const response = await fetch(`/api/vesting?role=${encodeURIComponent(role.value)}`, { signal: AbortSignal.timeout(15000) });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "Consulta fallida");
-    if(data.symbol!==displaySymbol||data.cluster!==displayCluster||data.decimals!==decimals)throw Error("Identidad de respuesta no coincide con configuración");
-    const cards = document.querySelector("#amounts"); cards.replaceChildren();
-    for (const [label, key] of [["Asignado", "total"], ["Liberado", "released"], ["Acumulado desde el inicio", "accrued"], ["Reclamable por calendario", "claimable"], ["Saldo del vault", "vaultBalance"], ["Financiación pendiente", "shortfall"]]) {
-      const article = document.createElement("article"), title = document.createElement("h2"), value = document.createElement("p");
-      title.textContent = label; value.textContent = amount(data[key]); article.append(title, value); cards.append(article);
-    }
-    list("#schedule", [["Inicio", date(data.start)], ["Cliff", date(data.cliff)], ["Fin", date(data.end)], ["Reloj de la red", date(data.chainTime)]]);
-    list("#identity", [["Programa", data.program], ["Mint", data.mint], ["Beneficiario", data.beneficiary], ["Vesting", data.vesting], ["Vault", data.vault], ["Slot confirmado", String(data.slot)], ["Vault congelado", data.frozen ? "Sí" : "No"], ["Autoridad de emisión activa", data.mintAuthorityActive ? "Sí" : "No"], ["Autoridad de congelación activa", data.freezeAuthorityActive ? "Sí" : "No"]]);
-    status.textContent = `Estado consultado: ${new Date(data.observedAt).toLocaleString("es-ES")}. ${data.claimCoveredByVault ? "El saldo cubre el importe reclamable." : "No hay un importe reclamable cubierto por un vault descongelado."} Actualiza para obtener una nueva lectura.`;
-    result.hidden = false;
-  } catch (error) { status.textContent = error.name === "TimeoutError" ? "La red tardó demasiado. Reintenta la consulta." : error.message; }
-  finally { button.disabled = false; role.disabled = false; }
+
+Promise.all([loadProposal(), loadMarketStatus()]).catch(() => {
+  const status = document.createElement("small");
+  status.className = "local-data-error";
+  status.setAttribute("role", "status");
+  status.textContent = "No fue posible verificar los datos locales; las cifras visibles son una propuesta, no datos de mercado.";
+  document.querySelector(".proposal-footnote").append(status);
 });
-role.addEventListener("change", () => { result.hidden = true; status.textContent = `Pulsa Consultar ${displayCluster} para actualizar esta asignación.`; });

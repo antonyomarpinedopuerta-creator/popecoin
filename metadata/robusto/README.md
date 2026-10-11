@@ -1,6 +1,6 @@
 # Metadata ROBUSTO
 
-Marca: ROBUSTO. Símbolo de metadata: ROBUSTO; representación pública: $ROBUSTO. Decimales del mint: 6.
+Marca: ROBUSTO. Símbolo de metadata: ROBUSTO; representación pública: $ROBUSTO. Este directorio conserva la metadata/identidad histórica asociada a un perfil de mint de 6 decimales; la metadata por sí sola no fija decimales. La alternativa económica más reciente propone 10.000.000.000 ROBUSTO y 9 decimales, pero está **NO APROBADA** y separada en `config/robusto-tokenomics-10b9-alternative.json`. Ninguno de estos datos autoriza producción.
 
 Estado: **OFFICIAL_USER_ASSET_VALIDATED**. Logo exacto aportado por el propietario en `metadata/robusto/robusto-logo.png`, 1254 × 1254, 1.496.214 bytes. SHA-256: `32c93f1971eb4a03f5c9b0fc6a5e87b1dc20f3028b5b73d01eeabd29cf5355ce`. [Registro del asset](OFFICIAL_ASSET.md).
 

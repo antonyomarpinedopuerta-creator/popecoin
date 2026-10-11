@@ -3,9 +3,9 @@
 Resultado técnico offline vigente: [ROBUSTO_TECHNICAL_COMPLETION.md](docs/ROBUSTO_TECHNICAL_COMPLETION.md).
 
 Estado actual y límites de lanzamiento: [ROBUSTO_STATUS.md](docs/ROBUSTO_STATUS.md).
-ROBUSTO es la marca pública; los nombres técnicos `popecoin_vesting`, IDs, binarios y metadata PAPA se conservan para reproducibilidad. Los planes PAPA de 10 millones de tokens son históricos: ROBUSTO de 1.000 millones tiene parámetros económicos aprobados para preparación; su ejecución permanece no autorizada.
+ROBUSTO es la identidad pública propuesta. El suministro de 10.000.000.000 tokens y nueve decimales es una propuesta **NO APROBADA**, aislada en `config/robusto-tokenomics-10b9-alternative.json`; no sustituye los perfiles históricos de seis decimales. No hay lanzamiento autorizado: `NOT_AUTHORIZED_FOR_MAINNET`, `MAINNET_DISABLED`, `OFFLINE_FIXTURE_ONLY`.
 
-El lector web conserva PAPA para sus cuentas históricas; `config/app-reader.json` define ese perfil. La plantilla Mainnet está deshabilitada y requiere direcciones verificadas y opt-in de lectura explícito antes de usarla.
+`app/` es una presentación local, de solo lectura y sin conexión a Solana. La propuesta no está desplegada ni disponible para comprar; no muestra métricas o datos de mercado. Los nombres internos, IDs, seeds, IDL y artefactos históricos se conservan para compatibilidad y reproducibilidad.
 
 
 Programa Solana/Anchor para vesting lineal de tokens SPL clásicos. Requiere firma del beneficiario al crear y liberar; la autoridad financia el vault. No tiene cancelación, retiro administrativo ni recuperación de excedentes. La acumulación comienza en `start_time` y se puede reclamar desde `cliff_time`.
@@ -20,10 +20,15 @@ La [revisión final del 6 de octubre](docs/ROBUSTO_FINAL_REVIEW.md) documenta la
 npm run robusto:production       # offline; no autorización
 npm run check:rc                # build/tests de dos identidades
 npm run check:security          # heurística + últimos 20 commits
-npm run robusto:third-status    # lectura Devnet, evidencia nueva, sin firmas
+npm run robusto:third-status    # lectura de red Devnet (no ejecutar en la preview offline)
 ```
 
-El lifecycle rápido completo ejecuta SBF/SPL en LiteSVM con Clock aislado; no es evidencia Devnet. El ensayo público mantiene sus fechas exactas y 10.000.000 raw depositados. Imagen ROBUSTO: OFFICIAL_USER_ASSET_VALIDATED; hosting/URI pendientes. Distribución: PROPOSED_NOT_APPROVED. Ningún Mainnet, publicación on-chain, mint adicional, liquidez ni revocación.
+Los comandos de lectura/escritura Devnet y scripts operativos abajo interactúan con
+una red Solana o pueden modificarla. No forman parte de la preview offline ni de
+las pruebas de interfaz; su uso requiere autorización explícita futura y revisión
+de destinos/identidades.
+
+El lifecycle rápido completo ejecuta SBF/SPL en LiteSVM con Clock aislado; no es evidencia Devnet. Los ensayos y perfiles económicos históricos no aprueban los nuevos parámetros. Imagen ROBUSTO: OFFICIAL_USER_ASSET_VALIDATED; hosting/URI pendientes. Distribución actual de 10B/9: PROPOSED_NOT_APPROVED. Ningún Mainnet, publicación on-chain, mint adicional, liquidez ni revocación.
 
 ## Validación local
 
@@ -54,17 +59,16 @@ Los scripts de depósito consultan el vault y calculan la diferencia exacta. Un 
 
 ## Estado y revisión final
 
-Ver [PAPA_WORK_HANDOFF.md](PAPA_WORK_HANDOFF.md) para resultados actuales y pendientes. `app/` contiene una interfaz local de consulta Devnet, sin firmas ni conexión de wallet. Los registros Devnet de `docs/` son históricos y no afirman el estado actual de la red. Quedan pendientes auditoría independiente, custodia final, metadata duradera, mint y fechas finales de producción. No hay autorización de lanzamiento implícita.
+Ver [ROBUSTO_PUBLIC_IDENTITY.md](docs/ROBUSTO_PUBLIC_IDENTITY.md) para los límites de identidad. `app/` ofrece una vista local de propuestas, sin firmas, wallet, conexión de red ni API de lectura chain. Los registros Devnet de `docs/` son históricos y no afirman el estado actual de la red. Quedan pendientes auditoría independiente, custodia final, metadata duradera, mint y fechas finales de producción. No hay autorización de lanzamiento implícita.
 
 
 ## App de consulta
 
-`npm run app` sirve http://127.0.0.1:3000 (solo loopback; `PORT` configurable).
-Permite consultar Reserva y Founder, muestra cantidades exactas, calendario UTC,
-slot confirmado, financiación pendiente y estado de congelación. Acumulado desde
-el inicio incluye tokens aún bloqueados por el cliff; reclamable aplica el cliff
-y descuenta liberaciones. Cobertura del vault no garantiza que una transacción
-pueda ejecutarse: no valida destino, firma ni simulación. No ofrece envío.
+`npm run app` sirve la presentación offline en `127.0.0.1:3000` (solo loopback;
+`PORT` configurable, limitado a puertos no privilegiados). Presenta únicamente la
+propuesta local validada; `/api/market` devuelve estado no desplegado y datos nulos.
+No consulta RPC, no carga wallets y no ofrece compra, firma o envío. Es una vista
+de desarrollo local, no una aplicación pública desplegada.
 
 ## Builds aislados y evidencias
 
