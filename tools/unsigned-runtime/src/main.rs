@@ -2,6 +2,7 @@ mod adversarial;
 mod engine;
 mod liquidity;
 mod meteora;
+mod tokenomics_10b9;
 // Instruction runtime only: signer flags are synthetic permissions, never signatures.
 use sha2::{Digest, Sha256};
 use solana_account::{AccountSharedData, ReadableAccount, WritableAccount};
@@ -599,6 +600,10 @@ fn bounded_atomicity(root: &Path, program_path: &Path) {
 
 fn main() {
     let args: Vec<_> = std::env::args().collect();
+    if args.len() == 4 && args[3] == "--10b9-only" {
+        tokenomics_10b9::test(Path::new(&args[1]), Path::new(&args[2]));
+        return;
+    }
     assert_eq!(
         args.len(),
         3,

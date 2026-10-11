@@ -1,0 +1,55 @@
+{
+  "status": "PROPOSED_NOT_APPROVED",
+  "scope": "OFFLINE_FIXTURE_ONLY",
+  "mainnetStatus": "NOT_AUTHORIZED_FOR_MAINNET",
+  "mainnetDisabled": true,
+  "operationsAuthorized": false,
+  "decimalsAssumption": 9,
+  "supplyTokens": "10000000000",
+  "supplyBaseUnits": "10000000000000000000",
+  "fixedSupplyProposed": true,
+  "additionalIssuanceProposed": false,
+  "founderPersonalFunding": "0",
+  "allocations": [
+    {
+      "label": "liquidity_market",
+      "tokens": "4000000000",
+      "basisPoints": 4000
+    },
+    {
+      "label": "community",
+      "tokens": "3000000000",
+      "basisPoints": 3000
+    },
+    {
+      "label": "strategic_reserve",
+      "tokens": "1500000000",
+      "basisPoints": 1500
+    },
+    {
+      "label": "development_operations",
+      "tokens": "1499000000",
+      "basisPoints": 1499
+    },
+    {
+      "label": "founder",
+      "tokens": "1000000",
+      "basisPoints": 1
+    }
+  ],
+  "founderVesting": {
+    "requestedLockMonths": 12,
+    "requestedLinearMonths": 24,
+    "model": "FIXED_DAYS_ILLUSTRATION_NOT_CALENDAR_MONTHS",
+    "lockDaysAssumption": 365,
+    "linearDaysAssumption": 730,
+    "accrualDuringLock": false,
+    "beneficiary": null,
+    "baseUtc": null
+  },
+  "initialCirculationTokens": null,
+  "otherBucketSchedules": null,
+  "price": null,
+  "quoteLiquidity": null,
+  "note": "Separate 10B/9-decimal offline alternative. No production adoption, identities, signatures, funds or chain operations. 365/730 days are test assumptions."
+}

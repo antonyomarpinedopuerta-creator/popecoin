@@ -14,6 +14,14 @@ externa sigue sin fuente comprometida. Las tareas 2, 3 y 6 deben cerrar cantidad
 fechas, compatibilidad del quinto bucket y financiación externa antes de avanzar.
 No sustituye configuración vigente ni habilita gasto, emisión o revocaciones.
 
+## Alternativa técnica de nueve decimales
+
+[Implementación 10.000M/9](ROBUSTO_10B9_IMPLEMENTATION.md) separada del perfil anterior:
+distribución exacta, fundador en vault vesting, cierre ficticio de emisión y rechazos
+verificados con SBF fijado. No aprobada ni integrada a producción; no equivale al pool
+Meteora histórico de seis decimales. Las tareas 3, 4 y 8 deben incluir conversión de
+precios/unidades, nuevos buckets y evidencia del perfil final antes de una RC.
+
 ## A. Qué está terminado
 
 El perfil ficticio tiene ELF reproducido en dos builds locales, IDL adaptado cotejado,

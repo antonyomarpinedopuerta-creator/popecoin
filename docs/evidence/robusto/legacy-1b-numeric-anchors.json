@@ -1,0 +1,198 @@
+{
+  "scope": "OFFLINE_FIXTURE_ONLY",
+  "status": "LEGACY_NUMERIC_ANCHORS_REVIEW_INVENTORY",
+  "baseHead": "ff5a49dc990d091b3146fa96454a96da84301ba0",
+  "limitations": "Exact numeric occurrences in tracked source/config/tests at review, not every entry denotes token supply. SOL scaling, fees, test quantities and u128 operands are included deliberately. No private files or generated target scanned. New alternative files excluded at this stage.",
+  "occurrences": [
+    {
+      "file": "config/robusto-distribution-proposal.json",
+      "line": 5,
+      "text": "\"supplyTokens\": \"1000000000\","
+    },
+    {
+      "file": "config/robusto-distribution-proposal.json",
+      "line": 6,
+      "text": "\"supplyBaseUnits\": \"1000000000000000\","
+    },
+    {
+      "file": "config/robusto-economics-approved.json",
+      "line": 6,
+      "text": "\"supplyTokens\": \"1000000000\","
+    },
+    {
+      "file": "config/robusto-economics-approved.json",
+      "line": 7,
+      "text": "\"supplyBaseUnits\": \"1000000000000000\","
+    },
+    {
+      "file": "config/robusto-meteora-local.json",
+      "line": 10,
+      "text": "\"supplyBaseUnits\": \"1000000000000000\","
+    },
+    {
+      "file": "config/robusto-production.json",
+      "line": 7,
+      "text": "\"supplyTokens\": \"1000000000\","
+    },
+    {
+      "file": "config/robusto-production.json",
+      "line": 8,
+      "text": "\"supplyBaseUnits\": \"1000000000000000\","
+    },
+    {
+      "file": "programs/popecoin_vesting/tests/test_integration.rs",
+      "line": 3882,
+      "text": "env.svm.airdrop(&fee_payer.pubkey(), 1_000_000_000).unwrap();"
+    },
+    {
+      "file": "programs/popecoin_vesting/tests/test_vesting.rs",
+      "line": 145,
+      "text": "let founder = 1_000_000_000_000_000u64;"
+    },
+    {
+      "file": "scripts/rehearsal-rent.ts",
+      "line": 38,
+      "text": "peakRentSol:`${peak/1000000000n}.${(peak%1000000000n).toString().padStart(9,'0')}`,"
+    },
+    {
+      "file": "scripts/robusto-metadata.ts",
+      "line": 10,
+      "text": "if(p.name!=='ROBUSTO'||p.symbol!=='ROBUSTO'||p.decimals!==6||p.supplyTokens!=='1000000000'||p.supplyBaseUnits!=='1000000000000000'||"
+    },
+    {
+      "file": "scripts/robusto-meteora-local.ts",
+      "line": 35,
+      "text": "if(c.inventoryBaseUnits!=='1000000000000'||c.absoluteMaximumBaseUnits!=='3000000000000'||c.supplyBaseUnits!=='1000000000000000'||c.decimals!==6||c.p0ReferenceUsd!=='0.000788675'||c.pmaxReferenceUsd!=='0.002366025'||c.range!==3||c.solUsdTrialQuote!==null||c.metadataMutable!==true||c.platformStatus!=='CANDIDATE_NOT_APPROVED_FOR_LAUNCH'||c.pair!=='ROBUSTO/SOL'||c.profile!=='MEDIO')throw Error('Approved local-only parameters mismatch');"
+    },
+    {
+      "file": "scripts/robusto-meteora-local.ts",
+      "line": 118,
+      "text": "MintLayout.encode({mintAuthorityOption:1,mintAuthority:key(identities.mintAuthority),supply:1000000000000000n,decimals:6,isInitialized:true,freezeAuthorityOption:0,freezeAuthority:PublicKey.default},data);"
+    },
+    {
+      "file": "scripts/robusto-meteora-rehearsal.ts",
+      "line": 106,
+      "text": "const mint=await connection.getAccountInfo(keys.mint.publicKey);if(mint){const m=unpackMint(keys.mint.publicKey,mint,TOKEN_PROGRAM_ID);assert.equal(m.decimals,6);assert.equal(m.freezeAuthority,null);assert.equal(m.mintAuthority?.toBase58(),pubs.mintAuthority);assert.equal(m.supply,minted?1000000000000000n:0n);}"
+    },
+    {
+      "file": "scripts/robusto-meteora-rehearsal.ts",
+      "line": 121,
+      "text": "if(ix.programId.equals(TOKEN_PROGRAM_ID)&&ix.data[0]!==17&&!(ix.data[0]===0&&label==='create_local_mint'&&ix.data[1]===6&&new PublicKey(ix.data.subarray(2,34)).equals(keys.mintAuthority.publicKey)&&ix.data[34]===0)&&!(ix.data[0]===3&&label==='fund_local_lp_rounding_dust'&&ix.data.readBigUInt64LE(1)===1000n)&&!(ix.data[0]===7&&label==='mint_exact_local_supply'&&!minted&&ix.data.readBigUInt64LE(1)===1000000000000000n))throw Error('SPL authority/unknown operation forbidden');"
+    },
+    {
+      "file": "scripts/robusto-meteora-rehearsal.ts",
+      "line": 155,
+      "text": "await send('create_payer_accounts',[ataIx(keys.mint.publicKey,keys.payer),ataIx(NATIVE_MINT,keys.payer),SystemProgram.transfer({fromPubkey:keys.payer.publicKey,toPubkey:ata(NATIVE_MINT,keys.payer),lamports:1000000000}),createSyncNativeInstruction(ata(NATIVE_MINT,keys.payer))],[]);"
+    },
+    {
+      "file": "scripts/robusto-meteora-rehearsal.ts",
+      "line": 156,
+      "text": "await send('mint_exact_local_supply',[createMintToInstruction(keys.mint.publicKey,ata(keys.mint.publicKey,keys.payer),keys.mintAuthority.publicKey,1000000000000000n)],[keys.mintAuthority],()=>{minted=true;});"
+    },
+    {
+      "file": "scripts/robusto-meteora-rehearsal.ts",
+      "line": 178,
+      "text": "const aVault=await tokenAccount(accounts.token_a_vault),bVault=await tokenAccount(accounts.token_b_vault);total+=aVault.amount;assert.equal(total,1000000000000000n);"
+    },
+    {
+      "file": "scripts/robusto-meteora-rehearsal.ts",
+      "line": 245,
+      "text": "await swap('buy_medium_test_only_usd_100',keys.mediumBuyer,1000000000n,true);"
+    },
+    {
+      "file": "scripts/robusto-meteora-rehearsal.ts",
+      "line": 251,
+      "text": "await swap('buy_partial_fill_to_upper_range',keys.boundaryBuyer,1000000000n,true,true);"
+    },
+    {
+      "file": "scripts/robusto-production.ts",
+      "line": 18,
+      "text": "export const SUPPLY=1_000_000_000_000_000n;"
+    },
+    {
+      "file": "scripts/robusto-production.ts",
+      "line": 24,
+      "text": "if(p?.status!=='PROPOSED_NOT_APPROVED'||p.mainnetStatus!=='NOT_AUTHORIZED_FOR_MAINNET'||p.decimals!==6||p.supplyTokens!=='1000000000'||p.supplyBaseUnits!==SUPPLY.toString())throw Error('Unauthorized distribution proposal required');"
+    },
+    {
+      "file": "scripts/robusto-production.ts",
+      "line": 35,
+      "text": "return {rows,basisPoints:bps,tokens:'1000000000',baseUnits:total.toString()};"
+    },
+    {
+      "file": "scripts/robusto-production.ts",
+      "line": 71,
+      "text": "if(bps!==10000||total!==SUPPLY)throw Error('Distribution must equal exactly 100% and 1,000,000,000 ROBUSTO');"
+    },
+    {
+      "file": "tests/rehearsal-vesting-one-tx.test.ts",
+      "line": 39,
+      "text": "const calls:string[]=[];const c:any={_rpcEndpoint:RPC,getGenesisHash:async()=>options.genesis??GENESIS,getMultipleAccountsInfoAndContext:async(keys:PublicKey[])=>({context:{slot:555},value:keys.map(k=>infos.get(k.toBase58())??null)}),getBlockTime:async()=>Number(now),getMinimumBalanceForRentExemption:async(n:number)=>n*1000,getLatestBlockhash:async()=>({blockhash:'11111111111111111111111111111111',lastValidBlockHeight:700}),getFeeForMessage:async()=>({value:5000}),getBalance:async()=>1000000000,getSlot:async()=>555,sendTransaction:async()=>{calls.push('send');},simulateTransaction:async()=>{calls.push('simulate');}};return {c,calls};"
+    },
+    {
+      "file": "tests/robusto-external-signing.test.ts",
+      "line": 322,
+      "text": "for(const k of tx.compileMessage().accountKeys)accounts[k.toBase58()]={exists:true,owner:PublicKey.default.toBase58(),lamports:'1000000000',dataSha256:'a'.repeat(64),executable:false};"
+    },
+    {
+      "file": "tests/robusto-meteora-evidence.test.ts",
+      "line": 14,
+      "text": "assert.equal(totalA,1000000000000000n);assert.equal(totalB,121000000000n);"
+    },
+    {
+      "file": "tests/robusto-meteora-final-evidence.test.ts",
+      "line": 16,
+      "text": "assert.equal(Object.values(x.balances).reduce((n,v)=>n+BigInt(v.robusto),BigInt(x.vaultA)),1000000000000000n);"
+    },
+    {
+      "file": "tests/robusto-meteora-final.test.ts",
+      "line": 27,
+      "text": "for(const amount of [10000000n,50000000n,1000000000n]){"
+    },
+    {
+      "file": "tests/robusto-meteora-local.test.ts",
+      "line": 40,
+      "text": "const n=788675n*1000n*(1n<<128n),d=1000000000n*100n;"
+    },
+    {
+      "file": "tests/robusto-owner-preparation.test.ts",
+      "line": 16,
+      "text": "assert.equal(r.primary.basisPoints,10000);assert.equal(r.stagedAlternative.baseUnits,'1000000000000000');"
+    },
+    {
+      "file": "tests/robusto-owner-preparation.test.ts",
+      "line": 33,
+      "text": "const result=validateApprovedEconomics(approval);assert.equal(result.baseUnits,'1000000000000000');assert.equal(result.basisPoints,10000);assert.equal(result.operationsAuthorized,false);"
+    },
+    {
+      "file": "tests/robusto-production.test.ts",
+      "line": 93,
+      "text": "for(const patch of [{supply:'1000000000'},{source:'1'},{sourceOwner:p.mintAuthority},{freezeAuthority:key()},{mintAuthority:null},{allocations:[snapshot.allocations[0],snapshot.allocations[0]]}])assert.throws(()=>reconcileDistribution(p,{...snapshot,...patch}));"
+    },
+    {
+      "file": "tests/robusto.test.ts",
+      "line": 15,
+      "text": "assert.equal(validateRobustoProposal(proposal).supplyBaseUnits,'1000000000000000');"
+    },
+    {
+      "file": "tests/robusto.test.ts",
+      "line": 16,
+      "text": "for(const patch of [{supplyBaseUnits:'1000000000'},{decimals:9},{metadataMutable:false},{freezeAuthority:'somebody'},{mainnetAuthorized:true},{mintAuthorityRevocationAuthorized:true},{imagePath:'metadata/papa-logo.png'}])"
+    },
+    {
+      "file": "tools/unsigned-runtime/src/liquidity.rs",
+      "line": 188,
+      "text": "modify(&mut swap_state, \"payer_token_b\", 1_000_000_000, false);"
+    },
+    {
+      "file": "tools/unsigned-runtime/src/liquidity.rs",
+      "line": 194,
+      "text": ".checked_add_lamports(1_000_000_000)"
+    },
+    {
+      "file": "tools/unsigned-runtime/src/liquidity.rs",
+      "line": 280,
+      "text": "\"swapFrozen\" => modify(&mut state, \"payer_token_b\", 1_000_000_000, true),"
+    }
+  ]
+}

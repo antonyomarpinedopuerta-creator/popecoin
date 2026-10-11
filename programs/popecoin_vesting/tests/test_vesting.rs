@@ -138,3 +138,35 @@ fn test_wide_deterministic_schedules_preserve_floor_bounds_and_monotonicity() {
         assert_eq!(previous, total);
     }
 }
+
+#[test]
+fn alternative_10b_nine_decimals_keeps_unsigned_supply_and_exact_founder_rounding() {
+    let supply = 10_000_000_000_000_000_000u64;
+    let founder = 1_000_000_000_000_000u64;
+    let start = 365 * 86400;
+    let end = start + 730 * 86400;
+    assert!(supply > i64::MAX as u64);
+    assert_eq!(
+        vested_amount(supply, start, start, end, start + 365 * 86400),
+        supply / 2
+    );
+    assert_eq!(vested_amount(founder, start, start, end, start - 1), 0);
+    assert_eq!(vested_amount(founder, start, start, end, start), 0);
+    assert_eq!(
+        vested_amount(founder, start, start, end, start + 1),
+        founder / (730 * 86400)
+    );
+    assert_eq!(vested_amount(founder, start, start, end, end), founder);
+}
+
+#[test]
+fn alternative_high_supply_times_extreme_i64_duration_fits_u128() {
+    let supply = 10_000_000_000_000_000_000u64;
+    let duration = (i128::from(i64::MAX) - i128::from(i64::MIN)) as u128;
+    let elapsed = (-i128::from(i64::MIN)) as u128;
+    let expected = (u128::from(supply) * elapsed / duration) as u64;
+    assert_eq!(
+        vested_amount(supply, i64::MIN, i64::MIN, i64::MAX, 0),
+        expected
+    );
+}

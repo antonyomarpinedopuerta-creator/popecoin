@@ -22,5 +22,6 @@
   "authorityChangesAuthorized": false,
   "note": "Current owner instructions supersede historical approval labels for final production decisions. Existing economics and schedules remain offline fixture references only. This record is not an execution or signing authorization source.",
   "founderPersonalFunding": "0",
-  "unapprovedTokenomicsSimulation": "config/robusto-tokenomics-10b-simulation.json"
+  "unapprovedTokenomicsSimulation": "config/robusto-tokenomics-10b-simulation.json",
+  "unapprovedNineDecimalAlternative": "config/robusto-tokenomics-10b9-alternative.json"
 }
