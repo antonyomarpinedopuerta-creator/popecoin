@@ -55,6 +55,10 @@ upstream posteriores. La clasificación detallada permanece en
 Ninguno se cierra por pasar una prueba. Cambiar dependencias críticas exige evaluar
 compatibilidad, recompilar y reproducir el ELF y volver a auditar/cotejar evidencia.
 
+Plan operativo vigente con responsables, dependencias y criterios de cierre:
+[ROBUSTO_OWNER_ACTION_PLAN.md](ROBUSTO_OWNER_ACTION_PLAN.md). Mantiene las aprobaciones
+finales pendientes y distingue permisos de preparación de autorización de producción.
+
 ## Camino crítico, por dependencia
 
 1. **Custodia y alcance de revisión:** elegir responsables, recuperación y auditoría.
@@ -86,7 +90,7 @@ canal independiente para comprobar autenticidad más adelante.
 ## Validación histórica de la tanda anterior
 
 - Runtime SBF: 24 casos previos, ocho secuencias acotadas, 20 creación/adversariales
-  Meteora, 13 add/remove, doce swap2 y 15 escenarios adversariales ROBUSTO aprobados.
+  Meteora, 12 add/remove, cinco swap2 y 15 escenarios adversariales ROBUSTO aprobados.
 - Rust host del harness: cinco pruebas; Clippy all-targets sin warnings.
 - Python: 85 pruebas aprobadas, incluidas integridad y evidencia de candidato.
 - TypeScript: tsc sin errores y 234 pruebas protegidas aprobadas. Una primera pasada
