@@ -1,3 +1,12 @@
+## Cierre offline 2026-10-11 — continuación
+
+NOT_AUTHORIZED_FOR_MAINNET / MAINNET_DISABLED. Nuevas CPI reales ficticias Meteora:
+12 casos add/remove y cinco swap2; sin cambios de contrato o economía. Atomicidad
+nativa pendiente, tres advisories/siete warnings abiertos. Documentos vigentes:
+[decisiones del propietario](ROBUSTO_OWNER_DECISIONS.md) y
+[brechas y camino crítico](ROBUSTO_LAUNCH_GAP_REPORT.md). Candidato exclusivamente
+OFFLINE_FIXTURE_ONLY; no autorización de lanzamiento.
+
 # Estado vigente — ejecución unsigned ampliada
 
 NOT_AUTHORIZED_FOR_MAINNET / MAINNET_DISABLED. [Checklist y evidencia técnica](ROBUSTO_UNSIGNED_EXECUTION.md#checklist-vigente-de-lanzamiento).
