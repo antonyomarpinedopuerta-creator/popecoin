@@ -97,3 +97,33 @@ El digest no autentica por sí mismo quién lo emitió: debe proceder de revisi�
 fiable. El modo sin digest sigue siendo comprobación de integridad interna, sin
 atestación de origen. Regresión de sustitución y formatos inválidos: 11 tests del
 verificador de backups aprobados. No requiere claves ni firmas.
+
+## Ampliación runtime y checklist de cierre — 2026-10-11
+
+**24 casos aprobados**: los doce anteriores, initialize exitoso y rechazos por ausencia
+de los tres permisos signer, más initialize y siete pasos de lifecycle sobre las
+mismas cuentas. CPI System Program y SPL Token reales. Se verifican estado serializado,
+PDAs, owners, mint/authority del vault, rent ficticio y conservación de lamports;
+financiación, release parcial/final, repeticiones y Clock regresivo. Los errores
+se cotejan con el runtime y los fallos de lifecycle no alteran las cuentas observadas.
+No demuestra rollback de una transacción de múltiples instrucciones.
+
+Validación de esta tanda: **81 Python**, **24 casos runtime unsigned**, Clippy
+`--offline --locked -- -D warnings` del harness, sin warnings tras corregir aridad y
+closures. El contrato/ABI/economía/identidades protegidas no cambiaron; no se repiten
+SBF, IDL, cliente o pruebas host previamente aprobadas sin cambios que lo justifiquen.
+
+| Pendiente | Estado vigente |
+| --- | --- |
+| Vesting initialize/deposit/release y CPI System/SPL | Verificados en runtime unsigned ficticio; no autenticación criptográfica. |
+| Estados, cuentas/mints, costes/límites ficticios | Guards previos conservados; rent local comprobado en initialize. No fees/CU públicos actuales. |
+| Reconciliación/recuperación offline | Implementación ficticia previa conservada; no autenticidad externa ni retry automático. |
+| Integridad y origen del backup | Digest independiente soportado; el propietario debe conservarlo fuera del paquete en un canal fiable. |
+| ELF/IDL/fuentes/reproducción ficticia | Evidencia previa conservada, ELF exacto ahora ejecutado. No nueva RC de producción. |
+| Meteora | Tres advisories/siete warnings abiertos, revisión offline y gate corregido. CPI Meteora unsigned pendientes. |
+| Runtime restante seguro | Sustituciones adversariales adicionales, CPI Meteora, atomicidad transaccional sin firma y reportes ligados a hashes. |
+| Producción | Identidades finales, custodia, parámetros operativos, presupuesto/proveedor/URI, revisión independiente y autorizaciones pendientes. |
+
+No se declara terminado todo el desarrollo offline posible. La siguiente sesión debe
+continuar por el runtime pendiente, sin volver a investigar el constructor LiteSVM
+ni repetir estos 24 casos salvo cambios que afecten al harness/artefactos.

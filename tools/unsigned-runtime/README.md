@@ -22,20 +22,26 @@ en `target/robusto-final-public-programs/token.so`. Ningún fallback descarga by
 La identidad ficticia pública está fijada. El ELF contiene esa identidad y usa las
 fuentes verificadas por build-rehearsal.py; no es el candidato de producción.
 
-Doce casos ejecutan las instrucciones Anchor y sus CPI SPL reales: release parcial
+Veinticuatro casos ejecutan las instrucciones Anchor y sus CPI SPL reales: release parcial
 /final, precliff, permiso signer ausente, vault congelado, fondos insuficientes;
 deposit completo, completar financiación parcial, ya financiado, importe incorrecto,
 permiso signer ausente y vault congelado. Se cotejan saldos y released_amount o
 inmutabilidad de cuentas para los errores concretos comprobados. Los errores exactos
 se contrastan con el runtime, no con mocks del handler.
 
+Se añaden initialize con CPI System Program/SPL, tres ausencias de signer
+(payer/authority/beneficiary), rent y conservación de lamports. El lifecycle
+secuencial reutiliza las cuentas creadas: deposit, repetición rechazada, release
+parcial, repetición rechazada, Clock regresivo rechazado, release final y repetición
+rechazada. Se conserva el total de tokens y se coteja released_amount con el destino.
+No se recrean las cuentas entre estos pasos.
+
 Los flags signer son permisos ficticios de instrucción. Esto prueba constraints y
 PDA invoke_signed en runtime, **no autenticación criptográfica de un usuario**.
 El contexto usa Clock sintético slot 10 (un programa cargado en slot 0 se hace visible
 en slot 1), loader clásico y features all_enabled de Agave 3.1.14. No equivale a un
 cluster, fees, rent de transacciones, capacidad de producción ni rollback de una
-transacción con múltiples instrucciones. Initialize, lifecycle secuencial, Meteora
-y variantes adversariales adicionales siguen pendientes. SPL corresponde a bytes
+transacción con múltiples instrucciones. CPI Meteora y variantes adversariales adicionales siguen pendientes. SPL corresponde a bytes
 públicos históricos fijados; no hay atestación independiente de sus fuentes.
 
 Investigación local: LiteSVM `Default -> new_inner` genera `airdrop_kp` mediante

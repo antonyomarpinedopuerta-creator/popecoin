@@ -82,3 +82,9 @@ Cierre de verificación: build Rust host aprobado; 10 tests vesting, 5 aritméti
 de deposit/release, ELF ficticio y SPL Token local fijados por hash, sin claves/firmas
 ni RPC. [Alcance y pendientes](../tools/unsigned-runtime/README.md). No certifica
 Initialize, Meteora, autenticación ni producción. NOT_AUTHORIZED_FOR_MAINNET / MAINNET_DISABLED.
+
+Ampliación 2026-10-11: **24 casos runtime unsigned**, incluyendo initialize/System/SPL
+y lifecycle secuencial; **81 Python** aprobados y Clippy del harness sin warnings.
+Auditor Meteora corregido y reejecutado --no-fetch: **3 advisories/7 warnings abiertos**.
+Backup con cotejo opcional contra digest independiente. [Checklist vigente](ROBUSTO_TECHNICAL_COMPLETION.md#ampliación-runtime-y-checklist-de-cierre--2026-10-11).
+Restan tareas offline de runtime/Meteora; no RC ni autorización de producción.

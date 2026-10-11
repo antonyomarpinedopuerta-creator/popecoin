@@ -43,8 +43,7 @@ fn token(mint: Pubkey, owner: Pubkey, amount: u64, frozen: bool) -> AccountShare
     account(spl_token_interface::ID, bytes, false)
 }
 fn run(
-    root: &Path,
-    program_path: &Path,
+    paths: (&Path, &Path),
     now: i64,
     signer: bool,
     frozen: bool,
@@ -52,6 +51,7 @@ fn run(
     expected: Result<(), InstructionError>,
     deposit: Option<u64>,
 ) {
+    let (root, program_path) = paths;
     let program = Pubkey::from_str(PROGRAM).unwrap();
     let mint = public(10);
     let beneficiary = public(11);
@@ -157,7 +157,7 @@ fn run(
         metas,
         expected.clone(),
         solana_bpf_loader_program::Entrypoint::vm,
-        |ctx| solana_bpf_loader_program::test_utils::load_all_invoked_programs(ctx),
+        solana_bpf_loader_program::test_utils::load_all_invoked_programs,
         |_| {},
     );
     if expected.is_ok() {
@@ -192,6 +192,264 @@ fn run(
         }
     }
 }
+fn initialize(
+    root: &Path,
+    program_path: &Path,
+    missing_signer: Option<usize>,
+) -> Vec<(Pubkey, AccountSharedData)> {
+    let program = Pubkey::from_str(PROGRAM).unwrap();
+    let mint = public(10);
+    let beneficiary = public(11);
+    let authority = public(13);
+    let payer = public(14);
+    let system = solana_sdk_ids::system_program::id();
+    let (vesting, bump) =
+        Pubkey::find_program_address(&[b"vesting", beneficiary.as_ref(), mint.as_ref()], &program);
+    let (vault, _) = Pubkey::find_program_address(&[b"vault", vesting.as_ref()], &program);
+    let mut mint_bytes = vec![0; Mint::LEN];
+    Mint::pack(
+        Mint {
+            supply: 100,
+            decimals: 6,
+            is_initialized: true,
+            ..Mint::default()
+        },
+        &mut mint_bytes,
+    )
+    .unwrap();
+    let rent = solana_rent::Rent::default();
+    let clock = solana_clock::Clock {
+        slot: 10,
+        ..Default::default()
+    };
+    let mut payer_account = account(system, vec![], false);
+    payer_account.set_lamports(100_000_000);
+    let accounts = vec![
+        (
+            program,
+            elf(
+                program_path,
+                "e932987ffdb686dcffd3563ca2bbccdfcf51dc89debefb6d6cb046e5f5bf7ecb",
+            ),
+        ),
+        (
+            spl_token_interface::ID,
+            elf(
+                &root.join("target/robusto-final-public-programs/token.so"),
+                "8190d3f7ceb6cb7a7a8d8924bff89f9f611e15ce1f806f2b6237f3311a98f697",
+            ),
+        ),
+        (vesting, AccountSharedData::new(0, 0, &system)),
+        (vault, AccountSharedData::new(0, 0, &system)),
+        (beneficiary, account(system, vec![], false)),
+        (mint, account(spl_token_interface::ID, mint_bytes, false)),
+        (authority, account(system, vec![], false)),
+        (payer, payer_account),
+        (
+            system,
+            account(solana_sdk_ids::native_loader::id(), vec![], true),
+        ),
+        (
+            solana_sdk_ids::sysvar::rent::id(),
+            account(
+                solana_sdk_ids::sysvar::id(),
+                bincode::serialize(&rent).unwrap(),
+                false,
+            ),
+        ),
+        (
+            solana_sdk_ids::sysvar::clock::id(),
+            account(
+                solana_sdk_ids::sysvar::id(),
+                bincode::serialize(&clock).unwrap(),
+                false,
+            ),
+        ),
+        (public(99), account(system, vec![], false)),
+    ];
+    let keys: Vec<_> = accounts.iter().map(|(key, _)| *key).collect();
+    let before: Vec<_> = accounts
+        .iter()
+        .map(|(_, a)| (a.data().to_vec(), a.lamports(), *a.owner()))
+        .collect();
+    let metas = vec![
+        AccountMeta::new(payer, missing_signer != Some(0)),
+        AccountMeta::new_readonly(authority, missing_signer != Some(1)),
+        AccountMeta::new_readonly(beneficiary, missing_signer != Some(2)),
+        AccountMeta::new_readonly(mint, false),
+        AccountMeta::new(vesting, false),
+        AccountMeta::new(vault, false),
+        AccountMeta::new_readonly(spl_token_interface::ID, false),
+        AccountMeta::new_readonly(system, false),
+        AccountMeta::new_readonly(solana_sdk_ids::sysvar::rent::id(), false),
+    ];
+    let mut data = Sha256::digest(b"global:initialize")[..8].to_vec();
+    data.extend_from_slice(&100u64.to_le_bytes());
+    for time in [100i64, 110, 200] {
+        data.extend_from_slice(&time.to_le_bytes());
+    }
+    let expected = if missing_signer.is_some() {
+        Err(InstructionError::Custom(3010))
+    } else {
+        Ok(())
+    };
+    let result = solana_program_runtime::invoke_context::mock_process_instruction(
+        &solana_sdk_ids::bpf_loader::id(),
+        Some(0),
+        &data,
+        accounts,
+        metas,
+        expected,
+        solana_bpf_loader_program::Entrypoint::vm,
+        |ctx| {
+            solana_bpf_loader_program::test_utils::load_all_invoked_programs(ctx);
+            ctx.program_cache_for_tx_batch.replenish(
+                system,
+                std::sync::Arc::new(
+                    solana_program_runtime::loaded_programs::ProgramCacheEntry::new_builtin(
+                        0,
+                        0,
+                        solana_system_program::system_processor::Entrypoint::vm,
+                    ),
+                ),
+            );
+        },
+        |_| {},
+    );
+    if missing_signer.is_none() {
+        let state = result[2].data();
+        assert_eq!(state.len(), 145);
+        assert_eq!(&state[..8], &Sha256::digest(b"account:VestingAccount")[..8]);
+        assert_eq!(&state[8..40], authority.as_ref());
+        assert_eq!(&state[40..72], beneficiary.as_ref());
+        assert_eq!(&state[72..104], mint.as_ref());
+        assert_eq!(u64::from_le_bytes(state[104..112].try_into().unwrap()), 100);
+        assert_eq!(u64::from_le_bytes(state[112..120].try_into().unwrap()), 0);
+        assert_eq!(state[144], bump);
+        assert_eq!(*result[2].owner(), program);
+        assert_eq!(*result[3].owner(), spl_token_interface::ID);
+        let token = TokenAccount::unpack(result[3].data()).unwrap();
+        assert_eq!(token.owner, vesting);
+        assert_eq!(token.mint, mint);
+        assert_eq!(token.amount, 0);
+        assert_eq!(token.state, AccountState::Initialized);
+        assert_eq!(result[2].lamports(), rent.minimum_balance(145));
+        assert_eq!(
+            result[3].lamports(),
+            rent.minimum_balance(TokenAccount::LEN)
+        );
+        assert_eq!(
+            result[7].lamports() + result[2].lamports() + result[3].lamports(),
+            100_000_000
+        );
+    } else {
+        for index in [2, 3, 7] {
+            assert_eq!(
+                (
+                    result[index].data().to_vec(),
+                    result[index].lamports(),
+                    *result[index].owner()
+                ),
+                before[index]
+            );
+        }
+    }
+    keys.into_iter().zip(result).collect()
+}
+
+fn lifecycle(root: &Path, program_path: &Path) {
+    let mut accounts = initialize(root, program_path, None);
+    let program = Pubkey::from_str(PROGRAM).unwrap();
+    let mint = public(10);
+    let beneficiary = public(11);
+    let authority = public(13);
+    let (vesting, _) =
+        Pubkey::find_program_address(&[b"vesting", beneficiary.as_ref(), mint.as_ref()], &program);
+    let (vault, _) = Pubkey::find_program_address(&[b"vault", vesting.as_ref()], &program);
+    let destination = public(12);
+    let source = public(15);
+    accounts.push((destination, token(mint, beneficiary, 0, false)));
+    accounts.push((source, token(mint, authority, 100, false)));
+    for (deposit, now, error) in [
+        (true, 100, None),
+        (true, 100, Some(6003)),
+        (false, 150, None),
+        (false, 150, Some(6002)),
+        (false, 120, Some(6004)),
+        (false, 200, None),
+        (false, 200, Some(6002)),
+    ] {
+        let clock = solana_clock::Clock {
+            slot: 10,
+            unix_timestamp: now,
+            ..Default::default()
+        };
+        accounts
+            .iter_mut()
+            .find(|(key, _)| *key == solana_sdk_ids::sysvar::clock::id())
+            .unwrap()
+            .1
+            .set_data_from_slice(&bincode::serialize(&clock).unwrap());
+        let before = accounts.clone();
+        let mut data = Sha256::digest(if deposit {
+            b"global:deposit".as_slice()
+        } else {
+            b"global:release".as_slice()
+        })[..8]
+            .to_vec();
+        if deposit {
+            data.extend_from_slice(&100u64.to_le_bytes());
+        }
+        let actor = if deposit { authority } else { beneficiary };
+        let metas = vec![
+            AccountMeta::new(vesting, false),
+            AccountMeta::new(vault, false),
+            AccountMeta::new(actor, true),
+            AccountMeta::new_readonly(mint, false),
+            AccountMeta::new(if deposit { source } else { destination }, false),
+            AccountMeta::new_readonly(spl_token_interface::ID, false),
+        ];
+        let keys: Vec<_> = accounts.iter().map(|(key, _)| *key).collect();
+        accounts.push((
+            public(99),
+            account(solana_sdk_ids::system_program::id(), vec![], false),
+        ));
+        let result = solana_program_runtime::invoke_context::mock_process_instruction(
+            &solana_sdk_ids::bpf_loader::id(),
+            Some(0),
+            &data,
+            accounts,
+            metas,
+            error.map_or(Ok(()), |code| Err(InstructionError::Custom(code))),
+            solana_bpf_loader_program::Entrypoint::vm,
+            solana_bpf_loader_program::test_utils::load_all_invoked_programs,
+            |_| {},
+        );
+        accounts = keys.into_iter().zip(result).collect();
+        if error.is_some() {
+            assert_eq!(
+                accounts, before,
+                "Failed lifecycle step changed account state"
+            );
+        }
+        let find = |key| accounts.iter().find(|(k, _)| *k == key).unwrap().1.data();
+        let amount = |key| TokenAccount::unpack(find(key)).unwrap().amount;
+        assert_eq!(amount(source) + amount(vault) + amount(destination), 100);
+        assert_eq!(
+            u64::from_le_bytes(find(vesting)[112..120].try_into().unwrap()),
+            amount(destination)
+        );
+    }
+    let amount = |key| {
+        TokenAccount::unpack(accounts.iter().find(|(k, _)| *k == key).unwrap().1.data())
+            .unwrap()
+            .amount
+    };
+    assert_eq!(amount(source), 0);
+    assert_eq!(amount(vault), 0);
+    assert_eq!(amount(destination), 100);
+}
+
 fn main() {
     let args: Vec<_> = std::env::args().collect();
     assert_eq!(
@@ -201,11 +459,10 @@ fn main() {
     );
     let root = Path::new(&args[1]);
     let elf = Path::new(&args[2]);
-    run(root, elf, 150, true, false, 100, Ok(()), None);
-    run(root, elf, 200, true, false, 100, Ok(()), None);
+    run((root, elf), 150, true, false, 100, Ok(()), None);
+    run((root, elf), 200, true, false, 100, Ok(()), None);
     run(
-        root,
-        elf,
+        (root, elf),
         109,
         true,
         false,
@@ -214,8 +471,7 @@ fn main() {
         None,
     );
     run(
-        root,
-        elf,
+        (root, elf),
         150,
         false,
         false,
@@ -224,8 +480,7 @@ fn main() {
         None,
     );
     run(
-        root,
-        elf,
+        (root, elf),
         150,
         true,
         true,
@@ -234,8 +489,7 @@ fn main() {
         None,
     );
     run(
-        root,
-        elf,
+        (root, elf),
         150,
         true,
         false,
@@ -243,11 +497,10 @@ fn main() {
         Err(InstructionError::Custom(1)),
         None,
     );
-    run(root, elf, 150, true, false, 0, Ok(()), Some(100));
-    run(root, elf, 150, true, false, 40, Ok(()), Some(60));
+    run((root, elf), 150, true, false, 0, Ok(()), Some(100));
+    run((root, elf), 150, true, false, 40, Ok(()), Some(60));
     run(
-        root,
-        elf,
+        (root, elf),
         150,
         true,
         false,
@@ -256,8 +509,7 @@ fn main() {
         Some(100),
     );
     run(
-        root,
-        elf,
+        (root, elf),
         150,
         true,
         false,
@@ -266,8 +518,7 @@ fn main() {
         Some(99),
     );
     run(
-        root,
-        elf,
+        (root, elf),
         150,
         false,
         false,
@@ -276,8 +527,7 @@ fn main() {
         Some(100),
     );
     run(
-        root,
-        elf,
+        (root, elf),
         150,
         true,
         true,
@@ -285,5 +535,10 @@ fn main() {
         Err(InstructionError::Custom(17)),
         Some(100),
     );
-    println!("12 unsigned instruction-runtime cases passed; real SBF SPL CPI; synthetic signer permissions; NOT_AUTHORIZED_FOR_MAINNET / MAINNET_DISABLED");
+    initialize(root, elf, None);
+    for index in 0..3 {
+        initialize(root, elf, Some(index));
+    }
+    lifecycle(root, elf);
+    println!("24 unsigned instruction-runtime cases passed; real SBF SPL CPI; synthetic signer permissions; NOT_AUTHORIZED_FOR_MAINNET / MAINNET_DISABLED");
 }

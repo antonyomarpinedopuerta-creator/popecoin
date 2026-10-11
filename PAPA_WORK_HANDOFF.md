@@ -1,3 +1,22 @@
+# Continuación vigente — 2026-10-11
+
+NOT_AUTHORIZED_FOR_MAINNET / MAINNET_DISABLED. Sin claves, firmas ni redes Solana.
+Runtime unsigned disponible en tools/unsigned-runtime: 24 casos SBF de initialize,
+deposit, release y lifecycle secuencial con CPI System/SPL reales sobre ELF ficticio
+fijado. Permisos signer sintéticos; no autenticación ni transacciones completas.
+No usar check:rc/test:rust/LiteSVM bajo la prohibición vigente.
+Auditor Meteora corregido: warnings también bloquean, output incompleto invalida
+reporte previo; auditoría offline conserva 3 advisories/7 warnings. 81 Python pasan.
+Backup permite --trusted-sha256 de origen independiente; sidecar solo no autentica.
+
+Siguiente desarrollo seguro: extender harness a sustitución adversarial de cuentas,
+atomicidad de transacciones sin firma y CPI Meteora con fixtures públicos; emitir
+reportes de runtime ligados a fuentes/hashes sin afirmar identidad de producción.
+No se han agotado todos los desarrollos offline posibles. Checklist actualizado en
+docs/ROBUSTO_TECHNICAL_COMPLETION.md y alcance en tools/unsigned-runtime/README.md.
+
+---
+
 # ROBUSTO — continuación vigente del cierre de octubre 2026
 
 Leer primero [decisiones finales del propietario](docs/ROBUSTO_READY_FOR_OWNER_DECISIONS.md) y [ROBUSTO_STATUS](docs/ROBUSTO_STATUS.md), [cierre y clasificación](docs/ROBUSTO_CLOSURE.md), [validación](docs/evidence/robusto/closure-validation.md), [Mainnet](docs/ROBUSTO_MAINNET_CHECKLIST.md), [autoridades](docs/ROBUSTO_AUTHORITIES.md) y [recuperación/backup](docs/ROBUSTO_RECOVERY.md).
