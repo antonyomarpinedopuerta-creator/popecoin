@@ -1423,7 +1423,12 @@ dependencies = [
  "solana-pubkey 3.0.0",
  "solana-rent",
  "solana-sdk-ids",
+ "solana-svm-callback",
+ "solana-svm-feature-set",
+ "solana-svm-log-collector",
+ "solana-svm-timings",
  "solana-system-program",
+ "solana-transaction-context",
  "spl-token-interface",
 ]
 

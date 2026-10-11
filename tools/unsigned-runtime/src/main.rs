@@ -1,4 +1,5 @@
-//! Instruction runtime only: signer flags are synthetic permissions, never signatures.
+mod engine;
+// Instruction runtime only: signer flags are synthetic permissions, never signatures.
 use sha2::{Digest, Sha256};
 use solana_account::{AccountSharedData, ReadableAccount, WritableAccount};
 use solana_instruction::{error::InstructionError, AccountMeta};
@@ -450,6 +451,126 @@ fn lifecycle(root: &Path, program_path: &Path) {
     assert_eq!(amount(destination), 100);
 }
 
+fn bounded_atomicity(root: &Path, program_path: &Path) {
+    use engine::{execute, Outcome};
+    use solana_instruction::Instruction;
+    let mut accounts = initialize(root, program_path, None);
+    let program = Pubkey::from_str(PROGRAM).unwrap();
+    let mint = public(10);
+    let beneficiary = public(11);
+    let authority = public(13);
+    let (vesting, _) =
+        Pubkey::find_program_address(&[b"vesting", beneficiary.as_ref(), mint.as_ref()], &program);
+    let (vault, _) = Pubkey::find_program_address(&[b"vault", vesting.as_ref()], &program);
+    let source = public(15);
+    let dest = public(12);
+    accounts.push((source, token(mint, authority, 100, false)));
+    accounts.push((dest, token(mint, beneficiary, 0, false)));
+    accounts
+        .iter_mut()
+        .find(|(k, _)| *k == solana_sdk_ids::sysvar::clock::id())
+        .unwrap()
+        .1
+        .set_data_from_slice(
+            &bincode::serialize(&solana_clock::Clock {
+                slot: 10,
+                unix_timestamp: 150,
+                ..Default::default()
+            })
+            .unwrap(),
+        );
+    let ix = |deposit: bool, signer: bool| {
+        let mut data = Sha256::digest(if deposit {
+            b"global:deposit".as_slice()
+        } else {
+            b"global:release".as_slice()
+        })[..8]
+            .to_vec();
+        if deposit {
+            data.extend_from_slice(&100u64.to_le_bytes());
+        }
+        Instruction {
+            program_id: program,
+            data,
+            accounts: vec![
+                AccountMeta::new(vesting, false),
+                AccountMeta::new(vault, false),
+                AccountMeta::new(if deposit { authority } else { beneficiary }, signer),
+                AccountMeta::new_readonly(mint, false),
+                AccountMeta::new(if deposit { source } else { dest }, false),
+                AccountMeta::new_readonly(spl_token_interface::ID, false),
+            ],
+        }
+    };
+    let success = execute(&accounts, &[ix(true, true), ix(false, true)], None);
+    assert_eq!(success.outcome, Outcome::Complete);
+    let amount = |state: &engine::Accounts, key| {
+        TokenAccount::unpack(state.iter().find(|(k, _)| *k == key).unwrap().1.data())
+            .unwrap()
+            .amount
+    };
+    assert_eq!(amount(&success.committed, dest), 50);
+    assert_eq!(amount(&success.committed, vault), 50);
+    assert_eq!(amount(&success.committed, source), 0);
+    assert_ne!(
+        engine::digest(&success.committed),
+        engine::digest(&accounts)
+    );
+    // Both instructions execute in ONE Agave InvokeContext. Discard is our explicit fixture policy.
+    let duplicate = execute(
+        &accounts,
+        &[ix(true, true), ix(false, true), ix(false, true)],
+        None,
+    );
+    assert_eq!(
+        duplicate.outcome,
+        Outcome::Failed(2, InstructionError::Custom(6002))
+    );
+    assert_eq!(duplicate.committed, accounts);
+    assert_eq!(amount(&duplicate.staged, dest), 50); // raw runtime did NOT roll back!
+    assert_ne!(duplicate.staged, accounts);
+    let rejected = execute(&accounts, &[ix(true, true), ix(true, true)], None);
+    assert_eq!(
+        rejected.outcome,
+        Outcome::Failed(1, InstructionError::Custom(6003))
+    );
+    assert_eq!(rejected.committed, accounts);
+    // Earlier signer permissions are not copied to a later unsigned instruction.
+    let denied = execute(&accounts, &[ix(true, true), ix(false, false)], None);
+    assert_eq!(
+        denied.outcome,
+        Outcome::Failed(1, InstructionError::Custom(3010))
+    );
+    assert_eq!(denied.committed, accounts);
+    for stop in 0..=2 {
+        let interrupted = execute(&accounts, &[ix(true, true), ix(false, true)], Some(stop));
+        assert_eq!(interrupted.outcome, Outcome::Interrupted(stop));
+        assert_eq!(interrupted.committed, accounts);
+    }
+    let mut frozen = accounts.clone();
+    let destination = frozen.iter_mut().find(|(k, _)| *k == dest).unwrap();
+    let mut state = TokenAccount::unpack(destination.1.data()).unwrap();
+    state.state = AccountState::Frozen;
+    TokenAccount::pack(state, destination.1.data_as_mut_slice()).unwrap();
+    let failed_cpi = execute(&frozen, &[ix(true, true), ix(false, true)], None);
+    assert_eq!(
+        failed_cpi.outcome,
+        Outcome::Failed(1, InstructionError::Custom(17))
+    );
+    assert_eq!(failed_cpi.committed, frozen);
+    assert_eq!(amount(&failed_cpi.staged, dest), 0);
+    for result in [&success, &duplicate, &rejected, &denied, &failed_cpi] {
+        assert_eq!(
+            amount(&result.staged, source)
+                + amount(&result.staged, vault)
+                + amount(&result.staged, dest),
+            100
+        );
+        assert!(result.consumed > 0);
+    }
+    println!("8 bounded atomicity cases passed; raw effects retained for failed sequence; explicit fixture discard, NOT native transaction rollback");
+}
+
 fn main() {
     let args: Vec<_> = std::env::args().collect();
     assert_eq!(
@@ -540,5 +661,6 @@ fn main() {
         initialize(root, elf, Some(index));
     }
     lifecycle(root, elf);
+    bounded_atomicity(root, elf);
     println!("24 unsigned instruction-runtime cases passed; real SBF SPL CPI; synthetic signer permissions; NOT_AUTHORIZED_FOR_MAINNET / MAINNET_DISABLED");
 }
