@@ -6,6 +6,13 @@ proveedor comprometido. No se solicita dinero, contrata, contacta ni promete ret
 Las cinco vías siguientes son posibilidades, no ofertas actuales verificadas.
 No se consultaron convocatorias ni precios online por el alcance offline de la sesión.
 
+La decisión económica vigente confirma 10.000.000.000 ROBUSTO distribuidos en
+4.000.000.000 mercado, 3.000.000.000 comunidad, 1.500.000.000 reserva,
+1.499.000.000 desarrollo/operaciones y 1.000.000 fundador. No modifica este plan de
+financiación: tokens asignados no son moneda para costes ni liquidez USDC. Ver
+[especificación económica](ROBUSTO_CONFIRMED_TOKENOMICS.md) y
+[matriz de decisiones](ROBUSTO_LAUNCH_DECISION_MATRIX.md).
+
 ## Qué debe financiarse
 
 | Bolsa | Necesidad / cómo obtener importe | Quién podría cubrirla |
@@ -20,6 +27,45 @@ Ningún importe es verificable hoy. Asignar cuatro mil millones de tokens a merc
 crea reservas USDC ni paga fees/rent/auditoría. El millón del fundador no es dinero
 obtenido; venderlo no se presupone ni se autoriza. Compradores futuros no se cuentan
 como financiación disponible. Ver [presupuesto](ROBUSTO_MINIMUM_LAUNCH_BUDGET.md).
+
+## Modelo editable, sin cotizaciones ni compromiso financiero
+
+Completar únicamente con ofertas fechadas recibidas en una fase futura. `null` significa
+“no cotizado/no comprometido”, no cero. Separar moneda, impuestos, fecha de validez,
+alcance, hitos y responsable del pago; no agregar monedas distintas sin un tipo de
+cambio fechado. Capital de liquidez se expresa por separado de gastos y no se suma como
+comisión.
+
+| Partida | Tipo | Importe | Moneda | Fuente prevista | Estado actual |
+| --- | --- | ---: | --- | --- | --- |
+| Auditoría independiente | Único por alcance | null | pendiente | Cotización de auditor independiente | No cotizado |
+| Retest/correcciones externas | Por ronda | null | pendiente | Auditor/proveedor | No cotizado |
+| Desarrollo fuera de capacidad voluntaria | Único/por hito | null | pendiente | Sponsor/grant/servicios | No cotizado |
+| Rent de programa, mint, cuentas y pool | Capital inicial; parte puede recuperarse al cerrar cuentas según reglas | null | SOL | Lectura autorizada futura y plan final | No cotizado |
+| Fees de operaciones/prioridad | Variable/recurrente | null | SOL | Simulación/cotización del mensaje final | No cotizado |
+| Metadata/URI y almacenamiento | Único o recurrente según proveedor | null | pendiente | Proveedor elegido | No cotizado |
+| Dominio, alojamiento/RPC/monitorización | Recurrente u opcional según arquitectura | null | pendiente | Proveedor elegido | No cotizado |
+| Liquidez ROBUSTO/USDC | Capital de activos expuesto a mercado; no fee | null | ROBUSTO + USDC | LP externo con términos escritos | No comprometido |
+| Operación, respuesta y contingencia | Reserva recurrente | null | pendiente | Sponsor/grant/servicios | Sin criterio ni cifra aprobados |
+
+**Total de gastos:** pendiente de cotizaciones compatibles. **Capital LP requerido:**
+pendiente de precio, rango, profundidad tolerada y aportes de terceros. **Aporte del
+fundador:** S/0. No se ha fijado un objetivo de captación ni autorizado solicitación.
+
+### Escenarios de financiación (no pronóstico)
+
+| Caso | Cobertura hipotética | Consecuencia verificable |
+| --- | --- | --- |
+| Sin financiación externa | Ninguna | No ejecutar auditoría contratada, costes de red/publicación ni pool; mantener todo offline y aplazar. No se puede prometer compra/venta. |
+| Servicios en especie/pro bono | Solo entregables que un tercero acepte por escrito | Puede reducir gasto pagado; no elimina independencia requerida ni cubre automáticamente rent/fees/USDC. |
+| Grant/sponsor | Partidas expresamente aprobadas por quien financia | Solo contabilizar tras aceptación formal, presupuesto, hitos y condiciones; no presumir que financia token liquidity o permite control. |
+| LP externo | Capital de par aportado bajo acuerdo | Permite considerar profundidad según diseño, pero el LP puede controlar/retirar su posición; no paga auditoría/despliegue a menos que el acuerdo lo destine también a ello. |
+| Financiación suficiente por etapas | Auditoría/retest, luego red/operación, luego capital de mercado separado | Reduce capital ocioso frente a financiarlo todo de una vez; depende de cotizaciones, disponibilidad y nueva autorización en cada paso. |
+
+Si no se logra financiar cada partida esencial, la decisión segura es diferir el
+lanzamiento. No compensar el déficit omitiendo auditoría, poniendo el capital del
+fundador en riesgo, vendiendo tokens con promesa de rendimiento/liquidez, usando
+reservas de una categoría como si fueran USDC ni cediendo autoridades sin análisis.
 
 ## Opciones y viabilidad cualitativa
 

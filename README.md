@@ -3,7 +3,7 @@
 Resultado técnico offline vigente: [ROBUSTO_TECHNICAL_COMPLETION.md](docs/ROBUSTO_TECHNICAL_COMPLETION.md).
 
 Estado actual y límites de lanzamiento: [ROBUSTO_STATUS.md](docs/ROBUSTO_STATUS.md).
-ROBUSTO es la identidad pública propuesta. El suministro de 10.000.000.000 tokens y nueve decimales es una propuesta **NO APROBADA**, aislada en `config/robusto-tokenomics-10b9-alternative.json`; no sustituye los perfiles históricos de seis decimales. No hay lanzamiento autorizado: `NOT_AUTHORIZED_FOR_MAINNET`, `MAINNET_DISABLED`, `OFFLINE_FIXTURE_ONLY`.
+ROBUSTO es la identidad pública. El propietario confirmó el objetivo económico de 10.000.000.000 tokens y su distribución; nueve decimales siguen siendo una propuesta técnica aislada en `config/robusto-tokenomics-10b9-alternative.json`, sin sustituir los perfiles históricos de seis decimales. No hay lanzamiento autorizado: `NOT_AUTHORIZED_FOR_MAINNET`, `MAINNET_DISABLED`, `OFFLINE_FIXTURE_ONLY`. Detalle: [especificación económica](docs/ROBUSTO_CONFIRMED_TOKENOMICS.md).
 
 `app/` es una presentación local, de solo lectura y sin conexión a Solana. La propuesta no está desplegada ni disponible para comprar; no muestra métricas o datos de mercado. Los nombres internos, IDs, seeds, IDL y artefactos históricos se conservan para compatibilidad y reproducibilidad.
 
@@ -28,7 +28,7 @@ una red Solana o pueden modificarla. No forman parte de la preview offline ni de
 las pruebas de interfaz; su uso requiere autorización explícita futura y revisión
 de destinos/identidades.
 
-El lifecycle rápido completo ejecuta SBF/SPL en LiteSVM con Clock aislado; no es evidencia Devnet. Los ensayos y perfiles económicos históricos no aprueban los nuevos parámetros. Imagen ROBUSTO: OFFICIAL_USER_ASSET_VALIDATED; hosting/URI pendientes. Distribución actual de 10B/9: PROPOSED_NOT_APPROVED. Ningún Mainnet, publicación on-chain, mint adicional, liquidez ni revocación.
+El lifecycle rápido completo ejecuta SBF/SPL en LiteSVM con Clock aislado; no es evidencia Devnet. Nombre ROBUSTO, objetivo económico de 10.000.000.000 y su distribución exacta están confirmados por el propietario; nueve decimales siguen propuestos. Ver [especificación económica confirmada](docs/ROBUSTO_CONFIRMED_TOKENOMICS.md). Los perfiles históricos no se alteran y el fixture 10B/9 sigue `PROPOSED_NOT_APPROVED` para uso técnico/producción. Ningún Mainnet, publicación on-chain, mint, liquidez ni revocación está autorizado.
 
 ## Validación local
 

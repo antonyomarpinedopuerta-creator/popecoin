@@ -1,12 +1,19 @@
 ## Continuación vigente: comercio y presupuesto reducido
 
 NOT_AUTHORIZED_FOR_MAINNET / MAINNET_DISABLED / OFFLINE_FIXTURE_ONLY.
+Actualización económica del propietario (2026-10-11): objetivo 10.000.000.000 ROBUSTO
+y distribución exacta 40/30/15/14,99/0,01 confirmados únicamente como decisión
+económica; 9 decimales continúan propuestos. Ver
+[especificación](ROBUSTO_CONFIRMED_TOKENOMICS.md) y
+[matriz de decisiones](ROBUSTO_LAUNCH_DECISION_MATRIX.md). La configuración de
+producción histórica y el fixture técnico no se cambian; nada está emitido ni autorizado.
 Swaps ficticios B→A/A→B con trader independiente, sin creator disponible, y rechazo
 al retiro de liquidez ajena. 12 swaps y 13 casos de liquidez. No requiere servidor
 local del creador para ejecutar el protocolo on-chain; redes/interfaces externas
 no verificadas. Atomicidad nativa y tres advisories/siete warnings siguen pendientes.
-La instrucción actual deja suministro final, importes, precios, calendario y
-autoridades sin aprobar; números históricos se conservan solo como fixtures.
+Siguen pendientes mint/decimales técnicos, importes de circulación, precio, calendario,
+custodias y autoridades operativas; los números históricos se conservan solo como
+fixtures.
 Hardware wallet no se comprará por ahora. No hay autorización de claves o ejecución.
 
 [Permisos/compraventa](ROBUSTO_AUTOMATIC_TRADING_REVIEW.md), [presupuesto y custodia](ROBUSTO_MINIMUM_LAUNCH_BUDGET.md), [camino crítico](ROBUSTO_LAUNCH_GAP_REPORT.md).

@@ -1,6 +1,6 @@
 # ROBUSTO — cierre pre-Mainnet y decisiones del propietario
 
-Estado: **READY_FOR_OWNER_DECISIONS**, **NOT_AUTHORIZED_FOR_MAINNET**. Supply y distribución 50/15/30/5 están **APPROVED_ECONOMIC_PARAMETERS_ONLY**; techos iniciales, términos de vesting y separación de roles están **APPROVED_PREPARATION_POLICY_ONLY**; importes efectivos, fechas, identidades/custodia concreta y mecanismo de mercado siguen **PROPOSED_NOT_APPROVED**; contenido público de metadata y preferencia Arweave aprobados por separado, sin autorización de publicar. MAINNET_DISABLED permanece activo. TOKEN READY FOR MAINNET sigue pendiente de las decisiones y verificaciones siguientes; PUBLICLY TRADABLE = NO. No se ha creado el token de producción ni un mercado.
+Estado: **READY_FOR_OWNER_DECISIONS**, **NOT_AUTHORIZED_FOR_MAINNET**. La decisión económica más reciente confirma el objetivo de 10.000.000.000 ROBUSTO y su reparto 40/30/15/14,99/0,01; no autoriza mint, emisión o distribución. Decimales 9, calendarios, importes efectivos, fechas, identidades/custodia y mercado siguen pendientes. Las referencias 1B/6 y 50/15/30/5 de este expediente describen únicamente el perfil operativo histórico y no reemplazan la distribución vigente. Ver [especificación económica confirmada](ROBUSTO_CONFIRMED_TOKENOMICS.md) y [matriz vigente](ROBUSTO_LAUNCH_DECISION_MATRIX.md). MAINNET_DISABLED permanece activo. TOKEN READY FOR MAINNET sigue pendiente; PUBLICLY TRADABLE = NO. No se ha creado token de producción ni mercado.
 
 ## 1. Qué está terminado
 
@@ -38,11 +38,11 @@ Llegar a la fecha no autoriza firmar. Leer `npm run robusto:third-status`, revis
 
 ## 5. Decisiones exactas del propietario
 
-### Supply y distribución aprobados, ejecución no autorizada
+### Perfil operativo histórico 1B/6 — no es la distribución económica vigente
 
-El propietario aprobó 1.000.000.000 ROBUSTO, 6 decimales, freeze=None y 50/15/30/5: 500M mercado, 150M comunidad, 300M reserva, 50M equipo. [Registro validable](../config/robusto-economics-approved.json); `npm run robusto:production -- economics`. No mint, transferencias ni circulación inicial autorizados. [Políticas de preparación aprobadas](ROBUSTO_PROGRESSIVE_LAUNCH_PROPOSAL.md). [Siguiente etapa pendiente](ROBUSTO_NEXT_STAGE_FOR_APPROVAL.md). [Comparación histórica](ROBUSTO_DISTRIBUTION_DECISION.md).
+El registro [robusto-economics-approved.json](../config/robusto-economics-approved.json) valida el perfil histórico de 1.000.000.000 ROBUSTO, seis decimales y 50/15/30/5 para sus artefactos y políticas anteriores. No representa la última decisión económica del propietario, no debe migrarse automáticamente y se conserva sin cambios por compatibilidad. La decisión económica actual 10B/9 y el reparto de cinco buckets se describe en la [especificación vigente](ROBUSTO_CONFIRMED_TOKENOMICS.md). No mint, transferencias ni circulación inicial autorizados.
 
-`config/robusto-distribution-proposal.json` conserva ambas alternativas históricas; la selección vigente es 50/15/30/5 y el registro aprobado es separado, sin poblar allocations operativas. Comando seguro: `npm run robusto:production -- distribution`.
+`config/robusto-distribution-proposal.json` conserva alternativas históricas; su selección 50/15/30/5 y el registro aprobado son separados, sin poblar allocations operativas. Comando seguro: `npm run robusto:production -- distribution`. No usar su etiqueta de vigencia para contradecir la distribución económica 10B confirmada más recientemente.
 
 | Destino | Principal | Tokens | Base units | Alternativa de lanzamiento escalonado |
 |---|---:|---:|---:|---:|
@@ -60,7 +60,7 @@ Tres autoridades públicas distintas, controladas mediante firma fuera de este r
 
 Decidir quién controla cada rol, recuperación privada, revisión y límites. Para dos o más custodios independientes puede evaluarse multisig 2-de-3: no está integrada en estos builders y requiere adaptación y pruebas antes de escogerla. Los builders actuales requieren firmantes individuales on-curve. No configurar una dirección multisig como si fuera compatible sin comprobarlo. Se conservan mint, update y upgrade authorities; retenerlas también conserva riesgos de emisión adicional, cambios de metadata y upgrades, que deben divulgarse.
 
-Políticas aprobadas: equipo50M con espera365 días y luego730 días lineales; reserva300M con bloqueo técnico, espera180 días y luego1.095 días lineales. En ambos start=cliff=S+espera y end=start+duración, sin acumulación durante espera. S y beneficiarios permanecen pendientes. Techos iniciales5M=3M mercado+2M comunidad, reserva/equipo0; son máximos, no transferencias. Comunidad148M restantes fuera de circulación, sin campañas futuras automáticas. [Registro validable](../config/robusto-launch-policy-approved.json), `npm run robusto:launch-policy -- validate`. Los candidatos anteriores y la opción administrativa de reserva están superados por estas aprobaciones.
+Esas reglas son políticas del perfil histórico 1B/6 y no especifican el vesting del millón de fundador de la nueva distribución. Para la propuesta actual se estudian 365 días de bloqueo + 730 días lineales, aún sin aprobación de fechas/beneficiario; véase la especificación económica. [Registro histórico](../config/robusto-launch-policy-approved.json), `npm run robusto:launch-policy -- validate`, no deben tratarse como asignaciones operativas del perfil 10B.
 
 ### Imagen y contenido
 

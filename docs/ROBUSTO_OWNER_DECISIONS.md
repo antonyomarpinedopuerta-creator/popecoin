@@ -4,15 +4,19 @@
 prepara decisiones; no autoriza identidades, firmas, pagos o lanzamiento.
 Las recomendaciones se basan exclusivamente en evidencia local, sin cotizaciones.
 
-## Instrucción vigente del propietario — continuación
+## Instrucción económica vigente — 2026-10-11
 
-La instrucción más reciente prevalece sobre las etiquetas históricas de aprobación:
-**no están aprobados todavía suministro final, importes, precios, calendario ni
-autoridades definitivas**. Los números que aparecen más abajo describen referencias
-históricas para fixtures, no parámetros adoptados de producción. No se comprará hardware
-wallet por ahora. Se exige comercio sin aprobación del creador y sin su computador
-encendido; eso no autoriza firmas/envíos ni garantiza profundidad de liquidez.
+El propietario confirmó el objetivo económico de 10.000.000.000 ROBUSTO y el reparto
+exacto 40/30/15/14,99/0,01 descrito en
+[ROBUSTO_CONFIRMED_TOKENOMICS.md](ROBUSTO_CONFIRMED_TOKENOMICS.md). Solo la distribución
+económica está confirmada: decimales 9 siguen propuestos; no están aprobados mint,
+emisión/cierre, calendario de circulación, beneficiarios, custodias, precio, vesting
+final, autoridades operativas, financiación ni lanzamiento. Los perfiles de 1.000M/6
+decimales siguientes son referencias históricas de compatibilidad, no la decisión
+económica vigente. No se comprará hardware wallet por ahora. El comercio deseado no
+autoriza firmas/envíos ni garantiza liquidez real.
 Registro: [restricciones actuales](../config/robusto-owner-decisions-current.json).
+[Matriz de decisiones vigente](ROBUSTO_LAUNCH_DECISION_MATRIX.md).
 [Presupuesto y custodia de software](ROBUSTO_MINIMUM_LAUNCH_BUDGET.md).
 [Compraventa y matriz de permisos](ROBUSTO_AUTOMATIC_TRADING_REVIEW.md).
 
@@ -50,6 +54,14 @@ expresa sobre mensajes concretos; ninguna revocación está autorizada aquí.
 
 ## C. Beneficiarios y calendario de vesting
 
+La decisión económica actual asigna exactamente 1.000.000 ROBUSTO al fundador. Se
+estudia 365 días de bloqueo + 730 días lineales como escenario, no como calendario
+aprobado. Cualquier duración histórica de equipo/reserva que sigue abajo pertenece al
+perfil antiguo de 1.000M/6 y no define el vesting del suministro 10B. Para el escenario
+nuevo faltan beneficiario confirmado, fecha base UTC, interpretación de días frente a
+meses naturales, custodia y una solución aceptable frente a pérdida de acceso; no hay
+recuperación administrativa añadida.
+
 La referencia histórica de preparación contemplaba las duraciones: equipo 50M, espera 365 días y 730 días lineales;
 reserva 300M, espera 180 días y 1.095 días lineales, con bloqueo técnico. Falta elegir
 beneficiarios y fecha base UTC S. Opciones: reconfirmar o revisar términos y después distintas fechas S aprobadas
@@ -66,19 +78,27 @@ aprobación expresa; no es un calendario de transferencias automáticas.
 
 ## D. Distribución y suministro
 
-Referencia histórica, pendiente de reconfirmación final: 1.000M tokens, seis decimales, freeze authority ausente, reparto 50/15/30/5:
-500M mercado, 150M comunidad, 300M reserva y 50M equipo. Máximos iniciales: 5M,
-con hasta 3M mercado y 2M comunidad; reserva/equipo cero. Los 500M no son circulación.
+La decisión económica vigente es 10.000.000.000 ROBUSTO: 4.000M mercado/liquidez,
+3.000M comunidad, 1.500M reserva estratégica, 1.499M desarrollo/operaciones y 1M
+fundador. Su suma y conversión exactas se registran en
+[ROBUSTO_CONFIRMED_TOKENOMICS.md](ROBUSTO_CONFIRMED_TOKENOMICS.md). El registro operativo
+de producción de 1.000M/seis decimales queda intacto para compatibilidad histórica y no
+se debe tratar como destino de la nueva decisión. Ningún bucket se ha emitido,
+transferido, bloqueado o asignado a una dirección por esta aprobación económica.
 
-Opciones pendientes: importes efectivos entre cero y los techos, campañas posteriores
-aprobadas individualmente, y custodia del remanente. Menor circulación limita exposición
-inicial pero puede reducir profundidad y aumentar concentración. Recomiendo empezar
-solo con cantidades financiadas y justificadas por un plan público; conservar el
-remanente bajo controles separados. Faltan importes, destinatarios y conciliación de
-supply/custodia por bucket. Emitir o distribuir necesita autorización de operaciones
-concretas; los techos no autorizan transferencias.
+Siguen pendientes: aprobar 9 decimales, implementación compatible, cuentas/custodios,
+beneficiarios, vesting de buckets, fechas, importes iniciales circulantes y reconciliación
+antes de operaciones futuras. La categoría de 4.000M no significa depósito automático
+en Meteora ni disponibilidad de USDC. Emitir, distribuir o bloquear necesita autorización
+específica; esta decisión no autoriza transacciones.
 
 ## E. Precio inicial y liquidez Meteora
+
+La especificación económica ahora asigna 4.000.000.000 ROBUSTO a liquidez/mercado; la
+cantidad real a depositar, el USDC de terceros, precio/rango, circulación y titular de
+posición siguen pendientes. Los ejemplos históricos de pool SOL que aparecen más abajo
+son ensayos, no el par actual decidido; para el plan se estudia ROBUSTO/USDC solo como
+escenario hipotético. No se ha aprobado ni creado un pool.
 
 Elegir precio significa fijar relación de activos y rango, no garantizar demanda.
 Opciones: posponer pool hasta cerrar seguridad/capital; preparar un tramo pequeño dentro

@@ -3,6 +3,12 @@
 NOT_AUTHORIZED_FOR_MAINNET / MAINNET_DISABLED / OFFLINE_FIXTURE_ONLY.
 **PROPOSED_NOT_APPROVED.** Sin lanzamiento, gasto, emisión, claves o firmas autorizados.
 
+Actualización: la distribución económica 10B de cinco buckets fue confirmada después
+por el propietario; ver [especificación canónica](ROBUSTO_CONFIRMED_TOKENOMICS.md).
+Este documento conserva un **fixture aritmético histórico de seis decimales**. Su
+status no revoca la decisión económica, pero tampoco aprueba decimales, mint, emisión,
+vesting, circulación, financiación o despliegue.
+
 ## Distribución y compatibilidad
 
 | Destino | Tokens propuestos | Porcentaje | Referencia histórica de fixtures |

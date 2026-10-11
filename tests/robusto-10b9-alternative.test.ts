@@ -49,3 +49,17 @@ test('closed mint requires exact supply, null emission/freeze authorities, class
  for(const [offset,value] of [[0,1],[44,8],[46,1]]){const altered=Buffer.from(data);altered[offset]=value;assert.throws(()=>verifyClosedMint({...account,data:altered}));}
  assert.throws(()=>verifyClosedMint({...account,owner:PublicKey.default}));assert.throws(()=>verifyClosedMint({...account,executable:true}));
 });
+test('illustrative ROBUSTO/USDC liquidity examples use exact integer ratios',()=>{
+ const examples=[
+  {x:100_000_000n,y:10_000n,dx:1_000_000n,output4dp:990_099n,impactPercent4dp:9_901n},
+  {x:400_000_000n,y:40_000n,dx:1_000_000n,output4dp:997_506n,impactPercent4dp:2_494n},
+ ];
+ for(const {x,y,dx,output4dp,impactPercent4dp} of examples){
+  const denominator=x+dx;
+  const outputRounded4dp=(y*dx*10_000n+denominator/2n)/denominator;
+  const impactPercentRounded4dp=(dx*100n*10_000n+denominator/2n)/denominator;
+  assert.equal(y*1_000_000n/x,100n,'both examples imply 0.0001 USDC per ROBUSTO');
+  assert.equal(outputRounded4dp,output4dp);
+  assert.equal(impactPercentRounded4dp,impactPercent4dp);
+ }
+});

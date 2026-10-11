@@ -25,9 +25,14 @@ No hay servidor del creador en la ruta de swap; la disponibilidad de red, interf
 externas y profundidad real no se ha verificado offline. Operadores Meteora conservan
 poderes de status/fees; no prometer ausencia de controles administrativos externos.
 
-La decisión actual deja **suministro, importes, precios, calendario y autoridades
-finales pendientes**, aunque archivos históricos mantengan nombres "approved" para
-fixtures. No comprar hardware wallet por ahora. Registro actual:
+La decisión económica vigente confirma el objetivo de **10.000.000.000 ROBUSTO** y
+las asignaciones 4.000M/3.000M/1.500M/1.499M/1M únicamente como distribución
+económica; **9 decimales siguen propuestos**. Mint técnico, importes circulantes,
+precio, calendario, custodias y autoridades operativas permanecen pendientes, aunque
+archivos históricos mantengan nombres "approved" para fixtures. Ver
+[especificación confirmada](ROBUSTO_CONFIRMED_TOKENOMICS.md) y
+[matriz de decisiones](ROBUSTO_LAUNCH_DECISION_MATRIX.md). No comprar hardware wallet
+por ahora. Registro actual:
 [restricciones](../config/robusto-owner-decisions-current.json). El
 [presupuesto mínimo](ROBUSTO_MINIMUM_LAUNCH_BUDGET.md) separa gastos/capital/rent sin
 inventar precios. Custodia de software requiere evaluación; riesgo residual de malware
