@@ -77,3 +77,8 @@ Suite cliente endurecida: reemplazado helper heredado de keypairs efímeros por 
 Guard Meteora: bytes de ambos mints requeridos y revalidados, incluido estado canónico wSOL; 226/226 cliente con guard activo. Reproducibilidad ficticia comprobada, runtime/CPI e IDL independiente pendientes. Checklist final y clasificación en ROBUSTO_TECHNICAL_COMPLETION.md. No se cerraron advisories ni se autoriza lanzamiento.
 
 Cierre de verificación: build Rust host aprobado; 10 tests vesting, 5 aritmética advisory y 5 tests generados de IDL aprobados. IDL regenerado mediante Cargo --lib idl-build coincide con el artefacto existente; ELF verificado como SBF64. Cliente protegido 226/226, Python 75/75. CLI Anchor 1.1.2 y lock Anchor 1.2.0 registrados, sin cambios de dependencias. Runtime/CPI y RC de producción siguen pendientes.
+
+2026-10-11: alternativa unsigned a LiteSVM comprobada con **12 casos runtime/CPI SBF**
+de deposit/release, ELF ficticio y SPL Token local fijados por hash, sin claves/firmas
+ni RPC. [Alcance y pendientes](../tools/unsigned-runtime/README.md). No certifica
+Initialize, Meteora, autenticación ni producción. NOT_AUTHORIZED_FOR_MAINNET / MAINNET_DISABLED.

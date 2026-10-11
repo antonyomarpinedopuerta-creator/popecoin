@@ -75,3 +75,15 @@ Se ejecutó Cargo offline/locked --lib --features idl-build __anchor_private_pri
 llvm-readelf verificó ELF64 little-endian DYN, máquina Solana Bytecode Format, entrypoint 0x155C8. No hubo warnings/errors en las dos compilaciones SBF ni en test_vesting; los advisories históricos siguen abiertos. Últimas suites: **226 cliente**, **75 Python**, **10 Rust vesting**, **5 Rust aritmética Meteora** y **5 tests generados IDL**, aprobados. TypeScript, metadata ROBUSTO inspect-offline, diff --check y scan heurístico aprobados. Las pruebas de runtime omitidas y sus causas siguen indicadas arriba.
 
 El alcance técnico restante incluye harness runtime/CPI que respete la prohibición de keypairs/firmas, identidad y RC de producción, autenticidad de datos, revisión independiente y decisiones del propietario. No se afirma que todos los desarrollos posibles hayan terminado ni que exista autorización de lanzamiento.
+
+## Continuación 2026-10-11 — runtime de instrucciones unsigned
+
+Bloqueo parcialmente resuelto: [harness aislado](../tools/unsigned-runtime/README.md)
+con Agave InvokeContext, sin LiteSVM, claves, firmas, transacciones o RPC. **12/12**
+casos sobre ELF ficticio reproducido y ELF SPL Token histórico fijados por SHA-256:
+release parcial/final y errores, deposit completo/parcial y errores. Se ejecutan CPI
+SBF reales y se verifican balances/released_amount. El árbol normal aislado no contiene
+solana-keypair ni LiteSVM. No se recompiló el contrato: se compiló el harness nuevo.
+Los flags signer son permisos sintéticos; no prueba autenticación de usuarios.
+Initialize, lifecycle secuencial, CPI Meteora y transacciones atómicas completas no
+quedan acreditados por estos doce casos. Detalles/comando/límites en el README.
