@@ -4,6 +4,18 @@
 prepara decisiones; no autoriza identidades, firmas, pagos o lanzamiento.
 Las recomendaciones se basan exclusivamente en evidencia local, sin cotizaciones.
 
+## Instrucción vigente del propietario — continuación
+
+La instrucción más reciente prevalece sobre las etiquetas históricas de aprobación:
+**no están aprobados todavía suministro final, importes, precios, calendario ni
+autoridades definitivas**. Los números que aparecen más abajo describen referencias
+históricas para fixtures, no parámetros adoptados de producción. No se comprará hardware
+wallet por ahora. Se exige comercio sin aprobación del creador y sin su computador
+encendido; eso no autoriza firmas/envíos ni garantiza profundidad de liquidez.
+Registro: [restricciones actuales](../config/robusto-owner-decisions-current.json).
+[Presupuesto y custodia de software](ROBUSTO_MINIMUM_LAUNCH_BUDGET.md).
+[Compraventa y matriz de permisos](ROBUSTO_AUTOMATIC_TRADING_REVIEW.md).
+
 ## A. Custodia y seguridad de claves
 
 Significa determinar quién puede operar y cómo recuperará el control. Opciones:
@@ -13,7 +25,8 @@ pero una sola persona sigue siendo un punto de fallo. Multisig reduce dependenci
 una persona, introduce coordinación, costes e integración todavía no implementada.
 Varias claves en una computadora no equivalen a custodios independientes.
 
-Recomiendo separar roles y elegir custodia antes de crear identidades definitivas;
+No se comprará hardware por ahora. Recomiendo evaluar custodia de software con entorno
+dedicado, respaldo privado offline y recuperación, antes de identidades definitivas;
 evaluar multisig para poderes críticos si existen custodios independientes. No asignar
 una PDA multisig a builders que esperan firmantes individuales. Faltan responsables,
 umbral, dispositivos, recuperación ensayada y presupuesto cotizado. Crear/importar
@@ -30,19 +43,18 @@ conserva riesgo de abuso. Renunciar reduce ese poder y elimina recuperación med
 
 Recomiendo conservar por ahora update y upgrade separadas, payer limitado y roles
 mercado/comunidad/reserva/equipo distintos. La política vigente exige emitir el total
-exacto y reconciliar antes de decidir revocación de mint. El builder de producción
-acopla mint authority con fuente/distribución: debe separarse y probarse antes de
-identidades definitivas. Faltan direcciones públicas verificadas y procedimiento de
+exacto y reconciliar antes de decidir revocación de mint. El builder actual separa mint authority de fuente/distribución y rechaza que coincidan;
+la mención anterior de acoplamiento estaba obsoleta. Custodia final sigue pendiente. Faltan direcciones públicas verificadas y procedimiento de
 upgrades. Transferir/revocar autoridades, emisión y despliegue requieren autorización
 expresa sobre mensajes concretos; ninguna revocación está autorizada aquí.
 
 ## C. Beneficiarios y calendario de vesting
 
-Ya están aprobadas las duraciones: equipo 50M, espera 365 días y 730 días lineales;
+La referencia histórica de preparación contemplaba las duraciones: equipo 50M, espera 365 días y 730 días lineales;
 reserva 300M, espera 180 días y 1.095 días lineales, con bloqueo técnico. Falta elegir
-beneficiarios y fecha base UTC S. Opciones compatibles: distintas fechas S aprobadas
+beneficiarios y fecha base UTC S. Opciones: reconfirmar o revisar términos y después distintas fechas S aprobadas
 para cada ejecución, con calendario publicado y verificado; posponer hasta disponer
-de custodia estable. Cambiar duraciones exige una nueva decisión de política.
+de custodia estable. Todas las duraciones y el calendario requieren ahora decisión final expresa.
 
 Recomiendo fijar S y beneficiarios solo después de verificar recuperación y direcciones.
 Preparar start=cliff=S+espera y end=start+duración, sin devengo durante espera. El
@@ -54,7 +66,7 @@ aprobación expresa; no es un calendario de transferencias automáticas.
 
 ## D. Distribución y suministro
 
-Aprobado: 1.000M tokens, seis decimales, freeze authority ausente, reparto 50/15/30/5:
+Referencia histórica, pendiente de reconfirmación final: 1.000M tokens, seis decimales, freeze authority ausente, reparto 50/15/30/5:
 500M mercado, 150M comunidad, 300M reserva y 50M equipo. Máximos iniciales: 5M,
 con hasta 3M mercado y 2M comunidad; reserva/equipo cero. Los 500M no son circulación.
 
@@ -142,7 +154,7 @@ una autorización de lanzamiento.
 
 1. Elegir custodia, responsables y recuperación de poderes críticos.
 2. Aprobar alcance/presupuesto de auditoría y tratamiento de riesgos Meteora abiertos.
-3. Fijar beneficiarios y fechas UTC compatibles con las duraciones aprobadas.
+3. Fijar beneficiarios y fechas UTC junto con los términos definitivos por aprobar.
 4. Elegir circulación efectiva, capital de liquidez y presupuesto por etapas.
 5. Aprobar responsables y condiciones de detención de la ceremonia; después, JSON,
    proveedor y publicación bajo autorización separada.

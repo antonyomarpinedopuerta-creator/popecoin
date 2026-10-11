@@ -1,6 +1,11 @@
 # ROBUSTO — autoridades conservadas
 
-La topología de Mainnet y la política de recuperación se preparan en [ROBUSTO_MAINNET_IDENTITY_CUSTODY.md](ROBUSTO_MAINNET_IDENTITY_CUSTODY.md). El inventario público sigue vacío. El builder aún acopla mint authority con la cuenta fuente/distribución y debe separarse antes de crear identidades definitivas.
+La instrucción actual deja autoridades y economía final pendientes de aprobación. La
+[matriz de permisos revisada](ROBUSTO_AUTOMATIC_TRADING_REVIEW.md) distingue swaps de
+usuarios, NFT de liquidez y operadores externos. Hardware wallet no se comprará por
+ahora; ver [custodia y presupuesto](ROBUSTO_MINIMUM_LAUNCH_BUDGET.md).
+
+La topología de Mainnet y la política de recuperación se preparan en [ROBUSTO_MAINNET_IDENTITY_CUSTODY.md](ROBUSTO_MAINNET_IDENTITY_CUSTODY.md). El inventario público sigue vacío. El builder actual separa mintAuthority de distributionSourceOwner y rechaza su igualdad (robusto-production.ts); custodia e identidades definitivas siguen pendientes.
 
 No se revoca ni transfiere ninguna autoridad aquí. Tres custodias distintas:
 

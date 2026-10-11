@@ -15,6 +15,24 @@ las ampliaciones de esta sesión quedan vinculadas al HEAD limpio por el gate ru
 | Requiere decisión del propietario | Custodia/firmantes, direcciones finales, beneficiarios/UTC, cantidades efectivas, capital/precio/rango, presupuesto, metadata/proveedor/URI y procedimiento de incidentes. Ver documento de decisiones. |
 | Requiere revisión externa | Contrato y calendario, seguridad de integración, tres advisories/siete warnings, programas externos/procedencia/compatibilidad, custodia y versión final. Mantener BLOCKED_FOR_PRODUCTION_REVIEW. |
 
+## Continuación vigente: compraventa y decisiones
+
+Los doce swaps prueban B→A/A→B con trader independiente y creator ausente del inventario,
+además de errores exactos de liquidez/límites, slippage, saldo, congelamiento y autoridad.
+Trece casos de liquidez incluyen rechazo del retiro de una posición ajena. Ver
+[revisión y matriz de permisos](ROBUSTO_AUTOMATIC_TRADING_REVIEW.md).
+No hay servidor del creador en la ruta de swap; la disponibilidad de red, interfaces
+externas y profundidad real no se ha verificado offline. Operadores Meteora conservan
+poderes de status/fees; no prometer ausencia de controles administrativos externos.
+
+La decisión actual deja **suministro, importes, precios, calendario y autoridades
+finales pendientes**, aunque archivos históricos mantengan nombres "approved" para
+fixtures. No comprar hardware wallet por ahora. Registro actual:
+[restricciones](../config/robusto-owner-decisions-current.json). El
+[presupuesto mínimo](ROBUSTO_MINIMUM_LAUNCH_BUDGET.md) separa gastos/capital/rent sin
+inventar precios. Custodia de software requiere evaluación; riesgo residual de malware
+y pérdida sin recuperación, sin certificación para fondos importantes.
+
 ## Riesgos Meteora abiertos
 
 La base local y el lock fijados permiten revisión histórica offline, no conocer cambios
@@ -42,7 +60,9 @@ compatibilidad, recompilar y reproducir el ELF y volver a auditar/cotejar eviden
 1. **Custodia y alcance de revisión:** elegir responsables, recuperación y auditoría.
    Sin esto no fijar identidades ni aceptar riesgos de poderes administrativos.
 2. **Cerrar diseño operativo:** beneficiarios/UTC, cantidades efectivas, liquidez y
-   presupuesto; separar mint authority de fuente/distribución en el builder definitivo.
+   presupuesto; verificar custodia de roles separados en el builder definitivo. El código actual
+   ya rechaza mintAuthority=distributionSourceOwner; la afirmación previa de que
+   seguían acopladas era obsoleta.
    Multisig, si se elige, necesita implementación compatible y pruebas.
 3. **Cerrar seguridad técnica:** auditoría y retest, tratamiento upstream/residual de
    Meteora, prueba de atomicidad con procesador transaccional compatible, procedencia
@@ -63,10 +83,10 @@ nueva evidencia de ejecución después de un commit limpio y verificación de ha
 No es hermético ni una atestación independiente; sus hashes deben conservarse por un
 canal independiente para comprobar autenticidad más adelante.
 
-## Validación de esta tanda
+## Validación histórica de la tanda anterior
 
 - Runtime SBF: 24 casos previos, ocho secuencias acotadas, 20 creación/adversariales
-  Meteora, 12 add/remove, cinco swap2 y 15 escenarios adversariales ROBUSTO aprobados.
+  Meteora, 13 add/remove, doce swap2 y 15 escenarios adversariales ROBUSTO aprobados.
 - Rust host del harness: cinco pruebas; Clippy all-targets sin warnings.
 - Python: 85 pruebas aprobadas, incluidas integridad y evidencia de candidato.
 - TypeScript: tsc sin errores y 234 pruebas protegidas aprobadas. Una primera pasada
@@ -83,3 +103,23 @@ canal independiente para comprobar autenticidad más adelante.
 El reporte runtime y el archivo candidato finales se escriben en target (no Git):
 contienen el HEAD exacto y hashes verificables. Para evitar autorreferencia, el hash
 del paquete final se comunica en el informe de sesión, sin reescribir sus fuentes.
+
+
+## Validación de esta continuación
+
+92 casos/escenarios runtime: 24 instrucciones ROBUSTO, ocho secuencias acotadas,
+20 creación/adversariales Meteora, 13 liquidez, 12 swaps y 15 adversariales ROBUSTO.
+Rust host: cinco aprobados; Clippy all-targets sin warnings. Ocho pruebas Python
+pertinentes (evidencia/candidato) y seis TypeScript (recibos/reconciliación) aprobadas
+con protección anti-claves/firma. Las 85 Python/234 TypeScript completas de la tanda
+anterior no se repitieron: sus cifras son evidencia histórica, no ejecuciones nuevas.
+
+Lock Meteora auditado de nuevo --no-fetch: tres advisories/siete warnings, estado
+BLOCKED_FOR_PRODUCTION_REVIEW. Sin cambios upstream o dependencias críticas.
+No defectos nuevos verificados en contrato/journal que justifiquen cambios de SBF;
+la evidencia final se reempaqueta ligada a HEAD limpio sin recompilar el contrato.
+
+Si el propietario elige economía distinta de las referencias históricas, se deberá
+adaptar y validar la configuración/builders que hoy fijan supply/reparto/duraciones,
+y renovar los fixtures y artefactos afectados. No interpretar que el candidato actual
+implementa cualquier suministro o calendario. Su valor es evidencia del perfil probado.
