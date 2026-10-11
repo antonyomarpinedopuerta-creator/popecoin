@@ -13,7 +13,7 @@ Esta página local presenta ROBUSTO como propuesta no aprobada. No existe token,
 - La ilustración local aprobada para revisión permanece local. URI, alojamiento, metadata final y publicación siguen pendientes.
 - Sin precio, capitalización, liquidez, volumen, dirección de contrato, auditoría terminada o socios anunciados.
 
-La interfaz explica la propuesta, reparto, simulación de vesting, objetivo de swaps sin aprobación del fundador, riesgos de operadores de Meteora, falta de mercado, pendientes de atomicidad y auditoría y preguntas frecuentes. No contiene botón/enlace de compra. El endpoint de producto valida los cinco importes de la propuesta y usa cadenas enteras; el endpoint de mercado devuelve `data: null` mientras no exista una fuente expresamente conectada y autorizada. No se conectó ni se añadió un cliente RPC.
+La interfaz explica la propuesta, reparto, simulación de vesting, objetivo de swaps sin aprobación del fundador, riesgos de operadores de Meteora, falta de mercado, pendientes de atomicidad y auditoría y preguntas frecuentes. La distribución incluye un gráfico SVG con descripción accesible y una leyenda que conserva las cifras como texto. Hay animaciones sutiles que respetan `prefers-reduced-motion`, foco visible, navegación de salto y breakpoints móviles. No contiene botón/enlace de compra. El endpoint de producto valida los cinco importes de la propuesta y usa cadenas enteras; el endpoint de mercado devuelve `data: null` mientras no exista una fuente expresamente conectada y autorizada. No se conectó ni se añadió un cliente RPC.
 
 ## Referencias de nombres y compatibilidad
 
@@ -43,4 +43,4 @@ La aplicación es solo una preview local. No debe publicarse hasta que el propie
 
 ## Validación de esta vista
 
-`tests/app.test.ts` cubre las rutas allowlisted, la propuesta exacta, aritmética con enteros, estado de mercado nulo, rechazo de métodos de escritura, cabeceras de seguridad, ausencia de recursos externos y entrega byte a byte del asset local. `npm run app` solo inicia un servidor de preview ligado a `127.0.0.1`; no usarlo como aprobación para desplegar públicamente.
+`tests/app.test.ts` cubre las rutas allowlisted, la propuesta exacta, aritmética con enteros, gráfico y leyenda accesibles, breakpoints, movimiento reducido, estado de mercado nulo, rechazo de métodos de escritura, cabeceras de seguridad, ausencia de recursos externos y entrega byte a byte del asset local. `npm run app` solo inicia un servidor de preview ligado a `127.0.0.1`; no usarlo como aprobación para desplegar públicamente.

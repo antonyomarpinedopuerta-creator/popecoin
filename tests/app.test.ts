@@ -22,12 +22,25 @@ test("landing page communicates proposal-only and unlaunched status", async () =
   const response = await request("/");
   assert.equal(response.status, 200);
   const html = String(response.body);
-  assert.match(html, /ROBUSTO todavía no está en circulación/);
+  assert.match(html, /NO DESPLEGADO/);
   assert.match(html, /NO DISPONIBLE PARA COMPRA/);
-  assert.match(html, /Atomicidad nativa pendiente/);
-  assert.match(html, /Diez hallazgos de dependencias abiertos/);
+  assert.match(html, /Atomicidad nativa sin demostrar/);
+  assert.match(html, /Hallazgos de Meteora abiertos/);
   assert.match(html, /preguntas frecuentes/i);
   assert.doesNotMatch(html, /SOLANA DEVNET|PAPA · vesting/);
+});
+
+test("token distribution chart has accessible text alternatives and mobile styles", async () => {
+  const html = String((await request("/")).body);
+  const css = String((await request("/style.css")).body);
+  assert.match(html, /role="img" aria-labelledby="chart-title chart-desc"/);
+  assert.match(html, /id="chart-desc"[^>]*>Mercado y liquidez 40 por ciento/);
+  assert.equal((html.match(/class="allocation-row(?: allocation-row--founder)?"/g) ?? []).length, 5);
+  assert.match(css, /@media \(max-width: 900px\)/);
+  assert.match(css, /@media \(max-width: 680px\)/);
+  assert.match(css, /@media \(max-width: 360px\)/);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
+  assert.match(css, /:focus-visible/);
 });
 
 test("product endpoint exposes only exact unapproved 10B/9 proposal using integer strings", async () => {
@@ -85,6 +98,13 @@ test("app is read-only, loopback-oriented, allowlisted and protected by same-ori
     assert.equal((await request(pathName)).status, 404);
   }
   assert.equal((await request("//example.invalid")).status, 400);
+});
+
+test("preview server binds exclusively to IPv4 loopback and bounds its port", () => {
+  const server = fs.readFileSync(path.resolve(__dirname, "../app/server.ts"), "utf8");
+  assert.match(server, /listen\(port, "127\.0\.0\.1"/);
+  assert.doesNotMatch(server, /listen\(port,\s*["'](?:0\.0\.0\.0|::|\*)["']/);
+  assert.match(server, /port < 1024 \|\| port > 65535/);
 });
 
 test("static assets contain no external service, wallet or Solana connection bootstrap", async () => {

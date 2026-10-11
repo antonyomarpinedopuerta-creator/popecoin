@@ -3,7 +3,6 @@
 // This page is a local proposal preview. It deliberately has no wallet,
 // Solana SDK, RPC URL, external asset, or transaction code.
 const allocationRoot = document.querySelector("#allocations");
-const marketRoot = document.querySelector("#market-data");
 
 function amount(value) {
   return BigInt(value).toLocaleString("es-ES");
@@ -25,12 +24,13 @@ async function loadProposal() {
 
   document.querySelector("#total-supply").textContent = amount(product.supply.tokens);
   allocationRoot.replaceChildren(...product.allocations.map((allocation, index) => {
-    const row = document.createElement("article");
-    row.className = `allocation-row${allocation.label === "Fundador" ? " founder-row" : ""}`;
-    const number = document.createElement("span"); number.className = "allocation-index";
-    number.textContent = String(index + 1).padStart(2, "0");
+    const row = document.createElement("li");
+    const colorKey = ["Mercado y liquidez", "Comunidad", "Reserva estratégica", "Desarrollo y operaciones", "Fundador"][index];
+    row.className = `allocation-row${allocation.label === "Fundador" ? " allocation-row--founder" : ""}`;
+    const dot = document.createElement("span"); dot.className = `allocation-dot allocation-dot--${["market", "community", "reserve", "operations", "founder"][index]}`;
+    dot.setAttribute("aria-hidden", "true");
     const name = document.createElement("div"); name.className = "allocation-name";
-    const title = document.createElement("strong"); title.textContent = allocation.label;
+    const title = document.createElement("strong"); title.textContent = colorKey;
     const detail = document.createElement("small");
     detail.textContent = allocation.label === "Mercado y liquidez"
       ? "Asignación de tokens; no significa liquidez depositada"
@@ -40,7 +40,7 @@ async function loadProposal() {
     value.textContent = amount(allocation.tokens);
     const percent = document.createElement("span"); percent.className = "allocation-percent";
     percent.textContent = allocation.percent;
-    row.append(number, name, value, percent);
+    row.append(dot, name, value, percent);
     return row;
   }));
 }
