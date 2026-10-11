@@ -256,3 +256,36 @@ del propietario. El audit histórico `BLOCKED_FOR_PRODUCTION_REVIEW` se conserva
 como resultado del scanner completo, sin sobrescribirlo con una etiqueta favorable.
 
 Clasificación global: **CONDITIONALLY_ACCEPTABLE_FOR_NEXT_REHEARSAL**.
+
+## Revalidación offline — 2026-10-11
+
+Auditoría `--no-fetch` sobre el lock oficial intacto: **3 vulnerabilidades y 7 warnings**,
+exit 1, BLOCKED_FOR_PRODUCTION_REVIEW. [Resultado nuevo](evidence/robusto/meteora-offline-audit-2026-10-11.json).
+Base local: 1295 advisories, commit `550efd3d587a29b2e2c2b21b17a440da4fede999`;
+no consulta externa ni afirmación de actualidad de upstream.
+
+Los 129 inputs locales coinciden byte por byte con el tar oficial de SHA-256
+`e72439220612d03ee8a41b06a4280f660a51b31fe496548c56d81d740cb59765`, y sus hashes
+con build-record.json. Inspección de fingerprints **históricos**, sin recompilar:
+ruint alloc/default/std; Borsh sin bytes; bincode activo en SBF; sin entradas SBF
+bytes/derivative/paste/anyhow/keccak/rand. Esto respalda la clasificación acotada
+anterior, sin demostrar todos los callers o el estado de despliegues actuales.
+
+| Hallazgo | Estado técnico conservado |
+| --- | --- |
+| bytes 2026-0007 | Opcional inactivo en el build fijado; no corrección aplicada. |
+| ruint 2025-0137 | Función alcanzable; condición inválida acotada por normalización revisada. Requiere revisión externa. |
+| ruint 2026-0220 | Defecto alcanzable y reproducido; límites/flags ignorados acotan callers revisados. Requiere revisión externa. |
+| bincode 2025-0141 | Activo SBF; riesgo de mantenimiento abierto. |
+| derivative 2024-0388, paste 2024-0436 | Features opcionales inactivas; mantenimiento abierto. |
+| anyhow 2026-0190 | Host; downcast_mut no encontrado en consumidores revisados históricamente. No prueba universal. |
+| keccak 2026-0012 | Host, backend ARM opt-in ausente en perfil revisado. |
+| rand 2026-0097, 0.8.5 | Host/dev, feature log ausente en perfil revisado. |
+| rand 2026-0097, 0.9.1 | Opcional inactivo. |
+
+Corrección bajo nuestro control: audit-meteora-local ahora **bloquea también si solo
+quedan warnings**, valida completitud/count/found/exit del scanner y rechaza duplicados
+y findings malformados. Un fallo invalida el informe local previo. Cinco regresiones
+aprobadas; no supresión, allowlist ni actualización del protocolo. Ninguno de los diez
+hallazgos queda cerrado. Cambiar ruint o el lock oficial produciría otro candidato que
+requiere reproducción y revisión; no se presenta un fork distinto como fix desplegado.
