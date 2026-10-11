@@ -175,3 +175,11 @@ independiente. No es necesario pagar una red para repetir estas pruebas. No acre
 capital USDC, precio aprobado, disponibilidad externa ni atomicidad nativa. Elegir este
 perfil y financiar los costes/capital sin aportación del fundador siguen decisiones
 previas a preparar una configuración definitiva; no se cambió producción.
+
+Entrega de seguridad: [alcance para auditor externo](ROBUSTO_EXTERNAL_AUDIT_SCOPE.md)
+y [financiación externa sin aportación del fundador](ROBUSTO_EXTERNAL_FINANCING.md).
+El paquete reproducible es una entrega local de evidencia interna, no auditoría
+independiente ni RC. Antes de solicitar producción siguen siendo críticos: herramienta
+para rollback nativo, revisión externa de contrato/Meteora y diez avisos, custodia,
+aprobación de economía/identidades y financiación efectiva de auditoría/red/operación
+más USDC para liquidez. No hay compromisos de terceros ni precios comprobados.

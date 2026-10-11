@@ -136,3 +136,14 @@ independiente y 9/6 decimales. El gate integrado enlaza 47 casos nuevos, 11 de
 suministro/vesting y 92 históricos a HEAD limpio. No sustituye el candidato histórico.
 Continúan pendientes atomicidad nativa, 3 advisories/7 warnings, auditoría,
 financiación y aprobación económica/operativa; no hay RC de producción.
+
+## Entrega para revisión independiente
+
+[Expediente](ROBUSTO_EXTERNAL_AUDIT_SCOPE.md) y empaquetador local verifican fuentes,
+locks, programas fijados, fixtures y reportes de HEAD limpio. Incluyen los diez avisos
+abiertos del audit offline; no convierten revisión interna en auditoría. La revisión
+no encontró defecto nuevo que justifique modificar el contrato. Donaciones excedentes
+al vault, pérdida de acceso del beneficiario y upgrade authority son limitaciones o
+riesgos que debe evaluar el auditor, sin añadir rescates administrativos por omisión.
+[Financiación](ROBUSTO_EXTERNAL_FINANCING.md): sin contraparte comprometida ni precios
+actuales, las vías externas siguen condicionadas; capital LP separado de gasto.
