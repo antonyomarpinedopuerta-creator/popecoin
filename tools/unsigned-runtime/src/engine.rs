@@ -22,6 +22,7 @@ pub struct Execution {
     /// Inspectable raw runtime effects, including effects before an instruction failed.
     pub staged: Accounts,
     pub consumed: u64,
+    pub logs: Vec<String>,
 }
 pub fn execute(
     accounts: &Accounts,
@@ -99,6 +100,7 @@ pub fn execute(
     if outcome == Outcome::Complete && stop_before == Some(instructions.len()) {
         outcome = Outcome::Interrupted(instructions.len());
     }
+    let logs = ctx.get_log_collector().unwrap().borrow().messages.clone();
     drop(ctx);
     let staged: Accounts = accounts
         .iter()
@@ -115,6 +117,7 @@ pub fn execute(
         committed,
         staged,
         consumed,
+        logs,
     }
 }
 

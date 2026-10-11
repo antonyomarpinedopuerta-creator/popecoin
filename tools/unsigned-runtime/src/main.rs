@@ -1,4 +1,5 @@
 mod engine;
+mod meteora;
 // Instruction runtime only: signer flags are synthetic permissions, never signatures.
 use sha2::{Digest, Sha256};
 use solana_account::{AccountSharedData, ReadableAccount, WritableAccount};
@@ -662,5 +663,6 @@ fn main() {
     }
     lifecycle(root, elf);
     bounded_atomicity(root, elf);
+    meteora::test(root);
     println!("24 unsigned instruction-runtime cases passed; real SBF SPL CPI; synthetic signer permissions; NOT_AUTHORIZED_FOR_MAINNET / MAINNET_DISABLED");
 }

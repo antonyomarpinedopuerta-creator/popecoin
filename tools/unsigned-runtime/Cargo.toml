@@ -23,3 +23,5 @@ solana-svm-log-collector = { version = "=3.1.14", features = ["agave-unstable-ap
 solana-svm-feature-set = { version = "=3.1.14", features = ["agave-unstable-api"] }
 solana-svm-timings = { version = "=3.1.14", features = ["agave-unstable-api"] }
 solana-transaction-context = { version = "=3.1.14", features = ["agave-unstable-api"] }
+serde_json = "=1.0.151"
+base64 = "=0.22.1"
