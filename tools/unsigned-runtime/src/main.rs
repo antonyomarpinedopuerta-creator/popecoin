@@ -570,6 +570,29 @@ fn bounded_atomicity(root: &Path, program_path: &Path) {
         );
         assert!(result.consumed > 0);
     }
+    for (instructions, result) in [
+        (vec![ix(true, true), ix(false, true)], success),
+        (
+            vec![ix(true, true), ix(false, true), ix(false, true)],
+            duplicate,
+        ),
+        (vec![ix(true, true), ix(false, false)], denied),
+    ] {
+        println!(
+            "RUNTIME_EVIDENCE {}",
+            engine::receipt(&accounts, &instructions, &result)
+        );
+    }
+    let instructions = vec![ix(true, true), ix(false, true)];
+    let interrupted = execute(&accounts, &instructions, Some(2));
+    println!(
+        "RUNTIME_EVIDENCE {}",
+        engine::receipt(&accounts, &instructions, &interrupted)
+    );
+    println!(
+        "RUNTIME_EVIDENCE {}",
+        engine::receipt(&frozen, &instructions, &failed_cpi)
+    );
     println!("8 bounded atomicity cases passed; raw effects retained for failed sequence; explicit fixture discard, NOT native transaction rollback");
 }
 

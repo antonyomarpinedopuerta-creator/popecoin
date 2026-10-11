@@ -193,6 +193,30 @@ pub fn digest(accounts: &Accounts) -> String {
     format!("{:x}", Sha256::digest(bytes))
 }
 
+/// Public execution receipt for fixture reconciliation. Self-reported local evidence, NOT attestation.
+pub fn receipt(
+    before: &Accounts,
+    instructions: &[Instruction],
+    result: &Execution,
+) -> serde_json::Value {
+    use sha2::{Digest, Sha256};
+    let message = serde_json::json!({"domain":"ROBUSTO_UNSIGNED_INSTRUCTIONS_V1","instructions":instructions.iter().map(|ix|
+        serde_json::json!({"program":ix.program_id.to_string(),"accounts":ix.accounts.iter().map(|m|
+            serde_json::json!({"address":m.pubkey.to_string(),"signer":m.is_signer,"writable":m.is_writable})).collect::<Vec<_>>(),"data":ix.data})).collect::<Vec<_>>()});
+    let (status, executed) = match result.outcome {
+        Outcome::Complete => ("COMPLETE", instructions.len()),
+        Outcome::Failed(i, _) => ("FAILED", i + 1),
+        Outcome::Interrupted(i) => ("INTERRUPTED", i),
+        Outcome::InvalidFixture(_) => ("INVALID_FIXTURE", 0),
+    };
+    serde_json::json!({"schemaVersion":1,"scope":"OFFLINE_FIXTURE_ONLY","authorization":false,
+        "mainnetDisabled":true,"nativeAtomicityVerified":false,"syntheticSignerPermissions":true,
+        "messageSha256":format!("{:x}",Sha256::digest(serde_json::to_vec(&message).unwrap())),
+        "beforeSha256":digest(before),"committedSha256":digest(&result.committed),"stagedSha256":digest(&result.staged),
+        "status":status,"plannedInstructions":instructions.len(),"executedInstructions":executed,
+        "computeUnits":result.consumed,"retryAllowed":false})
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

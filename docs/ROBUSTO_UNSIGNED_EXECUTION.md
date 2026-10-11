@@ -90,3 +90,31 @@ El preflight no autentica snapshots ni exige inventario completo de holders. Min
 ausentes y layouts malformados siguen requiriendo rechazo por el programa/rutas
 correspondientes. La conservación acota fixtures conocidos; no sustituye validación
 de owner/discriminador/autoridad ni una revisión independiente del SPL real.
+
+## Recibos runtime y journal
+
+El engine emite cinco recibos públicos derivados de las ejecuciones: éxito, secuencia
+con doble release, permiso ausente después de deposit, interrupción antes de commit
+y CPI fallida tras deposit. Incluyen digest de instrucciones/permisos y digests
+separados before/committed/staged, conteos y CU locales. Nunca son firmas o atestaciones.
+La referencia de tests conserva los hashes exactos de las fuentes del harness usadas.
+
+`reconcileRuntimeFixture` conecta esos recibos con el journal existente. Exige scope,
+flags anti-autorización, conteos y hashes válidos. Solo éxito completo cotejado con
+expectativa externa y claim íntegro produce SIMULATED_CONFIRMED; fallo con entrada
+aceptada intacta produce SIMULATED_FAILED_NO_EFFECT. Expone rawEffectsDiscarded para
+que ese resultado no se confunda con ausencia de efectos raw. Interrupciones, incluso
+tras el último paso, retornan UNCERTAIN. No libera claims ni permite retries.
+
+Seis pruebas TypeScript con recibos reales capturados cubren reapertura, corrupción,
+expectativa contradictoria, antigüedad, claims ausentes, flags alterados y doble
+contabilización. Tres pruebas Python rechazan evidencia runtime incompleta/contradictoria.
+No se autentica la procedencia criptográfica de un recibo suministrado por el llamador.
+
+`check-unsigned-runtime.py --fixture-elf target/rehearsal-builds/WORKSPACE/program.so`
+exige HEAD limpio, fija los cuatro ELF y todo el inventario Git público, comprueba que
+el árbol normal aislado excluye LiteSVM/solana-keypair, reconstruye el fixture protegido
+y ejecuta Cargo offline/locked. Liga resultados, recibos, ELF, binario del harness y
+fuentes a HEAD en target/unsigned-runtime-report.json; cambios durante verificación o
+salidas incompletas invalidan el resultado. Un fallo reemplaza el reporte vigente con
+FAILED_INCOMPLETE_EVIDENCE. Es evidencia local, no una atestación independiente.

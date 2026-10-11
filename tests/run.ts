@@ -44,3 +44,5 @@ import './robusto-fixture-reconciliation.test';
 import './offline-safety.test';
 
 import './unsigned-runtime-fixture.test';
+
+import './runtime-reconciliation.test';
