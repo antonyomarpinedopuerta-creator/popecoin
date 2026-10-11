@@ -4,6 +4,12 @@ NOT_AUTHORIZED_FOR_MAINNET / MAINNET_DISABLED / OFFLINE_FIXTURE_ONLY.
 Esta entrega es revisión interna y evidencia local reproducible. **No está auditado
 independientemente**; el paquete no es RC de producción ni autoriza gasto o red.
 
+El [registro de riesgos para auditoría](ROBUSTO_AUDIT_RISK_REGISTER.md) amplía
+los diez hallazgos de Meteora con severidad cualitativa, responsables propuestos y
+condiciones de cierre; también identifica los riesgos de vesting, custodia,
+autoridades y procedencia de evidencia. Su inventario parte del HEAD inspeccionado
+en esta revisión y separa registros históricos de pruebas repetidas en la revisión actual.
+
 ## Arquitectura y alcance
 
 El programa propio `programs/popecoin_vesting` tiene initialize, deposit y release.
