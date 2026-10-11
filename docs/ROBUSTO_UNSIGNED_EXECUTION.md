@@ -64,3 +64,29 @@ locked y TypeScript aprobados. 228 tests cliente con guard anti-claves/firma apr
 La primera pasada cliente encontró EPERM del sandbox al crear un subproceso ficticio
 del journal; tras permiso para ejecutar fuera del sandbox, la suite completa pasó.
 No se reconstruyó SBF: fuentes/ELF de los programas sin cambios.
+
+## Estados adversariales y conservación del fixture
+
+Quince escenarios adicionales ROBUSTO: beneficiario/mint/vault sustituidos, owner
+vault/destino, mint destino, owner/discriminador/longitud/bump de vesting alterados,
+released_amount superior al devengado, destino u64 máximo, cuentas readonly y programa
+SPL sustituido. Catorce rechazos SBF se cotejan con códigos exactos y estado raw intacto.
+El escenario u64 máximo se rechaza como fixture imposible antes de aceptar ejecución.
+
+**Hallazgo conservado, sin atribuir explotabilidad:** con mint supply=100, vault=100
+y destino=u64::MAX, el ELF SPL fijado devolvió éxito y destino=49. La suma inicial
+excede el suministro y no representa un estado legal derivado del lifecycle SPL.
+La ruta diagnóstica `execute_raw` reproduce ese comportamiento; no lo presenta como
+seguro. `execute` rechaza balances clásicos conocidos superiores al supply (suma en
+u128), wSOL sin respaldo y exención native con otro mint. Sin cambios al contrato o
+SPL externo. No basta para declarar exploit real ni seguridad de todas las entradas.
+
+Cinco tests host del engine prueban suma u128, respaldo/exención native, digest de
+estado completo independiente del orden, interrupción vacía y cuentas duplicadas.
+La primera prueba de duplicados también excedía supply y era rechazada antes: se
+corrigió el fixture para aislar la duplicación, sin quitar el control de supply.
+
+El preflight no autentica snapshots ni exige inventario completo de holders. Mints
+ausentes y layouts malformados siguen requiriendo rechazo por el programa/rutas
+correspondientes. La conservación acota fixtures conocidos; no sustituye validación
+de owner/discriminador/autoridad ni una revisión independiente del SPL real.

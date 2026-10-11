@@ -1,3 +1,4 @@
+mod adversarial;
 mod engine;
 mod meteora;
 // Instruction runtime only: signer flags are synthetic permissions, never signatures.
@@ -664,5 +665,6 @@ fn main() {
     lifecycle(root, elf);
     bounded_atomicity(root, elf);
     meteora::test(root);
+    adversarial::test(root, elf);
     println!("24 unsigned instruction-runtime cases passed; real SBF SPL CPI; synthetic signer permissions; NOT_AUTHORIZED_FOR_MAINNET / MAINNET_DISABLED");
 }
