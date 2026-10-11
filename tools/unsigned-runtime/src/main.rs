@@ -600,6 +600,10 @@ fn bounded_atomicity(root: &Path, program_path: &Path) {
 
 fn main() {
     let args: Vec<_> = std::env::args().collect();
+    if args.len() == 4 && args[3] == "--meteora-10b9-usdc-only" {
+        meteora::test_profile(Path::new(&args[1]), true);
+        return;
+    }
     if args.len() == 4 && args[3] == "--10b9-only" {
         tokenomics_10b9::test(Path::new(&args[1]), Path::new(&args[2]));
         return;

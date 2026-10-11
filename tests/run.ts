@@ -48,3 +48,5 @@ import './unsigned-runtime-fixture.test';
 import './runtime-reconciliation.test';
 
 import './robusto-10b9-alternative.test';
+
+import './robusto-meteora-10b9.test';

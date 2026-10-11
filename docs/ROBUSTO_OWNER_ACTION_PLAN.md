@@ -168,3 +168,10 @@ Referencias: [permisos/compraventa](ROBUSTO_AUTOMATIC_TRADING_REVIEW.md),
 [decisiones](ROBUSTO_OWNER_DECISIONS.md), [presupuesto](ROBUSTO_MINIMUM_LAUNCH_BUDGET.md),
 [dependencias Meteora](ROBUSTO_METEORA_DEPENDENCY_REVIEW.md),
 [brechas](ROBUSTO_LAUNCH_GAP_REPORT.md).
+
+La alternativa [10B/9 y USDC ficticio](ROBUSTO_METEORA_10B9_OFFLINE.md) tiene ahora
+builder y ejecución local de creación, liquidez y swaps en ambos sentidos con trader
+independiente. No es necesario pagar una red para repetir estas pruebas. No acredita
+capital USDC, precio aprobado, disponibilidad externa ni atomicidad nativa. Elegir este
+perfil y financiar los costes/capital sin aportación del fundador siguen decisiones
+previas a preparar una configuración definitiva; no se cambió producción.

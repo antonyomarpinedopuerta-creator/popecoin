@@ -127,3 +127,12 @@ Si el propietario elige economía distinta de las referencias históricas, se de
 adaptar y validar la configuración/builders que hoy fijan supply/reparto/duraciones,
 y renovar los fixtures y artefactos afectados. No interpretar que el candidato actual
 implementa cualquier suministro o calendario. Su valor es evidencia del perfil probado.
+
+## Alternativa 10B/9 con USDC ficticio
+
+[Integración y límites](ROBUSTO_METEORA_10B9_OFFLINE.md): builder separado, creación,
+liquidez y swaps A→B/B→A ejecutados contra ELF Meteora local fijado, comprador
+independiente y 9/6 decimales. El gate integrado enlaza 47 casos nuevos, 11 de
+suministro/vesting y 92 históricos a HEAD limpio. No sustituye el candidato histórico.
+Continúan pendientes atomicidad nativa, 3 advisories/7 warnings, auditoría,
+financiación y aprobación económica/operativa; no hay RC de producción.

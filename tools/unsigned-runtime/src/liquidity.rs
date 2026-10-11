@@ -7,7 +7,18 @@ use solana_program_pack::Pack;
 use solana_pubkey::Pubkey;
 use spl_token_interface::state::{Account as TokenAccount, AccountState};
 
-pub fn test(initial: &Accounts, named: impl Fn(&str) -> Pubkey, program: Pubkey) {
+pub fn test_profile(
+    initial: &Accounts,
+    named: impl Fn(&str) -> Pubkey,
+    program: Pubkey,
+    alternative: bool,
+    delta: u128,
+) {
+    let inventory = if alternative {
+        1_000_000_000_000_000
+    } else {
+        1_000_000_000_000
+    };
     let balance = |state: &Accounts, name: &str| {
         TokenAccount::unpack(
             state
@@ -90,7 +101,7 @@ pub fn test(initial: &Accounts, named: impl Fn(&str) -> Pubkey, program: Pubkey)
     };
     let mut funded = initial.clone();
     // Additional fictional source inventory, below known mint supply. No mint instruction.
-    modify(&mut funded, "payer_token_a", 1_000_000_000_000, false);
+    modify(&mut funded, "payer_token_a", inventory, false);
     for role in ["payer_token_a", "payer_token_b"] {
         let a = &mut funded
             .iter_mut()
@@ -101,7 +112,6 @@ pub fn test(initial: &Accounts, named: impl Fn(&str) -> Pubkey, program: Pubkey)
         t.owner = named("creator");
         TokenAccount::pack(t, a.data_as_mut_slice()).unwrap();
     }
-    let delta = 3876039221566836409435171622711u128;
     let add = instruction(false, delta, u64::MAX);
     let added = engine::execute(&funded, std::slice::from_ref(&add), None);
     assert_eq!(
@@ -112,10 +122,7 @@ pub fn test(initial: &Accounts, named: impl Fn(&str) -> Pubkey, program: Pubkey)
     );
     assert_eq!(totals(&funded), totals(&added.committed));
     assert_eq!(balance(&added.committed, "payer_token_a"), 0);
-    assert_eq!(
-        balance(&added.committed, "token_a_vault"),
-        2_000_000_000_000
-    );
+    assert_eq!(balance(&added.committed, "token_a_vault"), 2 * inventory);
     let remove = instruction(true, delta, 0);
     let removed = engine::execute(&added.committed, std::slice::from_ref(&remove), None);
     assert_eq!(
@@ -126,7 +133,7 @@ pub fn test(initial: &Accounts, named: impl Fn(&str) -> Pubkey, program: Pubkey)
     );
     assert_eq!(totals(&added.committed), totals(&removed.committed));
     assert!(balance(&removed.committed, "payer_token_a") > 0);
-    assert!(balance(&removed.committed, "token_a_vault") < 2_000_000_000_000);
+    assert!(balance(&removed.committed, "token_a_vault") < 2 * inventory);
     for label in [
         "zeroAdd",
         "maxAdd",
@@ -152,14 +159,14 @@ pub fn test(initial: &Accounts, named: impl Fn(&str) -> Pubkey, program: Pubkey)
                     .unwrap()
                     .is_signer = false
             }
-            "frozenSource" => modify(&mut state, "payer_token_a", 1_000_000_000_000, true),
+            "frozenSource" => modify(&mut state, "payer_token_a", inventory, true),
             "emptySource" => modify(&mut state, "payer_token_a", 0, false),
             "zeroRemove" => ix = instruction(true, 0, 0),
             "excessRemove" => ix = instruction(true, u128::MAX, 0),
             "slippageRemove" => ix = instruction(true, delta, u64::MAX),
             "frozenDestination" => {
                 ix = remove.clone();
-                modify(&mut state, "payer_token_a", 1_000_000_000_000, true);
+                modify(&mut state, "payer_token_a", inventory, true);
             }
             _ => unreachable!(),
         }
@@ -186,13 +193,15 @@ pub fn test(initial: &Accounts, named: impl Fn(&str) -> Pubkey, program: Pubkey)
     let mut swap_state = funded.clone();
     // Backed fictional wSOL input; initial lower price boundary requires B -> A.
     modify(&mut swap_state, "payer_token_b", 1_000_000_000, false);
-    swap_state
-        .iter_mut()
-        .find(|(k, _)| *k == named("payer_token_b"))
-        .unwrap()
-        .1
-        .checked_add_lamports(1_000_000_000)
-        .unwrap();
+    if !alternative {
+        swap_state
+            .iter_mut()
+            .find(|(k, _)| *k == named("payer_token_b"))
+            .unwrap()
+            .1
+            .checked_add_lamports(1_000_000_000)
+            .unwrap();
+    }
     let trader = crate::public(78);
     assert_ne!(trader, named("creator"));
     assert_ne!(trader, named("payer"));

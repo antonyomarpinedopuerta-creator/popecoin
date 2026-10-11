@@ -9,11 +9,23 @@ use spl_token_interface::state::{Account as TokenAccount, Mint};
 use std::{path::Path, str::FromStr};
 
 pub fn test(root: &Path) {
+    test_profile(root, false);
+}
+pub fn test_profile(root: &Path, alternative: bool) {
     use sha2::{Digest, Sha256};
-    let bytes = std::fs::read(root.join("target/unsigned-meteora-fixture.json")).unwrap();
+    let bytes = std::fs::read(root.join(if alternative {
+        "target/unsigned-meteora-10b9-fixture.json"
+    } else {
+        "target/unsigned-meteora-fixture.json"
+    }))
+    .unwrap();
     assert_eq!(
         format!("{:x}", Sha256::digest(&bytes)),
-        "642012176374b022f97605fc50d62c8601d78420914273430fb9cf63316d4258"
+        if alternative {
+            "dc4325975ad1b17192b8fdc05871557553b2de9afc8999caccc6545b7f31525c"
+        } else {
+            "642012176374b022f97605fc50d62c8601d78420914273430fb9cf63316d4258"
+        }
     );
     let json: serde_json::Value = serde_json::from_slice(&bytes).unwrap();
     assert_eq!(json["scope"], "OFFLINE_FIXTURE_ONLY");
@@ -24,6 +36,11 @@ pub fn test(root: &Path) {
         json["idlSha256"],
         "e476ace8abaf90b70660c7a9bca39e604bb606880a865625bb31cfb3857b4d0d"
     );
+    let inventory = if alternative {
+        1_000_000_000_000_000
+    } else {
+        1_000_000_000_000
+    };
     let ixjson = &json["instruction"];
     let key = |value: &serde_json::Value| Pubkey::from_str(value.as_str().unwrap()).unwrap();
     let named = |name: &str| {
@@ -89,32 +106,38 @@ pub fn test(root: &Path) {
     let mut mintb = vec![0; Mint::LEN];
     Mint::pack(
         Mint {
-            decimals: 9,
+            decimals: if alternative { 6 } else { 9 },
+            supply: if alternative { 1_000_000_000_000 } else { 0 },
             is_initialized: true,
             ..Mint::default()
         },
         &mut mintb,
     )
     .unwrap();
+    if alternative {
+        assert_eq!(
+            mintb,
+            STANDARD.decode(json["mintB"].as_str().unwrap()).unwrap()
+        );
+    }
     map.insert(
         named("token_b_mint"),
         account(spl_token_interface::ID, mintb, false),
     );
     map.insert(
         named("payer_token_a"),
-        token(
-            named("token_a_mint"),
-            named("payer"),
-            1_000_000_000_000,
-            false,
-        ),
+        token(named("token_a_mint"), named("payer"), inventory, false),
     );
     let reserve = solana_rent::Rent::default().minimum_balance(TokenAccount::LEN);
     let mut b = token(named("token_b_mint"), named("payer"), 1, false);
     let mut tb = TokenAccount::unpack(b.data()).unwrap();
-    tb.is_native = Some(reserve).into();
+    if !alternative {
+        tb.is_native = Some(reserve).into();
+    }
     TokenAccount::pack(tb, b.data_as_mut_slice()).unwrap();
-    b.set_lamports(reserve + 1);
+    if !alternative {
+        b.set_lamports(reserve + 1);
+    }
     map.insert(named("payer_token_b"), b);
     let clock = solana_clock::Clock {
         slot: 10,
@@ -154,6 +177,36 @@ pub fn test(root: &Path) {
             })
             .collect(),
     };
+    if alternative {
+        // Generic Meteora accepts arbitrary mint decimals. This profile must reject
+        // mismatches in preparation; independently verify SPL checked CPI enforcement.
+        for (name, wrong_decimals) in [("token_a_mint", 6u8), ("token_b_mint", 9u8)] {
+            let source = if name == "token_a_mint" {
+                "payer_token_a"
+            } else {
+                "payer_token_b"
+            };
+            let checked = spl_token_interface::instruction::transfer_checked(
+                &spl_token_interface::ID,
+                &named(source),
+                &named(name),
+                &named(source),
+                &named("payer"),
+                &[],
+                1,
+                wrong_decimals,
+            )
+            .unwrap();
+            let rejected = engine::execute(&accounts, &[checked], None);
+            assert_eq!(
+                rejected.outcome,
+                engine::Outcome::Failed(0, InstructionError::Custom(18))
+            );
+            assert_eq!(rejected.staged, accounts);
+            assert_eq!(rejected.committed, accounts);
+        }
+        println!("2 alternative decimal mismatch SPL cases passed");
+    }
     let result = engine::execute(&accounts, std::slice::from_ref(&ix), None);
     if result.outcome != engine::Outcome::Complete {
         println!("{:?}\n{}", result.outcome, result.logs.join("\n"));
@@ -173,7 +226,7 @@ pub fn test(root: &Path) {
         .amount
     };
     assert_eq!(amount(named("payer_token_a")), 0);
-    assert_eq!(amount(named("token_a_vault")), 1_000_000_000_000);
+    assert_eq!(amount(named("token_a_vault")), inventory);
     assert_eq!(amount(named("payer_token_b")), 0);
     assert_eq!(amount(named("token_b_vault")), 1);
     let lamports = |state: &engine::Accounts| {
@@ -183,6 +236,19 @@ pub fn test(root: &Path) {
             .sum::<u128>()
     };
     assert_eq!(lamports(&accounts), lamports(&result.committed));
+    let token_totals = |state: &engine::Accounts| {
+        [named("token_a_mint"), named("token_b_mint")].map(|mint| {
+            state
+                .iter()
+                .filter(|(_, a)| *a.owner() == spl_token_interface::ID)
+                .filter_map(|(_, a)| TokenAccount::unpack(a.data()).ok())
+                .filter(|a| a.mint == mint)
+                .map(|a| u128::from(a.amount))
+                .sum::<u128>()
+        })
+    };
+    assert_eq!(token_totals(&accounts), token_totals(&result.committed));
+
     for name in ["token_a_mint", "token_b_mint"] {
         assert_eq!(
             accounts.iter().find(|(k, _)| *k == named(name)).unwrap().1,
@@ -216,7 +282,17 @@ pub fn test(root: &Path) {
         assert_eq!(*state.owner(), program);
         assert_eq!(&state.data()[..8], &Sha256::digest(disc)[..8]);
     }
-    crate::liquidity::test(&result.committed, named, program);
+    crate::liquidity::test_profile(
+        &result.committed,
+        named,
+        program,
+        alternative,
+        if alternative {
+            json["liquidity"].as_str().unwrap().parse().unwrap()
+        } else {
+            3876039221566836409435171622711u128
+        },
+    );
     let check = |label: &str, state: &engine::Accounts, instruction: Instruction| {
         let failure = engine::execute(state, &[instruction], None);
         println!("Meteora {label}: {:?}", failure.outcome);
@@ -252,6 +328,7 @@ pub fn test(root: &Path) {
             lamports(state),
             "{label}: raw lamports not conserved"
         );
+        assert_eq!(token_totals(state), token_totals(&failure.staged));
         failure
     };
     for role in ["payer", "position_nft_mint"] {
@@ -320,7 +397,7 @@ pub fn test(root: &Path) {
                 .amount
             };
             assert_eq!(raw("payer_token_a"), 0);
-            assert_eq!(raw("token_a_vault"), 1_000_000_000_000);
+            assert_eq!(raw("token_a_vault"), inventory);
             assert_ne!(failure.staged, altered);
         }
     }
