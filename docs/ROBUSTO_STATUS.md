@@ -1,3 +1,16 @@
+# Estado vigente — ejecución unsigned ampliada
+
+NOT_AUTHORIZED_FOR_MAINNET / MAINNET_DISABLED. [Checklist y evidencia técnica](ROBUSTO_UNSIGNED_EXECUTION.md#checklist-vigente-de-lanzamiento).
+Creación Meteora con CPI SBF reales offline: 20 casos. ROBUSTO: 24 casos base,
+8 secuencias acotadas y 15 escenarios adversariales; cinco tests host. Recibos/journal
+sin retry, con seis regresiones nuevas; siete pruebas ruint en debug/release.
+Atomicidad nativa NO verificada: efectos raw parciales demostrados y descartados solo
+por política del fixture. Tres advisories/siete warnings siguen abiertos. Candidato
+OFFLINE_FIXTURE_ONLY con reporte runtime ligado a HEAD y artefactos, sin nueva SBF.
+Restan ampliaciones offline, RC definitiva, custodia, decisiones y auditoría externa.
+
+---
+
 # ROBUSTO — estado vigente
 
 Integración desde ee70f80: [guard compartido para deployment y creación Meteora](ROBUSTO_OFFLINE_COVERAGE_REVIEW.md#ampliación-desde-ee70f80-integración-de-condiciones), con estado esperado, presupuesto, snapshot/blockhash simulados, revalidación antes/después y journal común. 212 tests cliente, 63 Python y TypeScript aprobados. No cubre semántica binaria completa del buffer/fuentes ni swaps/retiros Meteora; no evidencia on-chain ni autorización. `NOT_AUTHORIZED_FOR_MAINNET` permanece vigente.

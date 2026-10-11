@@ -118,3 +118,51 @@ y ejecuta Cargo offline/locked. Liga resultados, recibos, ELF, binario del harne
 fuentes a HEAD en target/unsigned-runtime-report.json; cambios durante verificación o
 salidas incompletas invalidan el resultado. Un fallo reemplaza el reporte vigente con
 FAILED_INCOMPLETE_EVIDENCE. Es evidencia local, no una atestación independiente.
+
+## Revisión residual Meteora y candidato
+
+Auditoría --no-fetch repetida contra el lock oficial intacto y la base local: tres
+advisories/siete warnings, exit 1, BLOCKED_FOR_PRODUCTION_REVIEW. Los 129 inputs de
+fuentes Meteora siguen coincidiendo con el registro histórico. No se consultó upstream
+ni despliegues. [Clasificación por dependencia/versión y mitigación](ROBUSTO_METEORA_DEPENDENCY_REVIEW.md#revalidación-offline--2026-10-11).
+
+Regresiones aritméticas ampliadas de cinco a siete, **debug y release** contra ruint
+1.14.0: identidad q*d+r para cada una de 512 fronteras de normalización, y cálculo
+ceil del inventario del perfil realmente ejecutado, incluyendo liquidez u128 máxima
+que supera conversión a u64 (el ELF Meteora la rechaza con Custom(6000)). Nunca se
+invoca low-level reciprocal con entradas UB. Se conserva la prueba que demuestra
+flag defectuoso de shift. Mitigaciones acotadas, ningún fix upstream aplicado.
+
+| Dependencia / hallazgo | Camino y riesgo residual |
+| --- | --- |
+| bytes 1.10.1 / 2026-0007 | Feature opcional inactiva en SBF fijado; no corregido, revisar si cambia build. |
+| ruint 1.14.0 / 2025-0137 | Activo; normalización acota condición inválida revisada; revisión externa de callers pendiente. |
+| ruint 1.14.0 / 2026-0220 | Activo, defecto reproducido; flags ignorados y shifts acotados en perfil revisado; no seguridad universal. |
+| bincode 1.3.3 / 2025-0141 | Runtime activo; mantenimiento abierto. |
+| derivative 2.2.0 / 2024-0388 | Opcional inactivo; mantenimiento abierto. |
+| paste 1.0.15 / 2024-0436 | Opcional inactivo; mantenimiento abierto. |
+| anyhow 1.0.97 / 2026-0190 | Host, downcast_mut no encontrado en consumidores históricamente revisados; no auditoría exhaustiva. |
+| keccak 0.1.4 / 2026-0012 | Host ARM opt-in ausente en perfil fijado; revisar otros targets/features. |
+| rand 0.8.5 / 2026-0097 | Host/dev, feature log ausente en perfil fijado. |
+| rand 0.9.1 / 2026-0097 | Opcional inactivo en perfil fijado. |
+
+Paquete `--with-runtime-evidence`: exige scope/flags, HEAD/fuentes exactos, suites y
+recibos completos, cuatro ELF fijados, digest del fixture y binario harness actual;
+revalida antes de escribir. Incluye las fuentes públicas del harness, el fixture y
+los ELF exactos junto con el reporte. Scope OFFLINE_FIXTURE_ONLY explícito. Sigue
+requiriendo Git checkout/herramientas/dependencias instaladas para reproducir todo;
+no es un entorno hermético ni una certificación de procedencia.
+
+## Checklist vigente de lanzamiento
+
+| Clasificación | Elementos |
+| --- | --- |
+| TERMINADO Y VERIFICADO | Harness unsigned de initialize/deposit/release y lifecycle; creación Meteora y CPI System/SPL/Token-2022/eventos; rechazos adversariales enumerados; conservación de fixtures conocidos; recibos/journal sin retry; evidencia HEAD/hashes y empaquetado ficticio verificable. Alcance exclusivamente local. |
+| PARCIALMENTE VERIFICADO | Atomicidad: un InvokeContext compartido más commit/descarte del fixture, sin rollback nativo. Datos públicos locales sin autenticidad independiente. Modelos de rent/CU/límites, sin cotizaciones/fees reales actuales. ELF/IDL/reproducción ficticia no equivalen a identidad final. Swaps/retiros Meteora y mayor cobertura adversarial siguen disponibles para otra sesión. |
+| BLOQUEADO TÉCNICAMENTE | No hay harness completo de Bank/transaction processor unsigned disponible en el registro local inspeccionado (`solana-svm`/`solana-runtime` completos no encontrados). LiteSVM sigue excluido por generación interna de claves. Esto no demuestra imposibilidad teórica; requiere herramientas o implementación adicional revisada. |
+| REQUIERE DECISIÓN DEL PROPIETARIO | Custodia/dispositivos/firmantes, beneficiarios/calendario, importes/precio/presupuesto, proveedor y URI Arweave; ceremonia y autorizaciones expresas separadas. |
+| REQUIERE AUDITORÍA EXTERNA | Programa propio/integración, callers y riesgos residuales Meteora, procedencia/compatibilidad de programas externos, entorno de custodia y RC definitiva. Tres advisories/siete warnings abiertos. |
+
+No se agotaron todas las ampliaciones offline posibles. Continuar por swaps/retiros
+y atomicidad con herramientas compatibles; no repetir suites o compilaciones sin
+cambios pertinentes. NOT_AUTHORIZED_FOR_MAINNET / MAINNET_DISABLED permanecen vigentes.

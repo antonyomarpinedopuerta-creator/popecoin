@@ -11,6 +11,7 @@ el lock del producto ni las dependencias upstream.
 Ejecutar desde la raíz, con un ELF ficticio compilado previamente:
 
 ```sh
+node --require ts-node/register scripts/prepare-unsigned-runtime-fixture.ts > target/unsigned-meteora-fixture.json
 CARGO_TARGET_DIR=target cargo run --offline --locked \
   --manifest-path tools/unsigned-runtime/Cargo.toml -- \
   "$PWD" "$PWD/target/rehearsal-builds/WORKSPACE/program.so"
@@ -49,3 +50,23 @@ Investigación local: LiteSVM `Default -> new_inner` genera `airdrop_kp` mediant
 Mollusk no está en el registro local inspeccionado. La API alternativa usada no
 requiere LiteSVM ni el test module upstream que importa Keypair: se compilan librerías
 normales y nuestro binario aislado. No se ejecutan los tests de dependencias.
+
+
+## Cobertura ampliada y evidencia actual
+
+24 casos de instrucciones previos, 8 secuencias con descarte explícito, 20 Meteora,
+15 escenarios adversariales ROBUSTO (14 rechazos SBF y 1 preflight imposible con
+reproducción raw diagnóstica). Cinco tests host del engine. Los errores se cotejan
+exactamente; el programa externo no se sustituye por un mock. Detalles y límites:
+[ROBUSTO_UNSIGNED_EXECUTION](../../docs/ROBUSTO_UNSIGNED_EXECUTION.md).
+
+El harness NO prueba rollback nativo de transacciones: se observan efectos raw
+parciales tanto en doble release como en fallo tardío de CPI Meteora. El engine
+separa esos efectos de la política de aceptación del fixture. Receipts/journal
+no autorizan, confirman redes, liberan reservas ni habilitan reintentos.
+
+Sobre HEAD limpio, `python3 scripts/check-unsigned-runtime.py --fixture-elf RUTA_ELF`
+produce target/unsigned-runtime-report.json ligado al inventario Git/HEAD y cuatro
+ELF. `offline-fixture-candidate.py --with-runtime-evidence` lo exige actual y adjunta
+reporte, fixture, fuentes del harness y ELF revisados al candidato OFFLINE_FIXTURE_ONLY.
+Los hashes no constituyen atestación independiente ni RC de producción.

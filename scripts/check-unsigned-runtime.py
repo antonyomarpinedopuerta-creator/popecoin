@@ -21,7 +21,7 @@ def evaluate(stdout,returncode):
     if len(records)!=5 or [r.get('status') for r in records]!=['COMPLETE','FAILED','FAILED','INTERRUPTED','FAILED']:
         raise ValueError('Incomplete runtime receipts')
     for r in records:
-        if (r.get('schemaVersion')!=1 or r.get('scope')!='OFFLINE_FIXTURE_ONLY' or r.get('authorization') is not False or
+        if (type(r.get('schemaVersion')) is not int or r.get('schemaVersion')!=1 or r.get('scope')!='OFFLINE_FIXTURE_ONLY' or r.get('authorization') is not False or
             r.get('nativeAtomicityVerified') is not False or r.get('mainnetDisabled') is not True or
             r.get('retryAllowed') is not False or r.get('syntheticSignerPermissions') is not True):
             raise ValueError('Non-fixture runtime receipt')

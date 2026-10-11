@@ -60,3 +60,33 @@ fn division_dispatch_handles_one_two_and_many_limb_divisors() {
         assert_eq!(q.checked_mul(divisor).unwrap().checked_add(r).unwrap(), numerator);
     }
 }
+
+#[test]
+fn division_identity_across_every_normalization_boundary() {
+    // Never call reciprocal_mg10 with a non-normalized low-level input.
+    // Exercise Uint's normalization/dispatch for every U512 high-bit position.
+    for bit in 0..512usize {
+        let power = U512::ONE << bit;
+        for divisor in [power, power.saturating_add(U512::ONE)] {
+            let (q, r) = U512::MAX.div_rem(divisor);
+            assert!(r < divisor);
+            assert_eq!(q.checked_mul(divisor).unwrap().checked_add(r).unwrap(), U512::MAX);
+        }
+    }
+}
+
+#[test]
+fn pinned_pool_amount_rounding_and_max_liquidity_conversion_boundary() {
+    // Exact synthetic quote=100 profile exercised in SBF; no real market quote.
+    let lo = U256::from(1_638_206_933_605_675_906u128);
+    let hi = U256::from(2_837_457_642_316_645_099u128);
+    let denominator = lo.checked_mul(hi).unwrap();
+    let amount = |liquidity: U256| {
+        let numerator = liquidity.checked_mul(hi.checked_sub(lo).unwrap()).unwrap();
+        numerator.checked_add(denominator - U256::ONE).unwrap().div_rem(denominator).0
+    };
+    let reviewed = U256::from(3_876_039_221_566_836_409_435_171_622_711u128);
+    assert_eq!(amount(reviewed), U256::from(1_000_000_000_000u64));
+    assert!(amount(U256::from(u128::MAX)) > U256::from(u64::MAX));
+    assert_eq!(amount(U256::ZERO), U256::ZERO);
+}

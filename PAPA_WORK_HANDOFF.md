@@ -1,3 +1,22 @@
+# Continuación prioritaria — ejecución unsigned ampliada
+
+NOT_AUTHORIZED_FOR_MAINNET / MAINNET_DISABLED. Sin claves, firmas, wallets ni RPC.
+Estado vigente y límites: docs/ROBUSTO_UNSIGNED_EXECUTION.md. Engine de secuencias en
+un InvokeContext, descarte explícito ficticio: NO rollback nativo Solana. Meteora
+creación/CPI reales offline: 20 casos; 15 escenarios adversariales ROBUSTO; 24 casos
+base y 8 secuencias. Cinco tests host del engine. Recibos reales ligados a fuentes,
+seis tests nuevos de reconciliación con journal, sin retry ni autorización. Ruint
+1.14.0: siete regresiones debug/release, avisos 3/7 siguen abiertos.
+
+check-unsigned-runtime.py exige HEAD limpio y genera evidencia del inventario Git,
+cuatro ELF y harness. offline-fixture-candidate.py --with-runtime-evidence exige
+reporte actual e incluye sus artefactos; scope OFFLINE_FIXTURE_ONLY. No recompilar
+SBF: contrato/ABI/dependencias de producción no cambiaron. No usar check:rc/LiteSVM
+ni comandos históricos que generen claves. Restan swaps/retiros Meteora, atomicidad
+nativa con herramientas compatibles, auditoría externa y decisiones del propietario.
+
+---
+
 # Continuación vigente — 2026-10-11
 
 NOT_AUTHORIZED_FOR_MAINNET / MAINNET_DISABLED. Sin claves, firmas ni redes Solana.
