@@ -33,13 +33,15 @@ def check(elf):
         suites[label] = dict(cases=count,fixtureSha256=baseline.sha(fixture),stdoutSha256=baseline.sha(run.stdout.encode()))
     custody = subprocess.run(['cargo','run','--offline','--locked','--manifest-path','tools/unsigned-runtime/Cargo.toml','--',str(ROOT),str(Path(elf).absolute()),'--vesting-custody-only'],cwd=ROOT,env=env,text=True,capture_output=True)
     evaluate(custody.stdout,custody.returncode,['7 vesting custody SBF cases passed'])
+    prototype = subprocess.run(['cargo','test','--offline','--locked','--manifest-path','tools/vesting-surplus-prototype/Cargo.toml'],cwd=ROOT,env=env,text=True,capture_output=True)
+    evaluate(prototype.stdout,prototype.returncode,['test result: ok. 10 passed;'])
     if baseline.inventory(ROOT) != original['sourceHashes'] or subprocess.check_output(['git','status','--porcelain'],cwd=ROOT).strip():
         raise ValueError('Source changed during alternative verification')
     if subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()!=original['head']:
         raise ValueError('HEAD changed during alternative verification')
     if any(baseline.sha(baseline.load('build-rehearsal').public_read(ROOT,p)) != h for p,h in original['artifactHashes'].items()):
         raise ValueError('Artifact changed during verification')
-    report = dict(original, custodyCases=7, custodyStdoutSha256=baseline.sha(custody.stdout.encode()), suites=suites, legacySuites=original['suites'], status='passed', profile='PROPOSED_NOT_APPROVED_10B9_USDC6', baselineReportSha256=baseline.sha((ROOT/'target/unsigned-runtime-report.json').read_bytes()))
+    report = dict(original, surplusPrototype=dict(level='HOST_MODEL_ONLY_NOT_SBF',tests=10,stdoutSha256=baseline.sha(prototype.stdout.encode())), custodyCases=7, custodyStdoutSha256=baseline.sha(custody.stdout.encode()), suites=suites, legacySuites=original['suites'], status='passed', profile='PROPOSED_NOT_APPROVED_10B9_USDC6', baselineReportSha256=baseline.sha((ROOT/'target/unsigned-runtime-report.json').read_bytes()))
     return report
 
 if __name__=='__main__':

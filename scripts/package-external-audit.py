@@ -29,6 +29,9 @@ def validate_report(report, head, sources):
         report.get('profile')!='PROPOSED_NOT_APPROVED_10B9_USDC6' or report.get('custodyCases')!=7 or
         report.get('legacySuites')!={'baselineInstructions':24,'boundedSequences':8,'meteora':20,'meteoraLiquidity':13,'meteoraSwaps':12,'adversarialScenarios':15}):
         raise ValueError('Stale, incomplete or non-fixture runtime evidence')
+    prototype=report.get('surplusPrototype',{})
+    if prototype.get('level')!='HOST_MODEL_ONLY_NOT_SBF' or prototype.get('tests')!=10:
+        raise ValueError('Missing isolated prototype evidence')
     suites=report.get('suites',{})
     if set(suites)!={'supplyVesting','meteora9USDC6'} or any(suites[k].get('cases')!=n for k,n in [('supplyVesting',11),('meteora9USDC6',47)]):
         raise ValueError('Missing alternative suites')

@@ -152,3 +152,8 @@ herramientas instaladas/ausentes, criterio de rollback nativo y siete nuevos cas
 excedentes/permisos. Gate actual: 157 casos; custodyCases=7 obligatorio en paquete.
 Los diez hallazgos incluyen ahora acción de mitigación/cambio por cada componente;
 ninguna actualización upstream ni cierre se presume.
+
+Prototipo aislado de [excedentes con procedencia](ROBUSTO_VESTING_SURPLUS_OPTIONS.md):
+10 tests host sin dependencias, separados de los 157 casos runtime. No modifica contrato,
+ABI o parámetros, no demuestra propiedad retrospectiva ni rollback. El gate/paquete
+exigen nivel HOST_MODEL_ONLY_NOT_SBF para evitar confundir el alcance de esta evidencia.

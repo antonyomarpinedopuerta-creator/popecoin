@@ -183,3 +183,9 @@ independiente ni RC. Antes de solicitar producción siguen siendo críticos: her
 para rollback nativo, revisión externa de contrato/Meteora y diez avisos, custodia,
 aprobación de economía/identidades y financiación efectiva de auditoría/red/operación
 más USDC para liquidez. No hay compromisos de terceros ni precios comprobados.
+
+[Depósitos accidentales](ROBUSTO_VESTING_SURPLUS_OPTIONS.md): conservar contrato y
+advertencias es la opción compatible actual; una futura arquitectura de recibos por
+depositante tiene prototipo host aislado, sin rescate de saldos legados no atribuidos.
+Elegirla requiere diseño on-chain, revisión/costes y aprobación separados. No hay
+función administrativa nueva ni cambios de autoridad.
