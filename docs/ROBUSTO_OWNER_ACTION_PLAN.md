@@ -4,6 +4,16 @@ NOT_AUTHORIZED_FOR_MAINNET / MAINNET_DISABLED / OFFLINE_FIXTURE_ONLY.
 Base revisada: `41fc8d4af67e245ebb47c2d6562f3cacc6b004df`. Este plan no autoriza
 claves, wallets, firmas, fondos, consultas a redes Solana, publicación o despliegue.
 
+## Nueva propuesta: diez mil millones, sin aportación personal
+
+[Simulación y financiación](ROBUSTO_TOKENOMICS_10B_SIMULATION.md): supply propuesto
+10.000M; fundador exactamente 1M (0,01%), bloqueo propuesto de 12 meses y liberación
+lineal de 24. No aprobado; aproximación 365/730 días separada de meses naturales.
+Aportación personal cero no elimina gastos ni capital de liquidez: financiación
+externa sigue sin fuente comprometida. Las tareas 2, 3 y 6 deben cerrar cantidades,
+fechas, compatibilidad del quinto bucket y financiación externa antes de avanzar.
+No sustituye configuración vigente ni habilita gasto, emisión o revocaciones.
+
 ## A. Qué está terminado
 
 El perfil ficticio tiene ELF reproducido en dos builds locales, IDL adaptado cotejado,
