@@ -85,7 +85,7 @@ class OfflineCandidateTests(unittest.TestCase):
             mainnetDisabled=True,mainnetStatus="NOT_AUTHORIZED_FOR_MAINNET",nativeAtomicityVerified=False,productionExecutionVerified=False,
             sourceHashes=sources,artifactHashes=artifacts,
             receipts=json.loads((ROOT/'tests/fixtures/unsigned-runtime-receipts.json').read_text())['records'],
-            suites={'baselineInstructions':24,'boundedSequences':8,'meteora':20,'meteoraLiquidity':12,'meteoraSwaps':5,'adversarialScenarios':15},
+            suites={'baselineInstructions':24,'boundedSequences':8,'meteora':20,'meteoraLiquidity':13,'meteoraSwaps':12,'adversarialScenarios':15},
             binarySha256=binary_sha,fixtureSha256=binary_sha)
         file=self.root/'target/unsigned-runtime-report.json';file.parent.mkdir(exist_ok=True)
         for name in artifacts:

@@ -61,7 +61,7 @@ def runtime_evidence(root, head, binary_sha):
         raise ValueError('Runtime artifacts differ from pinned execution profile')
     gate=load('check-unsigned-runtime')
     gate.evaluate('\n'.join(gate.MARKERS+['RUNTIME_EVIDENCE '+json.dumps(r) for r in report.get('receipts',[])]),0)
-    if report.get('suites')!={'baselineInstructions':24,'boundedSequences':8,'meteora':20,'meteoraLiquidity':12,'meteoraSwaps':5,'adversarialScenarios':15}:
+    if report.get('suites')!={'baselineInstructions':24,'boundedSequences':8,'meteora':20,'meteoraLiquidity':13,'meteoraSwaps':12,'adversarialScenarios':15}:
         raise ValueError('Incomplete runtime suites')
     if hashlib.sha256(builder.public_read(root,'target/debug/robusto-unsigned-runtime')).hexdigest()!=report.get('binarySha256'):
         raise ValueError('Runtime harness binary changed')

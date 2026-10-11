@@ -194,3 +194,26 @@ ROBUSTO conservan su contenido; sus referencias ligan además la nueva fuente.
 La atomicidad nativa continúa bloqueada: búsqueda actual del registro Cargo no
 encuentra solana-svm/solana-runtime completos. No se ejecutó LiteSVM ni se descargó
 infraestructura. El journal conserva su carácter ficticio y no habilita retries.
+
+## Compraventa permissionless — continuación 2026-10-11
+
+Cobertura vigente: 12 swaps y 13 casos de liquidez. B→A y A→B usan trader ficticio
+public(78), distinto de creator y payer. Creator se elimina de cuentas disponibles;
+la instrucción swap pide solo signer trader y no recibe el NFT. El flujo demuestra
+que no hay aprobación por operación del creador en este perfil SBF fijado. No se
+prueban firmas reales, disponibilidad de frontend o acceso a una red.
+
+A→B necesita reserva B: en la frontera inicial unilateral es rechazado 6015, y tras
+B→A devuelve B positivo debitando exactamente 100.000.000 base units A. Se cotejan
+códigos exactos para slippage(6002), saldo(1), congelamiento(17), autoridad(4) y límite
+u64 máximo(6015). Balances A/B y lamports se conservan raw y aceptados. Un trader sin
+NFT no retira la posición ajena: InvalidAuthority(6053). Tests no autorizan mint,
+transferencia o liquidez reales.
+
+Atomicidad nativa sigue pendiente: registro Cargo inspeccionado sin solana-svm ni
+solana-runtime completos. LiteSVM 0.10.0 src/lib.rs new_inner contiene
+`airdrop_kp: Keypair::new().to_bytes()`; se inspeccionó texto, no se ejecutó. Desactivar
+sigverify no elimina esa creación. Sin dependencia nueva ni reconstrucción SBF.
+Tres advisories y siete warnings del lock Meteora permanecen abiertos en revisión
+--no-fetch. Ver límites administrativos externos y mínimos de custodia en
+[compraventa y permisos](ROBUSTO_AUTOMATIC_TRADING_REVIEW.md).

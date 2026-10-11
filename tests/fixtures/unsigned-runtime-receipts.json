@@ -95,6 +95,6 @@
     "tools/unsigned-runtime/src/engine.rs": "a0ef1b346502ca8356b08c0bda89aa3cdced69b900f768f639158b5acba03a57",
     "tools/unsigned-runtime/src/main.rs": "050908fc9e14b7035bdf5fab932c862d452a059262e5cf425d834ee11aef72ef",
     "tools/unsigned-runtime/src/meteora.rs": "90951922bd3154431793397f7f45de475a53e3fca667f771b383c4adf49db27e",
-    "tools/unsigned-runtime/src/liquidity.rs": "fc05a57d5ab2beaf19b09bbbc1d50975ea72dd9d3d6d13fb030a9ae828ca2361"
+    "tools/unsigned-runtime/src/liquidity.rs": "9fee50982b5787bb7a60bad7d291cdc709c9407903092eb699c84903945dbcb1"
   }
 }

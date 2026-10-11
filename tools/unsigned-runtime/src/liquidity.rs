@@ -193,6 +193,25 @@ pub fn test(initial: &Accounts, named: impl Fn(&str) -> Pubkey, program: Pubkey)
         .1
         .checked_add_lamports(1_000_000_000)
         .unwrap();
+    let trader = crate::public(78);
+    assert_ne!(trader, named("creator"));
+    assert_ne!(trader, named("payer"));
+    swap_state.push((
+        trader,
+        crate::account(solana_sdk_ids::system_program::id(), vec![], false),
+    ));
+    for role in ["payer_token_a", "payer_token_b"] {
+        let a = &mut swap_state
+            .iter_mut()
+            .find(|(k, _)| *k == named(role))
+            .unwrap()
+            .1;
+        let mut token = TokenAccount::unpack(a.data()).unwrap();
+        token.owner = trader;
+        TokenAccount::pack(token, a.data_as_mut_slice()).unwrap();
+    }
+    // Creator account absent altogether: ordinary swaps cannot use its permission.
+    swap_state.retain(|(k, _)| *k != named("creator"));
     let roles = [
         ("pool_authority", false, false),
         ("pool", true, false),
@@ -202,7 +221,7 @@ pub fn test(initial: &Accounts, named: impl Fn(&str) -> Pubkey, program: Pubkey)
         ("token_b_vault", true, false),
         ("token_a_mint", false, false),
         ("token_b_mint", false, false),
-        ("creator", false, true),
+        ("trader", false, true),
         ("token_a_program", false, false),
         ("token_b_program", false, false),
         ("program", false, false),
@@ -219,7 +238,9 @@ pub fn test(initial: &Accounts, named: impl Fn(&str) -> Pubkey, program: Pubkey)
         accounts: roles
             .into_iter()
             .map(|(name, w, s)| AccountMeta {
-                pubkey: if name == "program" {
+                pubkey: if name == "trader" {
+                    trader
+                } else if name == "program" {
                     program
                 } else {
                     named(name)
@@ -229,6 +250,18 @@ pub fn test(initial: &Accounts, named: impl Fn(&str) -> Pubkey, program: Pubkey)
             })
             .collect(),
     };
+    assert_eq!(
+        swap.accounts
+            .iter()
+            .filter(|a| a.is_signer)
+            .map(|a| a.pubkey)
+            .collect::<Vec<_>>(),
+        vec![trader]
+    );
+    assert!(!swap
+        .accounts
+        .iter()
+        .any(|a| a.pubkey == named("creator") || a.pubkey == named("position_nft_account")));
     let swapped = engine::execute(&swap_state, std::slice::from_ref(&swap), None);
     assert_eq!(
         swapped.outcome,
@@ -266,8 +299,85 @@ pub fn test(initial: &Accounts, named: impl Fn(&str) -> Pubkey, program: Pubkey)
         assert_eq!(result.committed, state);
         assert_eq!(totals(&state), totals(&result.staged));
     }
-    println!("5 Meteora swap cases passed: real pinned SBF swap2 CPI; OFFLINE_FIXTURE_ONLY");
+    let mut sell = swap.clone();
+    sell.accounts.swap(2, 3);
+    sell.data[8..16].copy_from_slice(&100_000_000u64.to_le_bytes());
+    let sold = engine::execute(&swapped.committed, std::slice::from_ref(&sell), None);
+    assert_eq!(sold.outcome, Outcome::Complete, "{}", sold.logs.join("\n"));
+    assert_eq!(totals(&swapped.committed), totals(&sold.committed));
+    assert_eq!(
+        balance(&sold.committed, "payer_token_a"),
+        balance(&swapped.committed, "payer_token_a") - 100_000_000
+    );
+    assert!(
+        balance(&sold.committed, "payer_token_b") > balance(&swapped.committed, "payer_token_b")
+    );
+    for label in [
+        "sellBoundary",
+        "sellSlippage",
+        "sellEmpty",
+        "sellFrozen",
+        "sellAuthority",
+        "sellLimit",
+    ] {
+        let mut state = swapped.committed.clone();
+        let mut ix = sell.clone();
+        match label {
+            "sellBoundary" => state = swap_state.clone(),
+            "sellSlippage" => ix.data[16..24].copy_from_slice(&u64::MAX.to_le_bytes()),
+            "sellEmpty" => modify(&mut state, "payer_token_a", 0, false),
+            "sellFrozen" => {
+                let value = balance(&state, "payer_token_a");
+                modify(&mut state, "payer_token_a", value, true);
+            }
+            "sellAuthority" => {
+                let a = &mut state
+                    .iter_mut()
+                    .find(|(k, _)| *k == named("payer_token_a"))
+                    .unwrap()
+                    .1;
+                let mut t = TokenAccount::unpack(a.data()).unwrap();
+                t.owner = crate::public(79);
+                TokenAccount::pack(t, a.data_as_mut_slice()).unwrap();
+            }
+            "sellLimit" => ix.data[8..16].copy_from_slice(&u64::MAX.to_le_bytes()),
+            _ => unreachable!(),
+        }
+        let result = engine::execute(&state, &[ix], None);
+        println!("Swap {label}: {:?}", result.outcome);
+        let code = match label {
+            "sellBoundary" | "sellLimit" => 6015,
+            "sellSlippage" => 6002,
+            "sellEmpty" => 1,
+            "sellFrozen" => 17,
+            "sellAuthority" => 4,
+            _ => unreachable!(),
+        };
+        assert_eq!(
+            result.outcome,
+            Outcome::Failed(0, InstructionError::Custom(code)),
+            "{label}"
+        );
+        assert_eq!(result.committed, state);
+        assert_eq!(totals(&state), totals(&result.staged));
+    }
+    // Trading permission does not grant withdrawal rights over another owner's position.
+    let mut unauthorized_remove = remove.clone();
+    unauthorized_remove
+        .accounts
+        .iter_mut()
+        .find(|a| a.is_signer)
+        .unwrap()
+        .pubkey = trader;
+    let denied = engine::execute(&swapped.committed, &[unauthorized_remove], None);
+    assert_eq!(
+        denied.outcome,
+        Outcome::Failed(0, InstructionError::Custom(6053))
+    );
+    assert_eq!(denied.committed, swapped.committed);
+    assert_eq!(totals(&denied.staged), totals(&swapped.committed));
+    println!("12 Meteora swap cases passed: real pinned SBF swap2 CPI; OFFLINE_FIXTURE_ONLY");
     println!(
-        "12 Meteora liquidity cases passed: real pinned SBF add/remove CPI; OFFLINE_FIXTURE_ONLY"
+        "13 Meteora liquidity cases passed: real pinned SBF add/remove CPI; OFFLINE_FIXTURE_ONLY"
     );
 }
