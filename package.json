@@ -52,6 +52,8 @@
     "robusto:prepare-metadata": "ts-node scripts/robusto-metadata.ts",
     "robusto:prepare-vesting": "ts-node scripts/robusto-rehearsal.ts",
     "robusto:production": "ts-node scripts/robusto-production.ts",
+    "robusto:prepare-10b9-offline": "ts-node scripts/robusto-10b9-offline.ts",
+    "test:robusto-10b9-offline": "node --require ts-node/register tests/robusto-10b9-offline.test.ts",
     "robusto:third-status": "ts-node scripts/robusto-third-status.ts",
     "robusto:third-release": "ts-node scripts/robusto-third-release.ts",
     "robusto:cost": "ts-node scripts/robusto-cost-estimator.ts",

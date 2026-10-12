@@ -139,6 +139,37 @@ no sustituye el candidato anterior ni convierte la propuesta en una RC de produc
 
 ## Reproducción segura
 
+### Constructor de manifiesto determinista 10B/9
+
+El constructor independiente [robusto-10b9-offline.ts](../scripts/robusto-10b9-offline.ts)
+lee únicamente el perfil alternativo local y emite JSON a stdout. No crea instrucciones
+Solana ni transacciones; no importa SDKs Solana, lee variables de entorno, acepta
+argumentos de perfil/red, accede a RPC o contiene mecanismos de firma/envío. Su digest
+SHA-256 aporta una huella reproducible del manifiesto, no una firma ni una certificación
+de autenticidad del archivo de entrada.
+
+```sh
+npm run robusto:prepare-10b9-offline
+npm run test:robusto-10b9-offline
+```
+
+Para conservar una copia local sin el encabezado de npm, usa `npm run --silent
+robusto:prepare-10b9-offline > target/robusto-10b9-preparation-manifest.json`; la ruta no
+es configurable desde el constructor. El manifiesto registra importes económicos y
+unidades base como cadenas enteras, suma exacta, margen u64, banderas de solo offline y
+direcciones/autoridades/beneficiarios/calendarios aún pendientes. El fundador permanece
+en 1.000.000 ROBUSTO y el escenario 365/730 días está marcado como no aprobado.
+
+Las pruebas rechazan cambios de suministro, decimales, categorías, cantidades,
+asignación del fundador, parámetros desconocidos/red y números JS; también cubren
+conversión u64, determinismo y separación del perfil histórico. Son pruebas locales de
+validación de configuración: no ejecutan el contrato, no prueban SPL/Meteora, no
+demuestran emisión, vesting, atomicidad, estado de red, permisos efectivos ni seguridad
+de claves. Esta salida no es una transacción firmable ni un paquete de lanzamiento.
+Los flags siguen siendo `NOT_AUTHORIZED_FOR_MAINNET`, `MAINNET_DISABLED` y
+`OFFLINE_FIXTURE_ONLY`; no sustituye el builder de instrucciones documentado arriba ni
+convierte valores económicos propuestos en una configuración de producción.
+
 ```sh
 node --require ts-node/register scripts/robusto-10b9-alternative.ts > target/robusto-10b9-fixture.json
 CARGO_TARGET_DIR=target cargo run --offline --locked --manifest-path tools/unsigned-runtime/Cargo.toml -- /home/antony/popecoin_vesting /home/antony/popecoin_vesting/target/rehearsal-builds/YMN9Qj5jPNp7j14VPcML1B6xGgcPWVZUGLFU3Mnyfaf-nhw26q4u/program.so --10b9-only
