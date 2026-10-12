@@ -9,7 +9,8 @@ Las recomendaciones se basan exclusivamente en evidencia local, sin cotizaciones
 El propietario confirmó el objetivo económico de 10.000.000.000 ROBUSTO y el reparto
 exacto 40/30/15/14,99/0,01 descrito en
 [ROBUSTO_CONFIRMED_TOKENOMICS.md](ROBUSTO_CONFIRMED_TOKENOMICS.md). Solo la distribución
-económica está confirmada: decimales 9 siguen propuestos; no están aprobados mint,
+económica está confirmada y se eligieron 9 decimales para el perfil técnico objetivo,
+pero no están aplicados al perfil productivo; no están aprobados mint,
 emisión/cierre, calendario de circulación, beneficiarios, custodias, precio, vesting
 final, autoridades operativas, financiación ni lanzamiento. Los perfiles de 1.000M/6
 decimales siguientes son referencias históricas de compatibilidad, no la decisión
@@ -86,7 +87,7 @@ de producción de 1.000M/seis decimales queda intacto para compatibilidad histó
 se debe tratar como destino de la nueva decisión. Ningún bucket se ha emitido,
 transferido, bloqueado o asignado a una dirección por esta aprobación económica.
 
-Siguen pendientes: aprobar 9 decimales, implementación compatible, cuentas/custodios,
+Siguen pendientes: implementar y validar de forma compatible los 9 decimales, cuentas/custodios,
 beneficiarios, vesting de buckets, fechas, importes iniciales circulantes y reconciliación
 antes de operaciones futuras. La categoría de 4.000M no significa depósito automático
 en Meteora ni disponibilidad de USDC. Emitir, distribuir o bloquear necesita autorización

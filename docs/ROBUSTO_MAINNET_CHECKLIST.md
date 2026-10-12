@@ -5,7 +5,8 @@ Estado obligatorio actual: MAINNET_DISABLED / NOT_AUTHORIZED_FOR_MAINNET. Ningú
 Este checklist y sus instrucciones numéricas describen el perfil operativo histórico
 de 1.000.000.000 tokens/seis decimales. El propietario confirmó después el objetivo
 económico de 10.000.000.000 y su distribución de cinco categorías; nueve decimales
-siguen propuestos y este checklist no está adaptado ni es ejecutable para ese perfil.
+fueron elegidos para el perfil técnico, pero este checklist no está adaptado ni es
+ejecutable para ese perfil.
 Ver [especificación confirmada](ROBUSTO_CONFIRMED_TOKENOMICS.md) y
 [matriz de decisiones](ROBUSTO_LAUNCH_DECISION_MATRIX.md). No actualizar builders o
 artefactos operativos hasta que exista aprobación técnica específica y compatibilidad
@@ -23,7 +24,7 @@ verificada.
 
 ## Condiciones aún necesarias, en orden
 
-1. Seleccionar el perfil técnico de mint que corresponda a la decisión económica vigente, revisar compatibilidad, vestings/fechas, custodia y presupuesto. La distribución 10B está confirmada como decisión económica, pero no su implementación, emisión ni calendario. Revisión independiente y verificación de integración de firma son necesarias. Ningún pubkey demuestra por sí solo control seguro.
+1. Implementar y validar el perfil 10B/9 ya elegido, revisar compatibilidad, vestings/fechas, custodia y presupuesto. La distribución 10B está confirmada como decisión económica, pero no su implementación, emisión ni calendario. Revisión independiente y verificación de integración de firma son necesarias. Ningún pubkey demuestra por sí solo control seguro.
 2. Elegir signers de producción separados para payer, mint authority, metadata update authority y upgrade authority. No usar identidades Devnet/PAPA. Decidir multisig/hardware y adaptar builders si corresponde; el camino actual exige firmantes on-curve individuales y no simula soporte multisig.
 3. Logo oficial recibido, validado y hash fijado; verificar de nuevo los bytes contra config/robusto-production.json. Contenido aprobado y web omitida; Arweave preferido. Elegir/verificar proveedor y coste, obtener autorización de publicación; preparar JSON, publicar solo bytes autorizados, descargar/comparar/hash y fijar ambas URI/digest. No imagen sustituta ni metadata PAPA sobrescrita.
 4. Fijar program public ID, construir aisladamente para ese ID y reproducir ELF/IDL con herramientas fijadas. `target/robusto-production/idl.json` debe ser IDL real de ese build, nunca un IDL histórico meramente editado. Registrar hash y tamaño/capacidad. Los fixtures sintéticos no son artefactos desplegables.

@@ -4,17 +4,23 @@ NOT_AUTHORIZED_FOR_MAINNET / MAINNET_DISABLED / OFFLINE_FIXTURE_ONLY.
 Base revisada: `41fc8d4af67e245ebb47c2d6562f3cacc6b004df`. Este plan no autoriza
 claves, wallets, firmas, fondos, consultas a redes Solana, publicación o despliegue.
 
-## Nueva propuesta: diez mil millones, sin aportación personal
+> **Actualización vigente:** la distribución económica 10B de cinco categorías está
+> confirmada y el propietario eligió nueve decimales para el perfil técnico. Las tareas
+> y etiquetas históricas de aprobación que siguen en este plan no implementan ni
+> sustituyen esa decisión. Custodia y permisos actuales: [arquitectura de autoridades](ROBUSTO_AUTHORITY_CUSTODY_ARCHITECTURE.md);
+> las cantidades operativas, beneficiarios, calendario, mint y mercado siguen sin
+> autorización.
 
-[Simulación y financiación](ROBUSTO_TOKENOMICS_10B_SIMULATION.md): supply propuesto
-10.000M; fundador exactamente 1M (0,01%), bloqueo propuesto de 12 meses y liberación
-lineal de 24. No aprobado; aproximación 365/730 días separada de meses naturales.
-Aportación personal cero no elimina gastos ni capital de liquidez: financiación
-externa sigue sin fuente comprometida. Las tareas 2, 3 y 6 deben cerrar cantidades,
-fechas, compatibilidad del quinto bucket y financiación externa antes de avanzar.
-No sustituye configuración vigente ni habilita gasto, emisión o revocaciones.
+## Distribución económica confirmada: diez mil millones, sin aportación personal
 
-## Alternativa técnica de nueve decimales
+[Especificación económica vigente](ROBUSTO_CONFIRMED_TOKENOMICS.md): suministro objetivo
+10.000M y reparto exacto de cinco buckets confirmados; fundador exactamente 1M. El
+escenario de vesting 365/730 días sigue pendiente de calendario/beneficiario. Aportación
+personal cero no elimina gastos ni capital de liquidez: financiación externa sigue sin
+fuente comprometida. No sustituye configuración productiva ni habilita gasto, emisión
+o revocaciones.
+
+## Perfil técnico elegido de nueve decimales — aún no aplicado a producción
 
 [Implementación 10.000M/9](ROBUSTO_10B9_IMPLEMENTATION.md) separada del perfil anterior:
 distribución exacta, fundador en vault vesting, cierre ficticio de emisión y rechazos

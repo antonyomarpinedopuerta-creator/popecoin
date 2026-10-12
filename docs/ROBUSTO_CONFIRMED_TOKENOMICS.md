@@ -13,13 +13,13 @@ pool ni lanzar ROBUSTO.
 | Símbolo | ROBUSTO | Propuesto; queda sujeto a validación técnica del mint/metadata. |
 | Suministro económico objetivo | 10.000.000.000 ROBUSTO | Cantidad confirmada para la especificación económica. Su representación en producción sigue pendiente. |
 | Distribución por categorías | Valores exactos de abajo | Confirmada como decisión económica, no como transferencia, custodia o calendario. |
-| Decimales | 9 | Propuesta técnica; no aprobada como configuración de mint. |
+| Decimales | 9 | Elegidos para el perfil técnico objetivo 10B; no aplicados al mint/configuración productiva, que permanece histórica. |
 | Suministro fijo / cierre de emisión | No aprobado | Requiere decisión y ceremonia separada; el fixture no cierra autoridad real. |
 | Vesting del fundador | 365 días de bloqueo + 730 días lineales | Escenario técnico propuesto; no calendario aprobado. |
 | Precio, circulación inicial y cantidades a depositar | Pendientes | No hay precio, pool ni capital confirmados. |
 | Financiación personal del fundador | S/0 | No se compromete dinero personal. No significa que exista financiación externa. |
 
-La distribución confirmada no aprueba decimales, calendario de circulación, beneficiarios,
+La distribución confirmada y selección técnica de 9 decimales no aprueban calendario de circulación, beneficiarios,
 autoridades, wallets, custodios, financiación, precio, despliegue o lanzamiento. Los
 perfiles históricos de 1.000 millones/seis decimales y sus artefactos permanecen intactos.
 La configuración `robusto-tokenomics-10b9-alternative.json` sigue siendo un fixture
@@ -128,7 +128,7 @@ se puede asumir que el pool sea bilateral o que usuarios puedan comprar/vender.
 ## Perfiles y artefactos
 
 El perfil histórico de 1.000M/seis decimales permanece separado y no se reescribe. La
-alternativa 10B/nueve decimales se mantiene en archivos aislados de simulación; no se
+selección 10B/nueve decimales permanece en archivos aislados de simulación; no se
 modifican contrato, mint, IDL, seeds PDA, autoridades ni configuración de producción por
 esta especificación. Para adoptar 9 decimales o preparar un candidato definitivo habrá
 que validar todos los consumidores, las restricciones u64 y la compatibilidad de

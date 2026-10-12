@@ -1,6 +1,6 @@
 # ROBUSTO — cierre pre-Mainnet y decisiones del propietario
 
-Estado: **READY_FOR_OWNER_DECISIONS**, **NOT_AUTHORIZED_FOR_MAINNET**. La decisión económica más reciente confirma el objetivo de 10.000.000.000 ROBUSTO y su reparto 40/30/15/14,99/0,01; no autoriza mint, emisión o distribución. Decimales 9, calendarios, importes efectivos, fechas, identidades/custodia y mercado siguen pendientes. Las referencias 1B/6 y 50/15/30/5 de este expediente describen únicamente el perfil operativo histórico y no reemplazan la distribución vigente. Ver [especificación económica confirmada](ROBUSTO_CONFIRMED_TOKENOMICS.md) y [matriz vigente](ROBUSTO_LAUNCH_DECISION_MATRIX.md). MAINNET_DISABLED permanece activo. TOKEN READY FOR MAINNET sigue pendiente; PUBLICLY TRADABLE = NO. No se ha creado token de producción ni mercado.
+Estado: **READY_FOR_OWNER_DECISIONS**, **NOT_AUTHORIZED_FOR_MAINNET**. La decisión económica más reciente confirma el objetivo de 10.000.000.000 ROBUSTO y su reparto 40/30/15/14,99/0,01; no autoriza mint, emisión o distribución. Nueve decimales fueron elegidos para el perfil técnico, pero aún no están aplicados a producción; calendarios, importes efectivos, fechas, identidades/custodia y mercado siguen pendientes. Las referencias 1B/6 y 50/15/30/5 de este expediente describen únicamente el perfil operativo histórico y no reemplazan la distribución vigente. Ver [especificación económica confirmada](ROBUSTO_CONFIRMED_TOKENOMICS.md) y [matriz vigente](ROBUSTO_LAUNCH_DECISION_MATRIX.md). MAINNET_DISABLED permanece activo. TOKEN READY FOR MAINNET sigue pendiente; PUBLICLY TRADABLE = NO. No se ha creado token de producción ni mercado.
 
 ## 1. Qué está terminado
 
@@ -153,4 +153,4 @@ Desde `faaa1c71a623e12792e86653e28396251293a897`, aprobadas únicamente para pre
 
 ## Preparación de identidades y custodia — desde 725bde8
 
-Diseño de ocho wallets separadas, cuentas destino/PDAs, wallet principal recomendada del propietario, generación y recuperación segura: [ROBUSTO_MAINNET_IDENTITY_CUSTODY.md](ROBUSTO_MAINNET_IDENTITY_CUSTODY.md). Inventario público vacío: `config/robusto-mainnet-public-addresses.json`; validar con `npm run robusto:custody-inventory`. No contiene claves. El builder de producción separa mint authority (emisión única) de distribution/source market; `distributionSourceOwner` referencia el mismo rol market y no agrega una novena wallet. No se generaron wallets definitivas.
+El diseño de ocho wallets y el procedimiento enlazado pertenecen al perfil 1B/6 y están supersedidos; no se deben seguir para el perfil económico actual. Ver [arquitectura vigente de autoridades/custodia](ROBUSTO_AUTHORITY_CUSTODY_ARCHITECTURE.md). El inventario público sigue vacío; no se generaron wallets definitivas.

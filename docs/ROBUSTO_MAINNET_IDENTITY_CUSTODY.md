@@ -1,5 +1,14 @@
 # ROBUSTO — identidad y custodia Mainnet (preparación)
 
+> **PLAN HISTÓRICO 1B/6 — NO EJECUTAR NI USAR COMO MODELO VIGENTE.** El propietario
+> confirmó luego el perfil económico 10B de cinco buckets y eligió 9 decimales para el
+> perfil técnico; este documento fija ocho wallets, allocations 1B/6 y pasos de
+> generación que ya no describen ese diseño. No seguir instrucciones para generar
+> wallets/claves ni preparar una ceremonia desde este documento. La arquitectura vigente
+> es [ROBUSTO_AUTHORITY_CUSTODY_ARCHITECTURE.md](ROBUSTO_AUTHORITY_CUSTODY_ARCHITECTURE.md)
+> y [ROBUSTO_AUTHORITIES.md](ROBUSTO_AUTHORITIES.md). NOT_AUTHORIZED_FOR_MAINNET /
+> MAINNET_DISABLED / OFFLINE_FIXTURE_ONLY.
+
 **Estado:** `MAINNET_DISABLED` / `NOT_AUTHORIZED_FOR_MAINNET`. Diseño recomendado, sin direcciones definitivas. No se generaron, cargaron ni consultaron keypairs en esta etapa; no se leyeron archivos de wallet. No usar identidades de PAPA, Devnet, rehearsal ni `~/.config/solana/id.json`.
 
 ## Arquitectura recomendada

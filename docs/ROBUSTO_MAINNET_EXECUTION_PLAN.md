@@ -2,6 +2,15 @@
 
 **Estado:** plan preparado; `MAINNET_DISABLED` / `NOT_AUTHORIZED_FOR_MAINNET`. No contiene comandos de firma/envío y ningún paso se activa por generar este archivo. No reutilizar las identidades de rehearsal ni el global Solana keypair. Ninguna aprobación económica local constituye autorización de operación.
 
+> **PLAN OPERATIVO HISTÓRICO 1B/6 — BLOQUEADO, NO EJECUTAR.** El propietario confirmó
+> después 10B y cinco asignaciones, y eligió 9 decimales para el perfil técnico. Este
+> plan conserva cuatro buckets, cantidades, roles y procedimientos históricos; no
+> implementa ese perfil ni tiene autorización de ejecución. No usar sus instrucciones
+> numéricas o ceremonia de custodia como plan actual. Ver
+> [arquitectura de autoridades/custodia](ROBUSTO_AUTHORITY_CUSTODY_ARCHITECTURE.md),
+> [decisión económica](ROBUSTO_CONFIRMED_TOKENOMICS.md) y
+> [matriz de decisiones](ROBUSTO_LAUNCH_DECISION_MATRIX.md).
+
 ## Avance offline desde d9f3387 — 2026-10-10
 
 Desde ee70f80: [integración compartida de condiciones deployment/creación Meteora](ROBUSTO_OFFLINE_COVERAGE_REVIEW.md#ampliación-desde-ee70f80-integración-de-condiciones), validada con 212 tests cliente y 63 Python. Supera el pendiente de guard básico de esas etapas; decodificación binaria/cursor, balances token, costes por CPI y otras operaciones Meteora siguen fuera de ese alcance. Ninguna prueba ficticia autoriza producción.

@@ -1,5 +1,13 @@
 # ROBUSTO — decisiones que aún requieren aprobación del propietario
 
+> **REFERENCIA HISTÓRICA DE PREPARACIÓN 1B/6, ROBUSTO/SOL.** El propietario confirmó
+> después la distribución económica 10B en cinco buckets y eligió nueve decimales para
+> el perfil técnico. Los valores y gates de este documento no se migran al modelo nuevo;
+> no utilizar como plan actual de custodia, mercado, calendario o operación. Continúan
+> sin autorización Mainnet. Ver
+> [arquitectura vigente](ROBUSTO_AUTHORITY_CUSTODY_ARCHITECTURE.md) y
+> [matriz actual](ROBUSTO_LAUNCH_DECISION_MATRIX.md).
+
 Las decisiones siguientes quedan registradas como **APPROVED_FOR_PREPARATION_ONLY**: no autorizan Mainnet, fondos, firmas, transacciones, creación de wallets, publicación ni ejecución. Supply/decimals/freeze/distribución y los términos de vesting aprobados anteriormente se conservan.
 
 ## Decisiones ya cerradas para preparación

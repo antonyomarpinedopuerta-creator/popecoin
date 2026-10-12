@@ -49,4 +49,4 @@ Desde `faaa1c71a623e12792e86653e28396251293a897`, aprobadas únicamente para pre
 
 ## Identity & custody preparation
 
-Consultar [ROBUSTO_MAINNET_IDENTITY_CUSTODY.md](ROBUSTO_MAINNET_IDENTITY_CUSTODY.md). El inventario público `config/robusto-mainnet-public-addresses.json` está vacío y es validable con `npm run robusto:custody-inventory`. No se generaron identidades definitivas. Corregir y probar la separación entre mint authority y distribución en el builder antes de crear identidades o preparar transacciones.
+Consultar la [arquitectura vigente de autoridades y custodia](ROBUSTO_AUTHORITY_CUSTODY_ARCHITECTURE.md). El plan de [identidad Mainnet](ROBUSTO_MAINNET_IDENTITY_CUSTODY.md) está marcado como histórico 1B/6 y no se debe seguir. El inventario público `config/robusto-mainnet-public-addresses.json` está vacío; no se generaron identidades definitivas. El builder productivo conserva supply/seis decimales y cuatro buckets, por lo que el perfil 10B/9 necesita una ruta compatible y auditada antes de cualquier consideración de producción.

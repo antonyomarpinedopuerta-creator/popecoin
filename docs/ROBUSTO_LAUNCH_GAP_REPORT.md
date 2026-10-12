@@ -27,7 +27,8 @@ poderes de status/fees; no prometer ausencia de controles administrativos extern
 
 La decisión económica vigente confirma el objetivo de **10.000.000.000 ROBUSTO** y
 las asignaciones 4.000M/3.000M/1.500M/1.499M/1M únicamente como distribución
-económica; **9 decimales siguen propuestos**. Mint técnico, importes circulantes,
+económica; **9 decimales fueron elegidos para el perfil objetivo, pero no aplicados a
+producción**. Mint técnico, importes circulantes,
 precio, calendario, custodias y autoridades operativas permanecen pendientes, aunque
 archivos históricos mantengan nombres "approved" para fixtures. Ver
 [especificación confirmada](ROBUSTO_CONFIRMED_TOKENOMICS.md) y

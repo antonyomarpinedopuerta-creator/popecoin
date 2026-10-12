@@ -1,34 +1,54 @@
-# ROBUSTO — autoridades conservadas
+# ROBUSTO — mapa vigente de autoridades
 
-La instrucción actual deja autoridades y economía final pendientes de aprobación. La
-[matriz de permisos revisada](ROBUSTO_AUTOMATIC_TRADING_REVIEW.md) distingue swaps de
-usuarios, NFT de liquidez y operadores externos. Hardware wallet no se comprará por
-ahora; ver [custodia y presupuesto](ROBUSTO_MINIMUM_LAUNCH_BUDGET.md).
+`NOT_AUTHORIZED_FOR_MAINNET` / `MAINNET_DISABLED` / `OFFLINE_FIXTURE_ONLY`.
+Mapa de diseño, no inventario de direcciones reales ni autorización de custodia.
+Para la arquitectura completa, comparación de alternativas, cinco buckets, riesgos y
+checklist futuro: [ROBUSTO_AUTHORITY_CUSTODY_ARCHITECTURE.md](ROBUSTO_AUTHORITY_CUSTODY_ARCHITECTURE.md).
 
-La topología de Mainnet y la política de recuperación se preparan en [ROBUSTO_MAINNET_IDENTITY_CUSTODY.md](ROBUSTO_MAINNET_IDENTITY_CUSTODY.md). El inventario público sigue vacío. El builder actual separa mintAuthority de distributionSourceOwner y rechaza su igualdad (robusto-production.ts); custodia e identidades definitivas siguen pendientes.
+## Separación de poderes propuesta
 
-No se revoca ni transfiere ninguna autoridad aquí. Tres custodias distintas:
+| Poder | Qué permite | Modelo de menor privilegio | Estado actual |
+| --- | --- | --- | --- |
+| Mint authority SPL | Emitir ROBUSTO mientras siga presente | Custodia separada de las tesorerías; emitir solo supply reconciliado, luego considerar `SetAuthority(MintTokens, None)` con autorización irreversible independiente | No revocada. Perfil productivo aún 1B/6; 10B/9 no implementado en builder productivo. |
+| Freeze authority SPL | Congelar/descongelar token accounts | `None` al crear el mint clásico, sujeto a confirmación final del propietario; sin pausa ni confiscación de tokens | El fixture usa `None`; mint productivo no existe/está autorizado. |
+| Metadata update authority | Cambiar metadata mutable | Cuenta independiente de mint, payer, upgrade y buckets; contenido/URI/hash revisados | Identidad pendiente; metadata no publicada. |
+| Program upgrade authority | Cambiar reglas del programa de vesting ROBUSTO | Custodia de máximo nivel; proceso de revisión, aprobación dual/quórum, auditoría y registro antes de upgrade; considerar renuncia solo tras aceptar irreversibilidad | No hay autoridad productiva asignada aquí; Meteora no queda bajo control de ROBUSTO. |
+| Owners de las cinco tesorerías | Transferir saldo de cada categoría | Una custodia lógica separada por mercado, comunidad, reserva, desarrollo/ops y fundador; no compartir la misma clave individual por comodidad | Sin addresses, beneficiarios o responsables elegidos. |
+| Owner/delegate de posición Meteora | Añadir/quitar liquidez según permisos | Separar NFT/posición del bucket fuente; nombrar custodio y revisar cualquier delegate | No hay pool o NFT real. El owner puede retirar su posición y afectar profundidad. |
+| Operadores Meteora | Modificar estado/fees conforme al programa | No asignar al creador por defecto; revisar las authorities/operator accounts reales antes de usar un mercado | Control externo del protocolo; puede limitar swaps aunque no requiere aprobación del fundador por trade. |
+| Payer operativo | Pagar rent/fees e instrucciones que lo requieran | Separado, fondos mínimos y topes por operación | No creado ni financiado. |
 
-| Autoridad | Poder | Política actual |
-|---|---|---|
-| Mint authority | Crear supply SPL adicional mientras siga activa | Conservar. Emisión candidata única 1e15 raw; reconciliar antes de considerar revocación futura |
-| Metadata update authority | Actualizar nombre/símbolo/URI dentro del estándar; URI apunta a descripción/imagen/enlaces | Conservar separada, metadata mutable; no hacer immutable |
-| Program upgrade authority | Actualizar binario y sus reglas | Conservar separada; revisión/custodia de upgrades pendiente |
+## Compras y ventas
 
-Payer operativo separado. Public keys/config no contienen secretos; keys nunca en Git/chat. Hardware o multisig y control de los signers son decisiones pendientes, no hechos certificados. Los builders actuales usan signers individuales; PDA/multisig exige diseño e integración explícitos. Múltiples claves en una misma máquina no equivalen a independencia de custodia.
+La ruta de swap revisada requiere al usuario como signer de sus propios fondos; no
+requiere mint authority, beneficiario fundador, LP NFT ni firma del creador ROBUSTO en
+cada compra/venta. Una vez exista un pool activo y financiado, no hace falta que el
+computador del fundador permanezca encendido. Esta conclusión se limita al código y
+fixtures locales fijados: no hay mercado real, no se garantiza liquidez ni disponibilidad,
+y operadores externos de Meteora pueden cambiar status/fees.
 
-Cambios posteriores de metadata: aprobar contenido y archivo exacto, generar JSON separado, publicar nuevos bytes en hosting elegido, comparar descargas, fijar digest/URI nuevos, preparar `buildMetadataUpdate`, simular estado real con update authority, revisar y aprobar firma. Conservar isMutable=true y autoridad existente. No sustituir la imagen oficial por una generada. Nombre ≤32 bytes y símbolo ≤10 bytes; cambiar estos datos no altera mint/supply ni vesting. [Estándar Metaplex](https://www.metaplex.com/docs/smart-contracts/token-metadata/update).
+## Fijo y vesting
 
-## Revocación futura de mint authority
+Objetivo económico: 10.000.000.000 ROBUSTO, reparto confirmado de cinco buckets y 9
+decimales elegidos para el perfil técnico. Los builders/configuración productiva siguen
+en el perfil histórico y no se alteran aquí. Una futura revocación de mint solo se
+considera tras emitir exactamente `10^19` unidades base, reconciliar cada bucket/vault
+en un snapshot verificable y recibir autorización expresa separada; es irreversible.
 
-Solo después de aprobación irreversible explícita: revisar supply definitivo, distribución/vesting reconciliados, metadata y autoridades verificadas, control/custodia y cobertura de costes. Tomar snapshot fresco en red verificada. `prepareMintRevocation` produce únicamente SetAuthority(MintTokens, null), exige token de aprobación ligado a SHA256 del plan y ejecuta reconciliación sobre snapshot aportado; no verifica por sí solo que ese snapshot sea fresco/RPC auténtico. Debe venir de `verifyProductionSnapshot` y revisión operativa. No se llama en este cierre salvo test de rechazo sin autorización. Simular/revisar mensaje exacto antes de firma externa. Guardar firma/slot y verificar mintAuthority=null, supply intacto, freeze=null. Irreversible: no es posible restaurar capacidad de emisión.
+El fundador tiene una asignación económica de 1.000.000. Escenario 365d de bloqueo +
+730d lineales, sin beneficiary ni inicio UTC elegidos. El programa actual requiere firma
+del beneficiario para release y no dispone de rescate administrativo. No introducir
+recuperación que permita apropiarse de tokens ajenos.
 
-## Retirar update authority / hacer metadata immutable
+## Puertas bloqueantes
 
-NO permitido por política vigente. Si el propietario cambia esa política en el futuro, requiere autorización separada que reconozca pérdida de actualización de nombre/descripción/imagen/enlaces, conservación del contenido publicado y custodia de recuperación. Revisar versión/semántica Metaplex vigente, simular operación exacta y verificar después. No hay builder automático para hacer immutable o asignar una autoridad inaccesible. Immutable no revierte a mutable en el estándar actual; no usar esta opción como ahorro de capital.
+- Tres advisories y siete warnings de Meteora continúan abiertos; consultar el registro
+  individual en [ROBUSTO_METEORA_DEPENDENCY_REVIEW.md](ROBUSTO_METEORA_DEPENDENCY_REVIEW.md).
+- `NATIVE_ATOMICITY_NOT_VERIFIED`: el harness local no demuestra rollback nativo de una
+  transacción Solana completa.
+- Perfil 10B/9 y separación de cinco buckets no están implementados/verificados por los
+  builders productivos.
+- No existe auditoría independiente, custodia operativa aprobada, precio/LP, funding o
+  autorización de lanzamiento.
 
-## Revocación futura de program upgrade authority
-
-NO permitida ahora. Requisitos: revisión independiente, reproducción del binario real, lifecycle de producción probado, ningún cambio necesario conocido, aceptación explícita de que los bugs no podrán corregirse con upgrade. Preparar operación loader SetAuthority(None) con herramientas oficiales verificadas para la versión vigente; simular/revisar/firma separada, y comprobar ProgramData.upgradeAuthority=null y ELF intacto. Nunca añadir `--final` a un deploy por defecto.
-
-Una transferencia futura a una nueva custodia exige verificar tanto al emisor como al receptor, red, mensaje y recuperación antes de ejecutar. No confundir transferir autoridad con revocarla. No se han generado claves de producción.
+No se cambió ninguna authority, mint, programa, config, contrato, dirección ni pool.

@@ -11,7 +11,7 @@ sigue pendiente; sus decisiones técnicas y operativas sí continúan pendientes
 | ---: | --- | --- | --- | --- |
 | 1 | Custodia y recuperación — propietario | Software wallet, multisig compatible tras implementar/probar, o posponer. Dado que no se comprará hardware ahora, evaluar wallet de software para una cuenta de bajo privilegio y no custodiar fondos importantes sin recuperación revisada. | Custodios identificados, separación de roles, backup privado y recuperación ensayada fuera del repo, control de acceso del equipo. | Crear/importar wallet, guardar seed, asignar signer o mover autoridad. |
 | 2 | Auditoría — propietario + auditor independiente | Auditoría con alcance completo del vesting, integración, Meteora, dependencias, custodia y rollbacks; o posponer. Recomendada antes de fondos reales. | Alcance, precio/oferta, independencia, entregable, calendario, retest y disposición de cada hallazgo. | Contratar, pagar, compartir datos privados o aceptar formalmente residuales. |
-| 3 | Perfil técnico de mint — propietario + ingeniería | Mantener perfil histórico 1B/6 por compatibilidad o aprobar en etapa separada 10B/9. No mezclar los artefactos. | Confirmar decimales, programa/identidad final, consumidores/clients, compatibilidad verificable y artefactos reproducibles. El 10B/9 económico está confirmado; 9 decimales no. | Crear/inicializar mint, emitir tokens, cambiar/revocar autoridades. |
+| 3 | Perfil técnico de mint — propietario + ingeniería | El propietario eligió 10B/9 para el perfil objetivo; mantenerlo separado del perfil histórico 1B/6. | Implementar y validar los builders, consumers/clients, programa/identidad final y artefactos reproducibles. Los decimales 9 están elegidos, pero no aplicados a producción. | Crear/inicializar mint, emitir tokens, cambiar/revocar autoridades. |
 | 4 | Emisión fija y autoridades — propietario | Retener mint authority con controles y riesgo de emisión, o renunciar tras emitir/reconciliar el total con irreversibilidad. No hay recomendación ejecutable antes de la auditoría. | Quién controla mint/update/upgrade/freeze, procedimiento de cambios, revisión doble y evidencia de reconciliación. | Emitir, transferir o revocar autoridad; desplegar/actualizar programa. |
 | 5 | Custodia y plan de buckets — propietario | Asignación confirmada: 4B mercado, 3B comunidad, 1.5B reserva, 1.499B desarrollo/ops, 1M fundador. Definir responsables/cuentas y si cada bucket tiene vesting, lock o liberación por etapas. | Beneficiarios/custodios y schedules de los cuatro buckets no-founder; políticas transparentes, verificables y compatibles con el contrato. | Crear cuentas, distribuir tokens o inicializar/depositar vesting. |
 | 6 | Vesting fundador — propietario | Escenario 365 días bloqueo + 730 lineales en días fijos, o ajustar antes de configuración. No interpretar como meses naturales. Decidir si un solo vesting satisface la política. | Beneficiario público verificado, inicio UTC `S`, cliff/start, interpretación de plazo, PDA, recuperación por pérdida de acceso y revisión externa. | Inicializar vesting, depositar el millón, liberar tokens o cambiar calendario. |
@@ -25,8 +25,9 @@ sigue pendiente; sus decisiones técnicas y operativas sí continúan pendientes
 - **Confirmado económicamente:** nombre público ROBUSTO, objetivo de suministro de
   10.000.000.000 tokens y las cinco cantidades/porcentajes indicados en la
   [especificación](ROBUSTO_CONFIRMED_TOKENOMICS.md).
-- **Técnico propuesto:** símbolo ROBUSTO y 9 decimales; la matemática cabe en u64,
-  pero perfiles históricos y builders siguen sin cambiar.
+- **Técnico seleccionado, no aplicado:** símbolo propuesto ROBUSTO y 9 decimales
+  elegidos para el perfil 10B; la matemática cabe en u64, pero perfiles históricos y
+  builders productivos siguen sin cambiar.
 - **Pendiente:** mint definitivo, fixed-supply on-chain, beneficiarios/custodios,
   schedules operativos, circulación, precio, pool, capital, authorities finales,
   metadata publicada y financiación.
