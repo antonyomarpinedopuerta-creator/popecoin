@@ -7,6 +7,7 @@ import {
   I64_MAX,
   buildVestingPreparation,
   renderVestingPreparation,
+  validateFounderDepositAccounting,
   validateFounderReleaseAccounting,
   validateHypotheticalFounderSchedule,
 } from '../scripts/robusto-10b9-vesting-preparation';
@@ -126,6 +127,21 @@ test('release accounting rejects amounts beyond founder allocation and inconsist
   assert.throws(() => validateFounderReleaseAccounting('-1', '0'));
 });
 
+test('deposit arithmetic accepts exact remainder and rejects excess, duplicate, partial or post-release deposits', () => {
+  assert.deepEqual(validateFounderDepositAccounting('0', '1000000000000000', '0'), {
+    assignedBaseUnits: '1000000000000000',
+    priorVaultBaseUnits: '0',
+    depositBaseUnits: '1000000000000000',
+    resultingVaultBaseUnits: '1000000000000000',
+  });
+  assert.equal(validateFounderDepositAccounting('100', '999999999999900', '0').resultingVaultBaseUnits, '1000000000000000');
+  assert.throws(() => validateFounderDepositAccounting('1000000000000001', '0', '0'), /exceeds/);
+  assert.throws(() => validateFounderDepositAccounting('0', '999999999999999', '0'), /exact remaining/);
+  assert.throws(() => validateFounderDepositAccounting('1000000000000000', '1', '0'), /exact remaining/);
+  assert.throws(() => validateFounderDepositAccounting('0', '1000000000000000', '1'), /after any/);
+  assert.throws(() => validateFounderDepositAccounting('-1', '0', '0'));
+});
+
 test('old profile, edited digest, addresses, instructions and operational outputs are rejected or absent', () => {
   const plan = buildVestingPreparation(fixtureManifest());
   assert.equal(plan.vestingProgram.instructionDataGenerated, false);
@@ -146,13 +162,37 @@ test('old profile, edited digest, addresses, instructions and operational output
   const oldDecimals = fixtureManifest();
   oldDecimals.tokenomics.decimals = 6;
   assert.throws(() => buildVestingPreparation(oldDecimals));
+  const substitutedMint = fixtureManifest();
+  substitutedMint.decisionsPending.authorities.mint = 'unexpected-mint';
+  assert.throws(() => buildVestingPreparation(substitutedMint));
+  const injectedIdentity = fixtureManifest();
+  injectedIdentity.decisionsPending.beneficiaries = ['unknown'];
+  assert.throws(() => buildVestingPreparation(injectedIdentity));
 });
 
-test('adapter source has no RPC, wallet, signing or transaction construction dependencies', () => {
-  const source = fs.readFileSync('scripts/robusto-10b9-vesting-preparation.ts', 'utf8');
-  assert.doesNotMatch(source, /process\.env|@solana|Keypair|Connection|fetch\s*\(|https?:\/\/|signTransaction|TransactionInstruction/);
-  assert.match(source, /NOT_AUTHORIZED_FOR_MAINNET/);
-  assert.match(source, /OFFLINE_FIXTURE_ONLY/);
+test('adapter import graph is built-in/local only and cannot generate keys or reach network APIs', () => {
+  const files = [
+    'scripts/robusto-10b9-vesting-preparation.ts',
+    'scripts/robusto-10b9-offline.ts',
+  ];
+  for (const file of files) {
+    const source = fs.readFileSync(file, 'utf8');
+    assert.doesNotMatch(source, /process\.env|@solana|Keypair|Connection|fetch\s*\(|https?:\/\/|signTransaction|TransactionInstruction/);
+    for (const match of source.matchAll(/from\s+['"]([^'"]+)['"]/g)) {
+      assert.ok(match[1].startsWith('node:') || match[1].startsWith('.'), `${file} imports nonlocal dependency ${match[1]}`);
+    }
+  }
+  const adapterSource = fs.readFileSync(files[0], 'utf8');
+  assert.match(adapterSource, /NOT_AUTHORIZED_FOR_MAINNET/);
+  assert.match(adapterSource, /OFFLINE_FIXTURE_ONLY/);
+});
+
+test('vesting PDA derivation remains beneficiary+mint scoped, so each pair has one schedule', () => {
+  const initialize = fs.readFileSync('programs/popecoin_vesting/src/instructions/initialize.rs', 'utf8');
+  const constants = fs.readFileSync('programs/popecoin_vesting/src/constants.rs', 'utf8');
+  assert.match(constants, /VESTING_SEED:\s*&\[u8\]\s*=\s*b"vesting"/);
+  assert.match(initialize, /VESTING_SEED,[\s\S]*beneficiary\.key\(\)\.as_ref\(\),[\s\S]*mint\.key\(\)\.as_ref\(\)/);
+  assert.doesNotMatch(initialize, /schedule_id|nonce|calendar_id/);
 });
 
 test('adapter CLI emits stable JSON only and rejects runtime arguments', () => {

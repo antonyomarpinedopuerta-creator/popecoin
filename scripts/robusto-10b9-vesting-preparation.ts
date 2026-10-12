@@ -252,6 +252,23 @@ export function validateFounderReleaseAccounting(releasedValue: unknown, vestedV
   };
 }
 
+/** Pure host model of the contract's exact-remaining deposit rule, not an SPL/CPI test. */
+export function validateFounderDepositAccounting(vaultValue: unknown, depositValue: unknown, releasedValue: unknown) {
+  const vault = unsignedInteger(vaultValue, 'vault amount');
+  const deposit = unsignedInteger(depositValue, 'deposit amount');
+  const released = unsignedInteger(releasedValue, 'released amount');
+  if (released !== 0n) throw new Error('Deposits are forbidden after any vesting release');
+  if (vault > FOUNDER_AMOUNT_BASE_UNITS) throw new Error('Vault balance exceeds the founder allocation');
+  const remaining = FOUNDER_AMOUNT_BASE_UNITS - vault;
+  if (remaining === 0n || deposit !== remaining) throw new Error('Deposit must equal the exact remaining allocation');
+  return {
+    assignedBaseUnits: FOUNDER_AMOUNT_BASE_UNITS.toString(),
+    priorVaultBaseUnits: vault.toString(),
+    depositBaseUnits: deposit.toString(),
+    resultingVaultBaseUnits: (vault + deposit).toString(),
+  };
+}
+
 /** Fixed-input CLI adapter; emits only canonical abstract JSON to stdout. */
 export function renderVestingPreparation(args: readonly string[] = process.argv.slice(2)): string {
   if (args.length !== 0) throw new Error('This vesting preparation adapter accepts no runtime/profile/network arguments');
