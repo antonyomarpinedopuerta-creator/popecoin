@@ -280,6 +280,17 @@ export function buildOfflineManifest(input: unknown): OfflineManifest {
   return {...payload, manifestSha256: hashJson(payload)};
 }
 
+/** Reject edited or foreign manifests by comparing them with the fixed reviewed input. */
+export function assertOfflineManifest(input: unknown): OfflineManifest {
+  const root = record(input, 'manifest');
+  const configPath = join(__dirname, '..', 'config', 'robusto-tokenomics-10b9-alternative.json');
+  const expected = buildOfflineManifest(JSON.parse(readFileSync(configPath, 'utf8')) as unknown);
+  if (canonicalJson(root) !== canonicalJson(expected)) {
+    throw new Error('Manifest differs from the validated local ROBUSTO 10B/9 profile');
+  }
+  return expected;
+}
+
 /** CLI has a fixed local input, no flags, no output-path override, and no environment reads. */
 export function renderOfflineManifest(args: readonly string[] = process.argv.slice(2)): string {
   if (args.length !== 0) throw new Error('This offline constructor accepts no runtime/network/profile arguments');

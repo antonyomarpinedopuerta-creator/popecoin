@@ -139,6 +139,9 @@ no sustituye el candidato anterior ni convierte la propuesta en una RC de produc
 
 ## Reproducción segura
 
+Compatibilidad de cantidad/interfaz, límites del contrato de vesting y el adaptador
+abstracto nuevo: [revisión 10B/9 + vesting](ROBUSTO_10B9_VESTING_COMPATIBILITY.md).
+
 ### Constructor de manifiesto determinista 10B/9
 
 El constructor independiente [robusto-10b9-offline.ts](../scripts/robusto-10b9-offline.ts)
