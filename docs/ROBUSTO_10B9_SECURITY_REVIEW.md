@@ -91,14 +91,64 @@ Comandos seguros ejecutados en esta revisión:
 ```sh
 npm run test:robusto-10b9-offline
 npm run test:robusto-10b9-vesting-preparation
+npm run test:robusto-10b9-mint-inventory
+npm run robusto:prepare-10b9-mint-inventory
+node --require ts-node/register tests/robusto-meteora-evidence.test.ts
+python3 scripts/test-meteora-advisory-arithmetic.py
 ./node_modules/.bin/tsc --noEmit
 git diff --check
 ```
 
-Resultado: 17 + 13 tests host aprobados, TypeScript y diff limpio. No se ejecutó Rust/SBF,
-LiteSVM, ningún builder histórico, ruta Meteora de transacción, comando `Connection`/RPC,
+Resultado anterior a esta ampliación: 17 + 13 tests host aprobados. En esta fase el
+validador de inventario añade 10 tests host; total dirigido a 10B/9: 40 tests TS
+(17 + 13 + 10), además de 2 aserciones sobre evidencia Meteora estática y 7 pruebas
+Rust aritméticas en debug más las mismas 7 en release (14 ejecuciones de tests, no 14
+casos diferentes). TypeScript y diff limpio también pasaron. No se ejecutó el contrato
+Rust/SBF ni LiteSVM, ningún builder histórico, ruta Meteora de transacción, comando
+`Connection`/RPC,
 ni una suite que importe la lógica de generación de identidades. No hubo cambios de Rust,
 IDL, seeds, configuración económica ni web.
+
+## Inventario offline de identidad, autoridades y custodia
+
+`scripts/robusto-10b9-mint-inventory.ts` y el comando
+`npm run robusto:prepare-10b9-mint-inventory` crean una plantilla determinista local.
+La plantilla declara `PENDING_IDENTITY`; el modo estricto rechaza un mint ausente.
+Un mint declarado debe ser base58 y decodificar a 32 bytes; para la interfaz actual
+se acepta únicamente el SPL Token clásico, que es el que usa el contrato revisado.
+Se exigen nueve decimales, supply y cinco asignaciones exactamente iguales al manifest
+canónico, autoridades explícitas (`NONE` o clave pública), custodio por categoría,
+beneficiario de vesting separado y custodio de la posición de liquidez separado.
+Los custodios y el beneficiario deben ser claves públicas en una declaración final;
+`NONE` se reserva a authorities que puedan renunciarse. La posición de liquidez puede
+declararse `NOT_CREATED` mientras no exista pool/posición.
+
+Un resultado con campos completos solo alcanza `DECLARED_UNVERIFIED`, `approved=false`
+y `chainStateVerified=false`. La comprobación de formato no demuestra que la cuenta
+exista, que sea mint, que pertenezca al programa esperado, que la declaración proceda
+de su autoridad ni que sus authorities on-chain coincidan. Sin mint real ni RPC,
+no puede existir estado `APPROVED` en esta fase.
+
+La validación de vesting sigue separando las cinco asignaciones y reserva únicamente
+el millón del fundador para el escenario no aprobado. Las pruebas de depósito parcial,
+duplicado, excedente y posterior a liberación son aritmética host contra la regla de
+remanente exacto del contrato, no CPI. Los calendarios 365/730 quedan como escenario;
+sin beneficiario/fecha aprobados no hay activación. El contrato no se modificó. El
+riesgo de donaciones directas que excedan el vault y queden inmovilizadas permanece.
+
+Rutas históricas 1B/6 encontradas por inspección estática y mantenidas aparte:
+`config/robusto-production.json`, `config/robusto-economics-approved.json`,
+`config/robusto-distribution-proposal.json`, `config/robusto-meteora-local.json`,
+`scripts/robusto-production.ts`, `scripts/robusto-meteora-local.ts`,
+`scripts/robusto-metadata.ts`, `scripts/robusto-preflight.ts`,
+`scripts/robusto-third-release.ts`, `scripts/production-plan.ts`,
+`scripts/rehearsal-vesting-one-tx.ts`, `scripts/robusto-meteora-rehearsal.ts` y
+`scripts/rehearsal-spl-one-tx.ts`. `scripts/devnet-initialize.ts` carga keypairs y
+conecta a una red, así que también queda excluido sin inspección de ejecución. El grep
+encuentra además `config/robusto-tokenomics-10b-simulation.json`, que es una simulación
+distinta de 10B/6, no el perfil confirmado 10B/9. Hay fixtures y pruebas históricas con
+los valores 1B/6. Ninguna ruta fue ejecutada ni modificada; no se debe interpretar el
+perfil histórico como builder productivo 10B/9.
 
 ## Meteora y autoridades
 
@@ -119,6 +169,30 @@ sin cierres en esta revisión:
 | M-08 `RUSTSEC-2026-0012` | `keccak 0.1.4` | Condicional host ARM/feature; target x86_64 registrado. Abierto para otros targets. |
 | M-09 `RUSTSEC-2026-0097` | `rand 0.8.5` | Host/dev; condición de logger reentrante no demostrada. Abierto. |
 | M-10 `RUSTSEC-2026-0097` | `rand 0.9.1` | Edge `rand-09` opcional inactivo en perfil fijado. Abierto. |
+
+Clasificación de exposición solicitada (scope: source lock cp-amm fijado y
+fingerprints descritos en `ROBUSTO_METEORA_DEPENDENCY_REVIEW.md`): `CONFIRMED_INACTIVE`
+es específico de ese target/feature; `UNVERIFIED` indica que existe una dependencia o
+función, pero no se ha demostrado el disparador vulnerable; no equivale a “resuelto”.
+
+| Hallazgo | Estado | Uso/ruta real y evidencia | Prueba o mitigación segura; riesgo residual |
+| --- | --- | --- | --- |
+| M-01 bytes | `CONFIRMED_INACTIVE` | Edge Borsh opcional desactivado en fingerprints del build fijado. | Revalidar features/fingerprints; fix upstream compatible. Aún en lock, otra feature puede activarlo. |
+| M-02 ruint reciprocal | `UNVERIFIED` | ruint normal activo y divisiones usadas; callers revisados normalizan antes del recíproco, no se auditó exhaustivamente todo unsafe/caller. | Prueba aritmética offline verifica buckets normalizados sin invocar caso UB; falta revisión externa/upstream. |
+| M-03 ruint shifts | `CONFIRMED_REACHABLE` | Shifts y flag defectuoso reproducidos; shifts usados en aritmética de swap/liquidez. | Prueba offline valida el flag incorrecto esperado y bordes usados. Mitigación caller-local limitada; no es fix upstream, impacto económico no demostrado. |
+| M-04 bincode | `CONFIRMED_REACHABLE` | Runtime/build en el lock cp-amm; warning de mantenimiento, sin exploit concreto descrito. | Revisar serialización y seguir una solución compatible de Anchor/Meteora. Compatibilidad futura abierta. |
+| M-05 derivative | `CONFIRMED_INACTIVE` | Edge opcional `ark-ff` desactivado en build revisado. | Cargo tree/fingerprints y revalidación si cambia feature; sigue en lock. |
+| M-06 paste | `CONFIRMED_INACTIVE` | Mismo edge opcional `ark-ff` desactivado. | Cargo tree/fingerprints y revalidación si cambia feature; sigue en lock. |
+| M-07 anyhow | `UNVERIFIED` | Host/build; búsqueda previa parcial no halló `downcast_mut`, no prueba ausencia en todos los consumidores/macros. | Búsqueda/callgraph de host y upgrade compatible; exposición residual del toolchain. |
+| M-08 keccak | `CONFIRMED_INACTIVE` | Backend ARM asm opt-in ausente en host x86_64 revisado; no se atribuye `keccak-const` SBF. | Comprobar targets/flags soportados; otro target puede cambiar el estado. |
+| M-09 rand 0.8 | `UNVERIFIED` | Edge host/dev existe; logger custom reentrante requerido por el advisory no demostrado ni descartado universalmente. | Revisar features/loggers y actualizar rama compatible; nunca invocar generadores de identidad. |
+| M-10 rand 0.9 | `CONFIRMED_INACTIVE` | Feature opcional `rand-09` desactivada en el perfil fijado. | Revalidar Cargo tree/fingerprints al cambiar features; sigue en lock. |
+
+M-02/M-03 pueden contrastarse con `python3 scripts/test-meteora-advisory-arithmetic.py`,
+un runner aislado offline de enteros `ruint`; no prueba el ELF ni un swap Meteora completo.
+M-01/M-05/M-06/M-08/M-10 requieren verificación de grafo/target; M-04/M-07/M-09
+requieren revisión de mantenimiento o consumidores host. No se ejecutó RustSec por red,
+no se modificaron locks y ningún finding se cerró.
 
 En particular `ruint 1.14.0` (`RUSTSEC-2025-0137` y `RUSTSEC-2026-0220`)
 entra en aritmética de swap/liquidez; los controles estáticos/callers previos no son un
