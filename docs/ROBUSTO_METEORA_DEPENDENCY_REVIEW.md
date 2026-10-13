@@ -117,6 +117,16 @@ económica ni aprobación de otros fee modes/rewards/compounding.
 Fuentes: [RustSec](https://rustsec.org/advisories/RUSTSEC-2026-0220.html),
 [corrección oficial ruint PR 603](https://github.com/alloy-rs/ruint/pull/603).
 
+La prueba offline existente está acotada a la semántica de `ruint 1.14.0` y al
+caso del flag de shift; no ejecuta un swap Meteora ni demuestra equivalencia
+económica, tolerancia a toda entrada o seguridad del ELF. La mitigación compatible
+con el source/lock fijado consiste en documentar los callsites y sus límites, no
+consumir flags en los casos de truncamiento intencional y conservar los casts
+comprobados. Esto reduce el alcance del defecto observado, pero no corrige `ruint`.
+Adoptar `ruint >=1.20.0` requiere que Meteora/Anchor acepte el cambio, comparar
+formatos y resultados de aritmética, reconstruir cp-amm y verificar el nuevo ELF;
+ninguno de esos pasos está hecho aquí.
+
 ## Matriz por operación
 
 `D` significa función de división alcanzable pero condición de recíproco inválido
@@ -154,6 +164,32 @@ Los paths del lock no afirman que todas sus features estén activas. Para anyhow
 existen paths adicionales por anchor-syn/anchor-lang-idl; todos pasan por proc-macros.
 Las tres warnings de mantenimiento y las cuatro instancias unsound permanecen
 en la evidencia original. Ningún ignore/allowlist nuevo se añadió.
+
+### bincode — alcance concreto de M-04
+
+`cargo tree --locked --offline -i bincode` en el workspace fuente fijado muestra
+`cp-amm 0.2.4 → anchor-lang 1.0.2 → bincode 1.3.3`; el registro de compilación
+local del target SBPF incluye además el artefacto `libbincode`. En el source de
+cp-amm no hay llamadas directas `bincode::...` ni usos de `ProgramData` o
+`programdata_address`. Anchor contiene este consumidor:
+`UpgradeableLoaderState::try_deserialize_unchecked` llama a
+`bincode::deserialize`, y `ProgramData` reutiliza ese parser. Sin embargo,
+`Program<'info, T>::try_from` solo comprueba ID y `executable`; no llama a ese
+parser. Como no encontramos un callsite desde instrucciones cp-amm a
+`programdata_address` ni una cuenta `ProgramData`, el grafo del lock/compilación
+no demuestra que la deserialización se ejecute en la ruta del programa. La ruta
+exacta desde el ELF y cualquier código indirecto quedan para revisión externa.
+
+RustSec-2025-0141 es un aviso de mantenimiento: por sí solo no señala un bug de
+memoria, bypass o payload explotable. Evidencia local: dependencia resuelta en el
+lock y compilada en el build SBPF guardado; la fuente de Anchor contiene parser,
+pero la ruta de ejecución cp-amm no quedó demostrada. No se ejecutó un fuzz de
+parser ni se acredita resistencia frente a todo estado loader malformado. Un
+`cargo tree` con `--target sbpf-solana-solana` no fue posible con el rustc local,
+que no tiene registrada esa especificación; el SBF fue generado por la toolchain
+Solana separada previamente fijada. Mitigación: seguir un camino soportado de
+Anchor/loader; una sustitución exige preservar exactamente el formato de estado y
+probar compatibilidad con consumidores. No se cambió bincode ni su lock.
 
 Fuentes oficiales de warnings:
 [bincode](https://rustsec.org/advisories/RUSTSEC-2025-0141.html),

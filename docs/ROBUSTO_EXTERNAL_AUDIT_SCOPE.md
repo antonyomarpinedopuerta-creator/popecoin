@@ -163,3 +163,50 @@ Prototipo aislado de [excedentes con procedencia](ROBUSTO_VESTING_SURPLUS_OPTION
 10 tests host sin dependencias, separados de los 157 casos runtime. No modifica contrato,
 ABI o parámetros, no demuestra propiedad retrospectiva ni rollback. El gate/paquete
 exigen nivel HOST_MODEL_ONLY_NOT_SBF para evitar confundir el alcance de esta evidencia.
+
+## Inventario local reproducible para el auditor
+
+En un checkout local con herramientas ya instaladas, ejecutar:
+
+```sh
+python3 scripts/audit-inventory.py
+python3 -m unittest tests/test_audit_inventory.py
+```
+
+El primer comando emite JSON a stdout y no escribe archivos: fija HEAD/rama y la
+referencia local de seguimiento, versiones de herramientas disponibles, SHA-256
+de entradas y artefactos críticos, coincidencia del build record, digest del source
+Meteora y estado de locks/evidencia. No consulta GitHub: `origin/master` es solo la
+referencia local y el informe lo marca expresamente. No compila ni ejecuta programas.
+El segundo comando comprueba el contrato de solo lectura, la correspondencia de
+hashes y que reportes de runtime ligados a HEADs antiguos no se presenten como
+pruebas actuales. El snapshot RustSec local conserva tres vulnerabilidades y siete
+warnings; el generador no consulta ni actualiza esa base.
+
+En esta revisión el build record conserva hashes coincidentes para sus 14 entradas
+fuente y los hashes registrados de ELF, IDL y tipos también coinciden. El registro
+no contiene commit; por eso el inventario verifica igualdad de bytes declarados,
+pero no atribuye el build a un commit ni sustituye una reconstrucción independiente.
+El inventario también separa las dos copias Meteora que coinciden con el registro
+de build de otra salida local bajo `cargo-build/.../cp_amm.so`, cuyo SHA-256 difiere.
+Esa copia discrepante no se trata como artefacto verificado ni se atribuye a una
+causa sin reproducir su procedencia. Los manifiestos JS usan rangos semver, con
+resolución registrada en `yarn.lock`; Cargo depende de `Cargo.lock`.
+
+### Criterios de aceptación que siguen pendientes
+
+| Área | Evidencia que debe obtener o revisar el auditor independiente | Estado actual |
+| --- | --- | --- |
+| Vesting | Revisar initialize/deposit/release, invariantes, cuentas alias, PDA, mint/beneficiary, reloj y casos límite; reproducir sobre el artefacto exacto | Fuentes y ELF hasheados; revisión externa pendiente |
+| Depósitos excedentes | Demostrar contabilidad cuando el vault recibe transferencias directas y definir aceptación explícita de fondos potencialmente atrapados | Riesgo de diseño conocido; sin rescate administrativo |
+| Custodia/recuperación | Analizar claves, beneficiario perdido, permisos combinados y ausencia de recuperación confiscatoria; verificar custodios elegidos | Direcciones/beneficiarios no fijados; decisión y revisión pendientes |
+| Identidad/decimales del mint | Verificar mint real, programa propietario, decimales, supply y autoridades contra evidencia de estado autenticada en etapa autorizada | Sin mint real; pendiente y no ejecutado |
+| M-03 `ruint` | Revisar callgraph completo, shifts y flags para cada modo permitido; comparar límites y resultados con versión corregida | Flag defectuoso reproducido; impacto económico no demostrado; abierto |
+| M-04 `bincode` | Revisar deserialización loader, controles de owner/forma, compatibilidad upstream y política de soporte | Dependencia presente/compilada vía Anchor; callsite runtime cp-amm no demostrado; aviso de mantenimiento sin exploit concreto; abierto |
+| Otros hallazgos Meteora | Resolver o aceptar por escrito los otros ocho IDs contra lock, features, ELF exacto y perfil de operaciones; revisar actualización compatible | Clasificaciones locales, ninguno declarado cerrado |
+| Atomicidad nativa | Ejecutar transacción de varias instrucciones con fallo tardío en runtime/Bank transaccional y contrastar almacenamiento completo antes/después bajo procedimiento autorizado | `NATIVE_ATOMICITY_NOT_VERIFIED`; InvokeContext no equivale a rollback de Bank |
+| Compatibilidad operativa 10B/9 | Confirmar configuración económica y mint real, cuentas/autoridades, aritmética y prueba SBF con artefactos exactos | Preparación offline histórica; identidad y evidencia de ejecución actual pendientes |
+
+La salida de inventario es evidencia de integridad local, no firma del auditor ni
+atestación de origen. Conservar el JSON y su hash por un canal independiente cuando
+se encargue la revisión; no se entrega ni publica automáticamente en esta fase.
