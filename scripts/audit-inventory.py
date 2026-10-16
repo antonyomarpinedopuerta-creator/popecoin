@@ -129,6 +129,20 @@ def meteora_build_record(root: Path) -> dict:
             "toolchain": {key: record.get(key) for key in ("agave", "platformTools", "sbfRust", "nativeRust")}}
 
 
+def meteora_source_record(root: Path) -> dict:
+    record_path = root / "target/meteora-official/build-record.json"
+    try:
+        record = json.loads(record_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {"present": False, "sourceFileCount": 0, "matchedCount": 0, "mismatches": []}
+    expected = record.get("sourceHashes", {})
+    mismatches = [name for name, digest in expected.items()
+                  if sha256(root / OFFICIAL / name) != digest]
+    return {"present": True, "sourceCommit": record.get("programCommit"),
+            "sourceFileCount": len(expected), "matchedCount": len(expected) - len(mismatches),
+            "mismatches": mismatches}
+
+
 def source_tree_digest(root: Path, base: Path) -> dict:
     if not base.is_dir():
         return {"present": False, "fileCount": 0, "sha256": None}
@@ -203,6 +217,7 @@ def build_inventory(root: Path = ROOT) -> dict:
             "lockSha256": met_lock_hash,
             "lockHashMatchesRecordedEvidence": met_lock_hash == EXPECTED_METEORA_LOCK,
             "sourceTree": source_tree_digest(root, root / OFFICIAL / "programs/cp-amm/src"),
+            "buildInputHashes": meteora_source_record(root),
             "reviewedFiles": file_hashes(root / OFFICIAL, METEORA_FILES),
             "advisorySnapshotStatus": audit.get("status"),
             "advisoryLockHashMatches": audit.get("cargoLockSha256") == met_lock_hash,

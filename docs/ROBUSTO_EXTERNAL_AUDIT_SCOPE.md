@@ -176,8 +176,9 @@ python3 -m unittest tests/test_audit_inventory.py
 El primer comando emite JSON a stdout y no escribe archivos: fija HEAD/rama y la
 referencia local de seguimiento, versiones de herramientas disponibles, SHA-256
 de entradas y artefactos críticos, coincidencia del build record, digest del source
-Meteora y estado de locks/evidencia. No consulta GitHub: `origin/master` es solo la
-referencia local y el informe lo marca expresamente. No compila ni ejecuta programas.
+Meteora, comparación individual de sus 129 hashes fuente y estado de locks/evidencia.
+No consulta GitHub: `origin/master` es solo la referencia local y el informe lo
+marca expresamente. No compila ni ejecuta programas.
 El segundo comando comprueba el contrato de solo lectura, la correspondencia de
 hashes y que reportes de runtime ligados a HEADs antiguos no se presenten como
 pruebas actuales. El snapshot RustSec local conserva tres vulnerabilidades y siete
