@@ -26,7 +26,7 @@ test('SPL multisig is not an Anchor Signer for initialize, deposit or release', 
   assert.equal(signerCompatibility('SPL_MULTISIG', 'ANCHOR_SIGNER'), 'INCOMPATIBLE');
   for (const role of ['founderVestingBeneficiary', 'metadataUpdate', 'vestingProgramUpgrade', 'liquidityPositionCustodian']) {
     const p = policy(); p.roles.find(r => r.role === role)!.mechanism = 'SPL_MULTISIG';
-    assert.throws(() => check(p), /does not satisfy Anchor Signer/);
+    assert.throws(() => check(p), /does not satisfy required single-account signer/);
   }
   assert.equal(signerCompatibility('SPL_MULTISIG', 'CLASSIC_SPL_TOKEN'), 'DECLARED_COMPATIBLE_NOT_VERIFIED');
 });

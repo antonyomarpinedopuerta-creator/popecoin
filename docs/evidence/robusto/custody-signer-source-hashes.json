@@ -1,0 +1,19 @@
+{
+  "evidenceLevel": "STATIC_SOURCE_ONLY",
+  "scope": "OFFLINE_FIXTURE_ONLY",
+  "signaturesVerified": false,
+  "sourceHashes": {
+    "Cargo.lock": "8c1846de05807b6060ed09ec300192b2e8c2ec1d765d1934db3b9238192c92b5",
+    "cargo:anchor-lang-1.2.0/src/accounts/signer.rs": "1874f223191d6daa4092eb623cc34d10a538a8439bb30c5955b82e0c7d3d62a6",
+    "cargo:anchor-spl-1.2.0/src/token.rs": "7c709e2368c483768ef9ac9d38b5e25106cb69e28fcba4d4066b5fc013ea913e",
+    "cargo:solana-loader-v3-interface-6.1.1/src/instruction.rs": "2e625ce7cf33f6b02a5245d918b87ddfe50625c1962526f89af6d5ae80fa48e5",
+    "cargo:spl-token-interface-2.0.0/src/instruction.rs": "7f6f247b549e11d07c83059bad918bb2d0a78824867f961a10b239a9880a1a15",
+    "programs/popecoin_vesting/src/instructions/deposit.rs": "0c512a0d2fc56b03cf798acd898672f4c6a9acd937278705bc35e20a1555f63b",
+    "programs/popecoin_vesting/src/instructions/initialize.rs": "6ab91ba8fbb4164f1cddd7197155e361f91c7c38695ef0d3c2c883dde556a63f",
+    "programs/popecoin_vesting/src/instructions/release.rs": "0b16922ff71612f088139e02790b92b271589c8dd5529b5d3055c8c568bab87f",
+    "programs/popecoin_vesting/src/lib.rs": "41b7af435ef12a40ae716cd6daa51526bb4f8752b249af8962cca279832d6b07",
+    "programs/popecoin_vesting/src/state.rs": "d14db9aa0dfb7672a00100f1bd4ad636b8166ecda0f70c082ef502727ca9b5a1",
+    "target/meteora-official/damm-v2-a85c926607433f23f0ea60f4ca7b1ae92f4156cb/programs/cp-amm/src/instructions/ix_remove_liquidity.rs": "9046051b6f7a6ebd7421d27849c8a21ff954e86bcc4cba0fa34bb7d5abb62419",
+    "target/meteora-official/damm-v2-a85c926607433f23f0ea60f4ca7b1ae92f4156cb/programs/cp-amm/src/state/position.rs": "bb8526c16d3a582ea03ee9844facaac9ff187ad3c5e532c83b53385b450d99a5"
+  }
+}

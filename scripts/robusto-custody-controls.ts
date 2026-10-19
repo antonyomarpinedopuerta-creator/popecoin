@@ -14,7 +14,8 @@ export const ROLE_PERMISSIONS = {
   liquidityPositionCustodian: ['manage_own_position'],
 } as const;
 export type CustodyRole = keyof typeof ROLE_PERMISSIONS;
-export type Mechanism = 'SINGLE_SIGNER' | 'SPL_MULTISIG' | 'PROGRAM_MULTISIG_PDA' | 'NONE' | 'PENDING';
+export type Mechanism = 'SINGLE_SIGNER' | 'SPL_MULTISIG' | 'PROGRAM_MULTISIG_PDA' | 'MULTISIG_MANAGED_ACCOUNT' | 'NONE' | 'PENDING';
+export type SignerConsumer = 'ANCHOR_SIGNER' | 'CLASSIC_SPL_TOKEN' | 'EXTERNAL_POSITION' | 'LOADER_AUTHORITY' | 'METADATA_AUTHORITY';
 export interface CustodyPolicy {
   scope: 'OFFLINE_FIXTURE_ONLY'; mainnetDisabled: true; operationsAuthorized: false;
   administrativeRecovery: false; beneficiaryReplacement: false; excessSweep: false;
@@ -22,12 +23,14 @@ export interface CustodyPolicy {
 }
 
 /** Anchor Signer checks one AccountInfo.is_signer; SPL multisig member parsing is absent. */
-export function signerCompatibility(mechanism: Mechanism, consumer: 'ANCHOR_SIGNER' | 'CLASSIC_SPL_TOKEN' | 'EXTERNAL_POSITION') {
-  if (!['ANCHOR_SIGNER', 'CLASSIC_SPL_TOKEN', 'EXTERNAL_POSITION'].includes(consumer)) throw Error('Unknown signer consumer');
-  if (!['SINGLE_SIGNER', 'SPL_MULTISIG', 'PROGRAM_MULTISIG_PDA', 'NONE', 'PENDING'].includes(mechanism)) throw Error('Unknown custody mechanism');
+export function signerCompatibility(mechanism: Mechanism, consumer: SignerConsumer) {
+  if (!['ANCHOR_SIGNER', 'CLASSIC_SPL_TOKEN', 'EXTERNAL_POSITION', 'LOADER_AUTHORITY', 'METADATA_AUTHORITY'].includes(consumer)) throw Error('Unknown signer consumer');
+  if (!['SINGLE_SIGNER', 'SPL_MULTISIG', 'PROGRAM_MULTISIG_PDA', 'MULTISIG_MANAGED_ACCOUNT', 'NONE', 'PENDING'].includes(mechanism)) throw Error('Unknown custody mechanism');
   if (mechanism === 'NONE' || mechanism === 'PENDING') return 'PENDING';
+  // "Managed" does not identify who can provide the account's signer privilege.
+  if (mechanism === 'MULTISIG_MANAGED_ACCOUNT') return 'REQUIRES_EXTERNAL_COMPATIBILITY_PROOF';
   if (mechanism === 'SPL_MULTISIG' && consumer !== 'CLASSIC_SPL_TOKEN') return 'INCOMPATIBLE';
-  if (consumer === 'EXTERNAL_POSITION' || mechanism === 'PROGRAM_MULTISIG_PDA') return 'REQUIRES_EXTERNAL_COMPATIBILITY_PROOF';
+  if (consumer === 'EXTERNAL_POSITION' || consumer === 'METADATA_AUTHORITY' || mechanism === 'PROGRAM_MULTISIG_PDA') return 'REQUIRES_EXTERNAL_COMPATIBILITY_PROOF';
   return 'DECLARED_COMPATIBLE_NOT_VERIFIED';
 }
 
@@ -65,15 +68,17 @@ export function validateCustodyControls(manifest: unknown, inventoryInput: unkno
         || item.requestedPermissions.some(p => typeof p !== 'string' || !allowed.includes(p))) throw Error(`Incompatible permissions for ${role}`);
     const mechanism = item.mechanism as Mechanism;
     const declaration = declarations[role];
-    const consumer = role in inventory.custodians || role === 'mint' || role === 'freeze' ? 'CLASSIC_SPL_TOKEN'
-      : role === 'liquidityPositionCustodian' ? 'EXTERNAL_POSITION' : 'ANCHOR_SIGNER';
+    const consumer: SignerConsumer = role in inventory.custodians || role === 'mint' || role === 'freeze' ? 'CLASSIC_SPL_TOKEN'
+      : role === 'liquidityPositionCustodian' ? 'EXTERNAL_POSITION'
+      : role === 'vestingProgramUpgrade' ? 'LOADER_AUTHORITY'
+      : role === 'metadataUpdate' ? 'METADATA_AUTHORITY' : 'ANCHOR_SIGNER';
     const compatibility = signerCompatibility(mechanism, consumer);
-    if (compatibility === 'INCOMPATIBLE') throw Error(`SPL multisig does not satisfy Anchor Signer: ${role}`);
+    if (compatibility === 'INCOMPATIBLE') throw Error(`SPL multisig does not satisfy required single-account signer: ${role}`);
     if (mechanism === 'NONE' && declaration !== 'NONE') throw Error('NONE requires an explicit absent-authority declaration');
     if (declaration === 'NONE' && (mechanism !== 'NONE' || item.requestedPermissions.length !== 0 || item.controllerGroup !== null)) throw Error('Absent authority cannot retain permissions or a controller');
     const unresolved = declaration === null || declaration === 'NOT_CREATED' || mechanism === 'PENDING'
       || (declaration !== 'NONE' && item.controllerGroup === null) || compatibility === 'REQUIRES_EXTERNAL_COMPATIBILITY_PROOF';
-    return {role, declaration, mechanism, controllerGroup: item.controllerGroup as string | null,
+    return {role, declaration, mechanism, consumer, controllerGroup: item.controllerGroup as string | null,
       requestedPermissions: [...item.requestedPermissions].sort() as string[], compatibility, unresolved};
   }).sort((a, b) => a.role < b.role ? -1 : a.role > b.role ? 1 : 0);
   const concentration: Array<{roles: [CustodyRole, CustodyRole]; sameIdentity: boolean; sameControllerGroup: boolean}> = [];
@@ -89,4 +94,27 @@ export function validateCustodyControls(manifest: unknown, inventoryInput: unkno
     administrativeRecovery: false, beneficiaryReplacement: false, excessSweep: false,
     allocationsValidated: allocationPlan.map(a => ({label: a.label, amountBaseUnits: a.amountBaseUnits})),
     roles, concentration, readyForImplementation: false};
+}
+
+/** Matrix of evidence levels, not certification of any external implementation. */
+export function technicalCustodyMatrix() {
+  const boundaries: Array<{boundary: string; consumer: SignerConsumer; evidence: string}> = [
+    {boundary: 'spl_mint_freeze_authorities', consumer: 'CLASSIC_SPL_TOKEN', evidence: 'spl-token-interface 2.0.0 instruction.rs: mint_to/set_authority member-signer interface'},
+    {boundary: 'allocation_token_transfers', consumer: 'CLASSIC_SPL_TOKEN', evidence: 'spl-token-interface 2.0.0 instruction.rs: transfer_checked member-signer interface'},
+    {boundary: 'program_upgrade_authority', consumer: 'LOADER_AUTHORITY', evidence: 'solana-loader-v3-interface 6.1.1 instruction.rs: upgrade authority is_signer=true'},
+    {boundary: 'vesting_beneficiary', consumer: 'ANCHOR_SIGNER', evidence: 'initialize.rs/release.rs and anchor-lang 1.2.0 accounts/signer.rs: AccountInfo.is_signer'},
+    {boundary: 'vesting_deposit_authority', consumer: 'ANCHOR_SIGNER', evidence: 'deposit.rs and anchor-spl 1.2.0 token.rs: source owner and no multisig member forwarding'},
+    {boundary: 'meteora_position', consumer: 'EXTERNAL_POSITION', evidence: 'pinned cp-amm ix_remove_liquidity.rs: Signer and position owner/delegate permissions'},
+  ];
+  const mechanisms: Mechanism[] = ['SINGLE_SIGNER', 'SPL_MULTISIG', 'PROGRAM_MULTISIG_PDA', 'MULTISIG_MANAGED_ACCOUNT'];
+  return {scope: 'OFFLINE_FIXTURE_ONLY', mainnetStatus: 'NOT_AUTHORIZED_FOR_MAINNET', mainnetDisabled: true,
+    operationsAuthorized: false, evidenceLevel: 'STATIC_SOURCE_REQUIREMENTS_NOT_END_TO_END_EXECUTION',
+    rows: boundaries.flatMap(boundary => mechanisms.map(mechanism => {
+      const result = signerCompatibility(mechanism, boundary.consumer);
+      return {...boundary, mechanism,
+        compatibility: result === 'INCOMPATIBLE' ? 'DEMONSTRATED_INCOMPATIBLE_DIRECT_PATH' : 'PENDING_EXECUTION_PROOF',
+        interfaceEvidence: result === 'INCOMPATIBLE' ? 'SINGLE_ACCOUNT_SIGNER_REQUIRED'
+          : result === 'DECLARED_COMPATIBLE_NOT_VERIFIED' ? 'SIGNER_FORM_SUPPORTED_BY_SOURCE' : 'EXTERNAL_SIGNER_PATH_UNPROVEN',
+        realSignaturesVerified: false, productionApproved: false};
+    }))};
 }

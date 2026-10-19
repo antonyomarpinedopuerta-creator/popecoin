@@ -1,0 +1,249 @@
+{
+  "scope": "OFFLINE_FIXTURE_ONLY",
+  "mainnetStatus": "NOT_AUTHORIZED_FOR_MAINNET",
+  "mainnetDisabled": true,
+  "operationsAuthorized": false,
+  "evidenceLevel": "STATIC_SOURCE_REQUIREMENTS_NOT_END_TO_END_EXECUTION",
+  "rows": [
+    {
+      "boundary": "spl_mint_freeze_authorities",
+      "consumer": "CLASSIC_SPL_TOKEN",
+      "evidence": "spl-token-interface 2.0.0 instruction.rs: mint_to/set_authority member-signer interface",
+      "mechanism": "SINGLE_SIGNER",
+      "compatibility": "PENDING_EXECUTION_PROOF",
+      "interfaceEvidence": "SIGNER_FORM_SUPPORTED_BY_SOURCE",
+      "realSignaturesVerified": false,
+      "productionApproved": false
+    },
+    {
+      "boundary": "spl_mint_freeze_authorities",
+      "consumer": "CLASSIC_SPL_TOKEN",
+      "evidence": "spl-token-interface 2.0.0 instruction.rs: mint_to/set_authority member-signer interface",
+      "mechanism": "SPL_MULTISIG",
+      "compatibility": "PENDING_EXECUTION_PROOF",
+      "interfaceEvidence": "SIGNER_FORM_SUPPORTED_BY_SOURCE",
+      "realSignaturesVerified": false,
+      "productionApproved": false
+    },
+    {
+      "boundary": "spl_mint_freeze_authorities",
+      "consumer": "CLASSIC_SPL_TOKEN",
+      "evidence": "spl-token-interface 2.0.0 instruction.rs: mint_to/set_authority member-signer interface",
+      "mechanism": "PROGRAM_MULTISIG_PDA",
+      "compatibility": "PENDING_EXECUTION_PROOF",
+      "interfaceEvidence": "EXTERNAL_SIGNER_PATH_UNPROVEN",
+      "realSignaturesVerified": false,
+      "productionApproved": false
+    },
+    {
+      "boundary": "spl_mint_freeze_authorities",
+      "consumer": "CLASSIC_SPL_TOKEN",
+      "evidence": "spl-token-interface 2.0.0 instruction.rs: mint_to/set_authority member-signer interface",
+      "mechanism": "MULTISIG_MANAGED_ACCOUNT",
+      "compatibility": "PENDING_EXECUTION_PROOF",
+      "interfaceEvidence": "EXTERNAL_SIGNER_PATH_UNPROVEN",
+      "realSignaturesVerified": false,
+      "productionApproved": false
+    },
+    {
+      "boundary": "allocation_token_transfers",
+      "consumer": "CLASSIC_SPL_TOKEN",
+      "evidence": "spl-token-interface 2.0.0 instruction.rs: transfer_checked member-signer interface",
+      "mechanism": "SINGLE_SIGNER",
+      "compatibility": "PENDING_EXECUTION_PROOF",
+      "interfaceEvidence": "SIGNER_FORM_SUPPORTED_BY_SOURCE",
+      "realSignaturesVerified": false,
+      "productionApproved": false
+    },
+    {
+      "boundary": "allocation_token_transfers",
+      "consumer": "CLASSIC_SPL_TOKEN",
+      "evidence": "spl-token-interface 2.0.0 instruction.rs: transfer_checked member-signer interface",
+      "mechanism": "SPL_MULTISIG",
+      "compatibility": "PENDING_EXECUTION_PROOF",
+      "interfaceEvidence": "SIGNER_FORM_SUPPORTED_BY_SOURCE",
+      "realSignaturesVerified": false,
+      "productionApproved": false
+    },
+    {
+      "boundary": "allocation_token_transfers",
+      "consumer": "CLASSIC_SPL_TOKEN",
+      "evidence": "spl-token-interface 2.0.0 instruction.rs: transfer_checked member-signer interface",
+      "mechanism": "PROGRAM_MULTISIG_PDA",
+      "compatibility": "PENDING_EXECUTION_PROOF",
+      "interfaceEvidence": "EXTERNAL_SIGNER_PATH_UNPROVEN",
+      "realSignaturesVerified": false,
+      "productionApproved": false
+    },
+    {
+      "boundary": "allocation_token_transfers",
+      "consumer": "CLASSIC_SPL_TOKEN",
+      "evidence": "spl-token-interface 2.0.0 instruction.rs: transfer_checked member-signer interface",
+      "mechanism": "MULTISIG_MANAGED_ACCOUNT",
+      "compatibility": "PENDING_EXECUTION_PROOF",
+      "interfaceEvidence": "EXTERNAL_SIGNER_PATH_UNPROVEN",
+      "realSignaturesVerified": false,
+      "productionApproved": false
+    },
+    {
+      "boundary": "program_upgrade_authority",
+      "consumer": "LOADER_AUTHORITY",
+      "evidence": "solana-loader-v3-interface 6.1.1 instruction.rs: upgrade authority is_signer=true",
+      "mechanism": "SINGLE_SIGNER",
+      "compatibility": "PENDING_EXECUTION_PROOF",
+      "interfaceEvidence": "SIGNER_FORM_SUPPORTED_BY_SOURCE",
+      "realSignaturesVerified": false,
+      "productionApproved": false
+    },
+    {
+      "boundary": "program_upgrade_authority",
+      "consumer": "LOADER_AUTHORITY",
+      "evidence": "solana-loader-v3-interface 6.1.1 instruction.rs: upgrade authority is_signer=true",
+      "mechanism": "SPL_MULTISIG",
+      "compatibility": "DEMONSTRATED_INCOMPATIBLE_DIRECT_PATH",
+      "interfaceEvidence": "SINGLE_ACCOUNT_SIGNER_REQUIRED",
+      "realSignaturesVerified": false,
+      "productionApproved": false
+    },
+    {
+      "boundary": "program_upgrade_authority",
+      "consumer": "LOADER_AUTHORITY",
+      "evidence": "solana-loader-v3-interface 6.1.1 instruction.rs: upgrade authority is_signer=true",
+      "mechanism": "PROGRAM_MULTISIG_PDA",
+      "compatibility": "PENDING_EXECUTION_PROOF",
+      "interfaceEvidence": "EXTERNAL_SIGNER_PATH_UNPROVEN",
+      "realSignaturesVerified": false,
+      "productionApproved": false
+    },
+    {
+      "boundary": "program_upgrade_authority",
+      "consumer": "LOADER_AUTHORITY",
+      "evidence": "solana-loader-v3-interface 6.1.1 instruction.rs: upgrade authority is_signer=true",
+      "mechanism": "MULTISIG_MANAGED_ACCOUNT",
+      "compatibility": "PENDING_EXECUTION_PROOF",
+      "interfaceEvidence": "EXTERNAL_SIGNER_PATH_UNPROVEN",
+      "realSignaturesVerified": false,
+      "productionApproved": false
+    },
+    {
+      "boundary": "vesting_beneficiary",
+      "consumer": "ANCHOR_SIGNER",
+      "evidence": "initialize.rs/release.rs and anchor-lang 1.2.0 accounts/signer.rs: AccountInfo.is_signer",
+      "mechanism": "SINGLE_SIGNER",
+      "compatibility": "PENDING_EXECUTION_PROOF",
+      "interfaceEvidence": "SIGNER_FORM_SUPPORTED_BY_SOURCE",
+      "realSignaturesVerified": false,
+      "productionApproved": false
+    },
+    {
+      "boundary": "vesting_beneficiary",
+      "consumer": "ANCHOR_SIGNER",
+      "evidence": "initialize.rs/release.rs and anchor-lang 1.2.0 accounts/signer.rs: AccountInfo.is_signer",
+      "mechanism": "SPL_MULTISIG",
+      "compatibility": "DEMONSTRATED_INCOMPATIBLE_DIRECT_PATH",
+      "interfaceEvidence": "SINGLE_ACCOUNT_SIGNER_REQUIRED",
+      "realSignaturesVerified": false,
+      "productionApproved": false
+    },
+    {
+      "boundary": "vesting_beneficiary",
+      "consumer": "ANCHOR_SIGNER",
+      "evidence": "initialize.rs/release.rs and anchor-lang 1.2.0 accounts/signer.rs: AccountInfo.is_signer",
+      "mechanism": "PROGRAM_MULTISIG_PDA",
+      "compatibility": "PENDING_EXECUTION_PROOF",
+      "interfaceEvidence": "EXTERNAL_SIGNER_PATH_UNPROVEN",
+      "realSignaturesVerified": false,
+      "productionApproved": false
+    },
+    {
+      "boundary": "vesting_beneficiary",
+      "consumer": "ANCHOR_SIGNER",
+      "evidence": "initialize.rs/release.rs and anchor-lang 1.2.0 accounts/signer.rs: AccountInfo.is_signer",
+      "mechanism": "MULTISIG_MANAGED_ACCOUNT",
+      "compatibility": "PENDING_EXECUTION_PROOF",
+      "interfaceEvidence": "EXTERNAL_SIGNER_PATH_UNPROVEN",
+      "realSignaturesVerified": false,
+      "productionApproved": false
+    },
+    {
+      "boundary": "vesting_deposit_authority",
+      "consumer": "ANCHOR_SIGNER",
+      "evidence": "deposit.rs and anchor-spl 1.2.0 token.rs: source owner and no multisig member forwarding",
+      "mechanism": "SINGLE_SIGNER",
+      "compatibility": "PENDING_EXECUTION_PROOF",
+      "interfaceEvidence": "SIGNER_FORM_SUPPORTED_BY_SOURCE",
+      "realSignaturesVerified": false,
+      "productionApproved": false
+    },
+    {
+      "boundary": "vesting_deposit_authority",
+      "consumer": "ANCHOR_SIGNER",
+      "evidence": "deposit.rs and anchor-spl 1.2.0 token.rs: source owner and no multisig member forwarding",
+      "mechanism": "SPL_MULTISIG",
+      "compatibility": "DEMONSTRATED_INCOMPATIBLE_DIRECT_PATH",
+      "interfaceEvidence": "SINGLE_ACCOUNT_SIGNER_REQUIRED",
+      "realSignaturesVerified": false,
+      "productionApproved": false
+    },
+    {
+      "boundary": "vesting_deposit_authority",
+      "consumer": "ANCHOR_SIGNER",
+      "evidence": "deposit.rs and anchor-spl 1.2.0 token.rs: source owner and no multisig member forwarding",
+      "mechanism": "PROGRAM_MULTISIG_PDA",
+      "compatibility": "PENDING_EXECUTION_PROOF",
+      "interfaceEvidence": "EXTERNAL_SIGNER_PATH_UNPROVEN",
+      "realSignaturesVerified": false,
+      "productionApproved": false
+    },
+    {
+      "boundary": "vesting_deposit_authority",
+      "consumer": "ANCHOR_SIGNER",
+      "evidence": "deposit.rs and anchor-spl 1.2.0 token.rs: source owner and no multisig member forwarding",
+      "mechanism": "MULTISIG_MANAGED_ACCOUNT",
+      "compatibility": "PENDING_EXECUTION_PROOF",
+      "interfaceEvidence": "EXTERNAL_SIGNER_PATH_UNPROVEN",
+      "realSignaturesVerified": false,
+      "productionApproved": false
+    },
+    {
+      "boundary": "meteora_position",
+      "consumer": "EXTERNAL_POSITION",
+      "evidence": "pinned cp-amm ix_remove_liquidity.rs: Signer and position owner/delegate permissions",
+      "mechanism": "SINGLE_SIGNER",
+      "compatibility": "PENDING_EXECUTION_PROOF",
+      "interfaceEvidence": "EXTERNAL_SIGNER_PATH_UNPROVEN",
+      "realSignaturesVerified": false,
+      "productionApproved": false
+    },
+    {
+      "boundary": "meteora_position",
+      "consumer": "EXTERNAL_POSITION",
+      "evidence": "pinned cp-amm ix_remove_liquidity.rs: Signer and position owner/delegate permissions",
+      "mechanism": "SPL_MULTISIG",
+      "compatibility": "DEMONSTRATED_INCOMPATIBLE_DIRECT_PATH",
+      "interfaceEvidence": "SINGLE_ACCOUNT_SIGNER_REQUIRED",
+      "realSignaturesVerified": false,
+      "productionApproved": false
+    },
+    {
+      "boundary": "meteora_position",
+      "consumer": "EXTERNAL_POSITION",
+      "evidence": "pinned cp-amm ix_remove_liquidity.rs: Signer and position owner/delegate permissions",
+      "mechanism": "PROGRAM_MULTISIG_PDA",
+      "compatibility": "PENDING_EXECUTION_PROOF",
+      "interfaceEvidence": "EXTERNAL_SIGNER_PATH_UNPROVEN",
+      "realSignaturesVerified": false,
+      "productionApproved": false
+    },
+    {
+      "boundary": "meteora_position",
+      "consumer": "EXTERNAL_POSITION",
+      "evidence": "pinned cp-amm ix_remove_liquidity.rs: Signer and position owner/delegate permissions",
+      "mechanism": "MULTISIG_MANAGED_ACCOUNT",
+      "compatibility": "PENDING_EXECUTION_PROOF",
+      "interfaceEvidence": "EXTERNAL_SIGNER_PATH_UNPROVEN",
+      "realSignaturesVerified": false,
+      "productionApproved": false
+    }
+  ]
+}

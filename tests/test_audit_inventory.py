@@ -26,6 +26,9 @@ class AuditInventoryTests(unittest.TestCase):
         self.assertFalse(inventory["repository"]["trackingRefIsLiveRemoteVerification"])
         for name in ("scripts/robusto-10b9-operational-plan.ts",
                      "scripts/robusto-custody-controls.ts",
+                     "scripts/test-founder-vesting-parity.py",
+                     "docs/evidence/robusto/custody-technical-compatibility.json",
+                     "docs/evidence/robusto/custody-signer-source-hashes.json",
                      "docs/evidence/robusto/founder-vesting-comparison.json",
                      "docs/evidence/robusto/10b9-operational-plan.json"):
             self.assertTrue(inventory["criticalFiles"][name]["present"])

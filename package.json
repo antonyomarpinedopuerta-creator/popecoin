@@ -58,6 +58,8 @@
     "test:robusto-10b9-mint-inventory": "node --require ts-node/register tests/robusto-10b9-mint-inventory.test.ts",
     "test:robusto-10b9-operational-plan": "node --require ts-node/register tests/robusto-10b9-operational-plan.test.ts",
     "test:robusto-custody-controls": "node --require ts-node/register tests/robusto-custody-controls.test.ts",
+    "test:robusto-custody-compatibility": "node --require ts-node/register tests/robusto-custody-compatibility.test.ts",
+    "test:founder-vesting-parity": "python3 scripts/test-founder-vesting-parity.py",
     "robusto:plan-10b9-offline": "ts-node scripts/robusto-10b9-operational-plan.ts",
     "robusto:prepare-10b9-vesting": "ts-node scripts/robusto-10b9-vesting-preparation.ts",
     "robusto:prepare-10b9-mint-inventory": "ts-node scripts/robusto-10b9-mint-inventory.ts",

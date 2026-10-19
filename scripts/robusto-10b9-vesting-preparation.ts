@@ -269,6 +269,19 @@ export function validateFounderDepositAccounting(vaultValue: unknown, depositVal
   };
 }
 
+/** Host accounting only: vested rights do not establish vault funding or recovery. */
+export function assessFounderVaultAccounting(vaultValue: unknown, releasedValue: unknown, vestedValue: unknown) {
+  const claim = validateFounderReleaseAccounting(releasedValue, vestedValue);
+  const vault = unsignedInteger(vaultValue, 'vault amount');
+  const remaining = FOUNDER_AMOUNT_BASE_UNITS - BigInt(claim.releasedBaseUnits);
+  const releasable = BigInt(claim.releasableBaseUnits);
+  return {...claim, vaultBaseUnits: vault.toString(), remainingEntitlementBaseUnits: remaining.toString(),
+    fundingShortfallBaseUnits: (vault < remaining ? remaining - vault : 0n).toString(),
+    excessBaseUnits: (vault > remaining ? vault - remaining : 0n).toString(),
+    arithmeticCanFundCurrentClaim: releasable > 0n && vault >= releasable,
+    excessOwnershipProven: false, administrativeRecoveryAvailable: false, evidenceLevel: 'HOST_ACCOUNTING_ONLY'};
+}
+
 /** Relative-time host model of vested_amount for valid founder schedules, not execution. */
 export function founderVestedModel(input: unknown, nowValue: unknown): bigint {
   const schedule = record(input, 'relative schedule');
