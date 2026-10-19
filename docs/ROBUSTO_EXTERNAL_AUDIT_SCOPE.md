@@ -211,3 +211,42 @@ resolución registrada en `yarn.lock`; Cargo depende de `Cargo.lock`.
 La salida de inventario es evidencia de integridad local, no firma del auditor ni
 atestación de origen. Conservar el JSON y su hash por un canal independiente cuando
 se encargue la revisión; no se entrega ni publica automáticamente en esta fase.
+
+### Continuación offline del 19 de octubre de 2026
+
+Revisión previa a cambios: después de `3364443`, `e0c3ef9` añadió el inventario
+de solo lectura, cinco pruebas y los límites de M-03/M-04; `5e68640` añadió
+la comparación individual de los 129 hashes fuente. No quedaba pendiente
+reimplementar esos controles ni se habían cerrado los diez hallazgos.
+
+Esta continuación corrige la ruta del reporte base del inventario:
+`target/unsigned-runtime-report.json` es la salida real del gate, en lugar de
+`target/robusto-10b9-runtime-report.json`. Las siete pruebas del inventario incluyen
+ahora fuentes alteradas/ausentes en un directorio temporal y reportes sintéticos
+del HEAD actual y de otro HEAD. Un reporte puede pasar de histórico a actual al
+repetir el gate; la prueba no debe exigir que siempre sea obsoleto.
+
+Comprobaciones offline repetidas y aprobadas antes del commit:
+
+- 14 tests Python: inventario (7), paquete (3), evidencia 10B/9 (1) y runtime (3).
+- 15 tests TypeScript: alternativa 10B/9 (6), Meteora 9/6 (3), reconciliación (6).
+- 12 tests Rust de `test_vesting` y 5 unitarios del harness unsigned.
+- 7 tests de aritmética de `ruint 1.14.0` en debug y los mismos 7 en release,
+  mediante `python3 scripts/test-meteora-advisory-arithmetic.py`.
+
+M-03 conserva el resultado esperado: `ONE.overflowing_shr(128)` pierde un bit
+pero devuelve flag false; aprobar la regresión reproduce el defecto, no lo repara.
+Para M-04 se repitió `cargo tree --offline --locked -i bincode` en la fuente
+oficial: conserva `bincode 1.3.3` vía Anchor 1.0.2 y otras dependencias Solana.
+La búsqueda en cp-amm no encontró `bincode`, `ProgramData` ni
+`programdata_address`; el parser de Anchor sigue presente. No demuestra ausencia
+de rutas indirectas ni cierra el aviso de mantenimiento.
+
+El gate de 157 casos y el empaquetador requieren HEAD limpio: se ejecutan después
+del commit. Sus resultados exactos se consultan en
+`target/unsigned-runtime-report.json`, `target/robusto-10b9-integration-report.json`
+y `target/robusto-external-audit-<HEAD de 12 caracteres>.tar.gz`, generados localmente.
+No se versionan reportes que se atribuyan circularmente al commit que los contiene.
+El paquete comprueba dos serializaciones con distinto orden de entradas y verifica
+el archivo final. La evidencia actualizada sigue sin probar atomicidad nativa,
+reconstrucción independiente del ELF, auditoría externa ni preparación de producción.

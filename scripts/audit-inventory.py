@@ -181,7 +181,7 @@ def build_inventory(root: Path = ROOT) -> dict:
     except (OSError, json.JSONDecodeError):
         audit = {}
     history = {}
-    for name in ("target/robusto-10b9-runtime-report.json", "target/robusto-10b9-integration-report.json"):
+    for name in ("target/unsigned-runtime-report.json", "target/robusto-10b9-integration-report.json"):
         try:
             report = json.loads((root / name).read_text(encoding="utf-8"))
             history[name] = {"status": report.get("status"), "head": report.get("head"),

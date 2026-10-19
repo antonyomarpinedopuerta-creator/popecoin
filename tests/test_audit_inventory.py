@@ -1,6 +1,9 @@
 import importlib.util
+import json
 from pathlib import Path
+import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location("audit_inventory", ROOT / "scripts/audit-inventory.py")
@@ -48,7 +51,42 @@ class AuditInventoryTests(unittest.TestCase):
     def test_historical_reports_are_not_misrepresented_as_current(self):
         reports = self.inventory["historicalEvidence"]
         self.assertTrue(reports)
-        self.assertTrue(all(not report.get("matchesCurrentHead", False) for report in reports.values()))
+        self.assertIn("target/unsigned-runtime-report.json", reports)
+        for report in reports.values():
+            if "head" in report:
+                self.assertEqual(report["matchesCurrentHead"],
+                                 report["head"] == self.inventory["repository"]["head"])
+
+    def test_pinned_source_detects_tampering_and_missing_files(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / MODULE.OFFICIAL / "programs/cp-amm/src/lib.rs"
+            source.parent.mkdir(parents=True)
+            source.write_bytes(b"reviewed fixture")
+            name = "programs/cp-amm/src/lib.rs"
+            record = root / "target/meteora-official/build-record.json"
+            record.write_text(json.dumps({"sourceHashes": {name: MODULE.sha256(source)}}))
+            self.assertEqual(MODULE.meteora_source_record(root)["matchedCount"], 1)
+            source.write_bytes(b"altered fixture")
+            result = MODULE.meteora_source_record(root)
+            self.assertEqual(result["matchedCount"], 0)
+            self.assertEqual(result["mismatches"], [name])
+            source.unlink()
+            self.assertEqual(MODULE.meteora_source_record(root)["mismatches"], [name])
+
+    def test_stale_and_current_reports_are_distinguished(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "target").mkdir()
+            head = "1" * 40
+            for report_head in ["0" * 40, head]:
+                for name in ["unsigned-runtime-report.json", "robusto-10b9-integration-report.json"]:
+                    (root / "target" / name).write_text(json.dumps({"head": report_head, "status": "passed"}))
+                with patch.object(MODULE, "git_value", return_value=head), patch.object(MODULE, "versions", return_value={}):
+                    reports = MODULE.build_inventory(root)["historicalEvidence"]
+                self.assertEqual(len(reports), 2)
+                for report in reports.values():
+                    self.assertEqual(report["matchesCurrentHead"], report_head == head)
 
     def test_file_hash_missing_is_explicit(self):
         result = MODULE.file_hashes(ROOT, ["a/path/that/does/not/exist"])
