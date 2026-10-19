@@ -36,6 +36,8 @@ CRITICAL_FILES = [
     "config/robusto-production.json", "config/robusto-meteora-local.json",
     "scripts/robusto-10b9-offline.ts", "scripts/robusto-10b9-vesting-preparation.ts",
     "scripts/robusto-10b9-mint-inventory.ts", "scripts/robusto-production.ts",
+    "scripts/robusto-10b9-operational-plan.ts",
+    "docs/evidence/robusto/10b9-operational-plan.json",
     "scripts/robusto-meteora-local.ts", "package.json", "yarn.lock",
 ]
 ARTIFACTS = [

@@ -1,0 +1,362 @@
+{
+  "schemaVersion": 1,
+  "profile": "ROBUSTO_10B_9_OPERATIONAL_REVIEW",
+  "status": "BLOCKED",
+  "scope": "OFFLINE_FIXTURE_ONLY",
+  "mainnetStatus": "NOT_AUTHORIZED_FOR_MAINNET",
+  "mainnetDisabled": true,
+  "operationsAuthorized": false,
+  "readyForReviewAuthorizesOperations": false,
+  "evidenceLevel": "LOCAL_DECLARATIONS_NOT_AUTHENTICATED",
+  "chainStateVerified": false,
+  "independentlyAudited": false,
+  "nativeAtomicityVerified": false,
+  "confirmedEconomics": {
+    "name": "ROBUSTO",
+    "decimals": 9,
+    "supplyTokens": "10000000000",
+    "supplyBaseUnits": "10000000000000000000",
+    "u64Headroom": "8446744073709551615"
+  },
+  "inputManifestSha256": "9e1a92c56e10d07151c48228b0b9ad7bac8df31f50858c1ec17cfc3d65c30b13",
+  "inputSha256": "62cca32b90f9fbfb7df4705fd5afdc3a1e098748db95d953d257c1a17ebef1b1",
+  "reviewDeclarations": {
+    "authorityReviews": {
+      "freeze": {
+        "reference": null,
+        "status": "PENDING"
+      },
+      "metadataUpdate": {
+        "reference": null,
+        "status": "PENDING"
+      },
+      "mint": {
+        "reference": null,
+        "status": "PENDING"
+      },
+      "vestingProgramUpgrade": {
+        "reference": null,
+        "status": "PENDING"
+      }
+    },
+    "custodyReview": {
+      "reference": null,
+      "status": "PENDING"
+    },
+    "founderVesting": {
+      "approval": {
+        "reference": null,
+        "status": "PENDING"
+      },
+      "baseUnixSeconds": null,
+      "lockDays": 365,
+      "releaseDays": 730
+    },
+    "inventory": {
+      "allocations": [
+        {
+          "baseUnits": "4000000000000000000",
+          "label": "liquidity_market",
+          "tokens": "4000000000"
+        },
+        {
+          "baseUnits": "3000000000000000000",
+          "label": "community",
+          "tokens": "3000000000"
+        },
+        {
+          "baseUnits": "1500000000000000000",
+          "label": "strategic_reserve",
+          "tokens": "1500000000"
+        },
+        {
+          "baseUnits": "1499000000000000000",
+          "label": "development_operations",
+          "tokens": "1499000000"
+        },
+        {
+          "baseUnits": "1000000000000000",
+          "label": "founder",
+          "tokens": "1000000"
+        }
+      ],
+      "authorities": {
+        "freeze": null,
+        "metadataUpdate": null,
+        "mint": null,
+        "vestingProgramUpgrade": null
+      },
+      "custodians": {
+        "community": null,
+        "development_operations": null,
+        "founder": null,
+        "liquidity_market": null,
+        "strategic_reserve": null
+      },
+      "decimals": 9,
+      "evidence": {
+        "kind": "LOCAL_DECLARATION",
+        "rpcStateVerified": false
+      },
+      "founderVestingBeneficiary": null,
+      "liquidityPositionCustodian": null,
+      "mintAddress": null,
+      "profile": "ROBUSTO_10B_9_MINT_INVENTORY_OFFLINE",
+      "schemaVersion": 1,
+      "supplyBaseUnits": "10000000000000000000",
+      "supplyTokens": "10000000000",
+      "tokenProgramId": null
+    },
+    "liquidity": {
+      "feeFunding": {
+        "reference": null,
+        "status": "PENDING"
+      },
+      "meteoraRiskReview": {
+        "reference": null,
+        "status": "PENDING"
+      },
+      "positionCustodyReview": {
+        "reference": null,
+        "status": "PENDING"
+      },
+      "quoteAssetReference": null,
+      "quoteFunding": {
+        "reference": null,
+        "status": "PENDING"
+      }
+    },
+    "mainnetDisabled": true,
+    "mainnetStatus": "NOT_AUTHORIZED_FOR_MAINNET",
+    "operationsAuthorized": false,
+    "profile": "ROBUSTO_10B_9_OPERATIONAL_REVIEW",
+    "schemaVersion": 1,
+    "scope": "OFFLINE_FIXTURE_ONLY"
+  },
+  "stages": [
+    {
+      "id": "mint_identity",
+      "status": "BLOCKED",
+      "reasons": [
+        "Mint identity has not been selected",
+        "Token program identity is pending",
+        "Authority freeze is pending",
+        "Authority metadataUpdate is pending",
+        "Authority mint is pending",
+        "Authority vestingProgramUpgrade is pending",
+        "Custodian community is pending",
+        "Custodian development_operations is pending",
+        "Custodian founder is pending",
+        "Custodian liquidity_market is pending",
+        "Custodian strategic_reserve is pending",
+        "Founder vesting beneficiary is pending",
+        "Liquidity position custodian is pending",
+        "No authenticated chain verification in offline declarations"
+      ]
+    },
+    {
+      "id": "supply_decimals",
+      "status": "READY_FOR_REVIEW",
+      "reasons": [
+        "Exact manifest arithmetic only; not observed mint supply"
+      ]
+    },
+    {
+      "id": "authorities",
+      "status": "PENDING",
+      "reasons": [
+        "mint: explicit declaration and review required",
+        "freeze: explicit declaration and review required",
+        "metadataUpdate: explicit declaration and review required",
+        "vestingProgramUpgrade: explicit declaration and review required"
+      ]
+    },
+    {
+      "id": "five_allocations",
+      "status": "READY_FOR_REVIEW",
+      "reasons": [
+        "Exact allocation accounting; no distribution or deposit performed"
+      ]
+    },
+    {
+      "id": "custodians",
+      "status": "PENDING",
+      "reasons": [
+        "Five custodians, beneficiary and custody review required"
+      ]
+    },
+    {
+      "id": "founder_vesting",
+      "status": "BLOCKED",
+      "reasons": [
+        "Unapproved or incomplete 365/730-day vesting; beneficiary and base time required"
+      ]
+    },
+    {
+      "id": "liquidity_prerequisites",
+      "status": "BLOCKED",
+      "reasons": [
+        "Mint chain identity/state cannot be verified by this offline planner",
+        "External quote funding and quote asset remain unconfirmed",
+        "External fee funding remains unconfirmed",
+        "Position custodian and custody review required",
+        "Meteora risk evaluation reference required; findings remain open"
+      ]
+    },
+    {
+      "id": "security_review",
+      "status": "BLOCKED",
+      "reasons": [
+        "M-01 through M-10 remain open",
+        "NATIVE_ATOMICITY_NOT_VERIFIED",
+        "Independent audit, custody recovery and authorities require external acceptance"
+      ]
+    }
+  ],
+  "unresolvedStages": [
+    "mint_identity",
+    "authorities",
+    "custodians",
+    "founder_vesting",
+    "liquidity_prerequisites",
+    "security_review"
+  ],
+  "authorityChecks": [
+    {
+      "role": "mint",
+      "declaration": null,
+      "status": "PENDING"
+    },
+    {
+      "role": "freeze",
+      "declaration": null,
+      "status": "PENDING"
+    },
+    {
+      "role": "metadataUpdate",
+      "declaration": null,
+      "status": "PENDING"
+    },
+    {
+      "role": "vestingProgramUpgrade",
+      "declaration": null,
+      "status": "PENDING"
+    }
+  ],
+  "allocationPlan": [
+    {
+      "label": "liquidity_market",
+      "amountTokens": "4000000000",
+      "amountBaseUnits": "4000000000000000000",
+      "treatment": "DISTRIBUTION_POLICY_PENDING",
+      "vestingScenario": null,
+      "custodian": null
+    },
+    {
+      "label": "community",
+      "amountTokens": "3000000000",
+      "amountBaseUnits": "3000000000000000000",
+      "treatment": "DISTRIBUTION_POLICY_PENDING",
+      "vestingScenario": null,
+      "custodian": null
+    },
+    {
+      "label": "strategic_reserve",
+      "amountTokens": "1500000000",
+      "amountBaseUnits": "1500000000000000000",
+      "treatment": "DISTRIBUTION_POLICY_PENDING",
+      "vestingScenario": null,
+      "custodian": null
+    },
+    {
+      "label": "development_operations",
+      "amountTokens": "1499000000",
+      "amountBaseUnits": "1499000000000000000",
+      "treatment": "DISTRIBUTION_POLICY_PENDING",
+      "vestingScenario": null,
+      "custodian": null
+    },
+    {
+      "label": "founder",
+      "amountTokens": "1000000",
+      "amountBaseUnits": "1000000000000000",
+      "treatment": "FOUNDER_VESTING_SCENARIO_PENDING_APPROVAL",
+      "vestingScenario": {
+        "beneficiary": null,
+        "baseUnixSeconds": null,
+        "startOffsetSeconds": "31536000",
+        "cliffOffsetSeconds": "31536000",
+        "releaseDurationSeconds": "63072000",
+        "endOffsetSeconds": "94608000",
+        "approved": false
+      },
+      "custodian": null
+    }
+  ],
+  "custody": {
+    "declarations": {
+      "liquidity_market": null,
+      "community": null,
+      "strategic_reserve": null,
+      "development_operations": null,
+      "founder": null
+    },
+    "beneficiary": null,
+    "liquidityPosition": null,
+    "sharedAllocationCustody": false,
+    "risks": [
+      "Beneficiary loss has no administrative recovery",
+      "Direct vault donations can remain locked",
+      "Shared custody concentrates control; public syntax does not prove control or recovery"
+    ]
+  },
+  "founderSchedule": null,
+  "liquidityChecks": [
+    {
+      "id": "verified_mint",
+      "status": "BLOCKED",
+      "reason": "Mint chain identity/state cannot be verified by this offline planner"
+    },
+    {
+      "id": "allocation",
+      "status": "READY_FOR_REVIEW",
+      "reason": "Local declaration available for independent review; not authenticated"
+    },
+    {
+      "id": "external_quote_funding",
+      "status": "BLOCKED",
+      "reason": "External quote funding and quote asset remain unconfirmed"
+    },
+    {
+      "id": "external_fee_funding",
+      "status": "BLOCKED",
+      "reason": "External fee funding remains unconfirmed"
+    },
+    {
+      "id": "position_custody",
+      "status": "BLOCKED",
+      "reason": "Position custodian and custody review required"
+    },
+    {
+      "id": "meteora_risk_evaluation",
+      "status": "BLOCKED",
+      "reason": "Meteora risk evaluation reference required; findings remain open"
+    }
+  ],
+  "liquidityDeposited": false,
+  "allocationDoesNotProveLiquidity": true,
+  "meteora": {
+    "protocol": "DAMM_V2",
+    "findingsOpen": 10,
+    "status": "BLOCKED_FOR_PRODUCTION_REVIEW"
+  },
+  "outputs": {
+    "instructions": false,
+    "transactions": false,
+    "signatures": false,
+    "accounts": false,
+    "privateKeys": false,
+    "rpcRequests": false
+  },
+  "planSha256": "f74e95ba67e61a9c478738915c41b65083b6c0bc7801d66a52ae04a8cf10b494"
+}

@@ -24,6 +24,10 @@ class AuditInventoryTests(unittest.TestCase):
         self.assertTrue(inventory["readOnly"])
         self.assertFalse(inventory["independentlyAudited"])
         self.assertFalse(inventory["repository"]["trackingRefIsLiveRemoteVerification"])
+        for name in ("scripts/robusto-10b9-operational-plan.ts",
+                     "docs/evidence/robusto/10b9-operational-plan.json"):
+            self.assertTrue(inventory["criticalFiles"][name]["present"])
+            self.assertEqual(inventory["criticalFiles"][name]["sha256"], MODULE.sha256(ROOT / name))
 
     def test_release_record_compares_source_and_output_hashes(self):
         inventory = self.inventory
