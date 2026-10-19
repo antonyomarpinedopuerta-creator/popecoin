@@ -37,6 +37,8 @@ CRITICAL_FILES = [
     "scripts/robusto-10b9-offline.ts", "scripts/robusto-10b9-vesting-preparation.ts",
     "scripts/robusto-10b9-mint-inventory.ts", "scripts/robusto-production.ts",
     "scripts/robusto-10b9-operational-plan.ts",
+    "scripts/robusto-custody-controls.ts",
+    "docs/evidence/robusto/founder-vesting-comparison.json",
     "docs/evidence/robusto/10b9-operational-plan.json",
     "scripts/robusto-meteora-local.ts", "package.json", "yarn.lock",
 ]

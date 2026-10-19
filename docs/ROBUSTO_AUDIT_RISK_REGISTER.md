@@ -2,6 +2,13 @@
 
 **Estado:** `NOT_AUTHORIZED_FOR_MAINNET` · `MAINNET_DISABLED` · `OFFLINE_FIXTURE_ONLY` · `NATIVE_ATOMICITY_NOT_VERIFIED` · `BLOCKED_FOR_PRODUCTION_REVIEW`.
 
+La [arquitectura de custodia y autoridades](ROBUSTO_CUSTODY_ARCHITECTURE.md) amplía
+R-02/R-03/R-05 con un validador offline de permisos y concentración, compatibilidad
+Signer/multisig y comparación matemática de dos calendarios sin selección. No
+cierra esos riesgos ni cambia el contrato; los casos SBF siguientes siguen siendo
+evidencia histórica. El upgrade comprometido puede afectar vaults ya existentes,
+no únicamente cuentas futuras.
+
 Revisión documental y comprobaciones estáticas del código en el HEAD base `0eec8a91d1fd1b5260a3a55075bdfc9947677c9e`; este cambio añade únicamente documentación. No se ejecutaron pruebas Rust/Anchor, el harness, auditorías de dependencias ni herramientas de red en esta revisión. Las cifras de casos indicadas abajo proceden de registros anteriores y se identifican como evidencia histórica, no como resultados repetidos en el HEAD actual. Severidad es una evaluación cualitativa del riesgo residual, no CVSS ni una declaración de explotabilidad.
 
 ## Alcance y evidencia disponible

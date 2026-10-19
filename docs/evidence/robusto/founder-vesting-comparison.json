@@ -1,0 +1,122 @@
+{
+  "scope": "OFFLINE_FIXTURE_ONLY",
+  "mainnetStatus": "NOT_AUTHORIZED_FOR_MAINNET",
+  "mainnetDisabled": true,
+  "operationsAuthorized": false,
+  "selectedScenario": null,
+  "beneficiary": null,
+  "baseUnixSeconds": null,
+  "evidenceLevel": "HOST_MATH_ONLY_NOT_SBF",
+  "inputManifestSha256": "9e1a92c56e10d07151c48228b0b9ad7bac8df31f50858c1ec17cfc3d65c30b13",
+  "intervalConvention": "6_MONTH_LABEL_EQUALS_182_5_DAYS_NOT_CALENDAR_MONTHS",
+  "scenarios": [
+    {
+      "id": "LOCK_365_LINEAR_730",
+      "approved": false,
+      "schedule": {
+        "totalAmountBaseUnits": "1000000000000000",
+        "startOffsetSeconds": "31536000",
+        "cliffOffsetSeconds": "31536000",
+        "endOffsetSeconds": "94608000"
+      },
+      "points": [
+        {
+          "label": "INITIAL",
+          "relativeSeconds": "0",
+          "vestedBaseUnits": "0",
+          "remainingEntitlementBaseUnits": "1000000000000000",
+          "actualReleasedBaseUnits": null
+        },
+        {
+          "label": "END_LOCK",
+          "relativeSeconds": "31536000",
+          "vestedBaseUnits": "0",
+          "remainingEntitlementBaseUnits": "1000000000000000",
+          "actualReleasedBaseUnits": null
+        },
+        {
+          "label": "6_MONTH_EQUIVALENT_AFTER_LOCK",
+          "relativeSeconds": "47304000",
+          "vestedBaseUnits": "250000000000000",
+          "remainingEntitlementBaseUnits": "750000000000000",
+          "actualReleasedBaseUnits": null
+        },
+        {
+          "label": "12_MONTH_EQUIVALENT_AFTER_LOCK",
+          "relativeSeconds": "63072000",
+          "vestedBaseUnits": "500000000000000",
+          "remainingEntitlementBaseUnits": "500000000000000",
+          "actualReleasedBaseUnits": null
+        },
+        {
+          "label": "18_MONTH_EQUIVALENT_AFTER_LOCK",
+          "relativeSeconds": "78840000",
+          "vestedBaseUnits": "750000000000000",
+          "remainingEntitlementBaseUnits": "250000000000000",
+          "actualReleasedBaseUnits": null
+        },
+        {
+          "label": "24_MONTH_EQUIVALENT_AFTER_LOCK",
+          "relativeSeconds": "94608000",
+          "vestedBaseUnits": "1000000000000000",
+          "remainingEntitlementBaseUnits": "0",
+          "actualReleasedBaseUnits": null
+        }
+      ]
+    },
+    {
+      "id": "LOCK_365_SINGLE_UNLOCK",
+      "approved": false,
+      "schedule": {
+        "totalAmountBaseUnits": "1000000000000000",
+        "startOffsetSeconds": "0",
+        "cliffOffsetSeconds": "31536000",
+        "endOffsetSeconds": "31536000"
+      },
+      "points": [
+        {
+          "label": "INITIAL",
+          "relativeSeconds": "0",
+          "vestedBaseUnits": "0",
+          "remainingEntitlementBaseUnits": "1000000000000000",
+          "actualReleasedBaseUnits": null
+        },
+        {
+          "label": "END_LOCK",
+          "relativeSeconds": "31536000",
+          "vestedBaseUnits": "1000000000000000",
+          "remainingEntitlementBaseUnits": "0",
+          "actualReleasedBaseUnits": null
+        },
+        {
+          "label": "6_MONTH_EQUIVALENT_AFTER_LOCK",
+          "relativeSeconds": "47304000",
+          "vestedBaseUnits": "1000000000000000",
+          "remainingEntitlementBaseUnits": "0",
+          "actualReleasedBaseUnits": null
+        },
+        {
+          "label": "12_MONTH_EQUIVALENT_AFTER_LOCK",
+          "relativeSeconds": "63072000",
+          "vestedBaseUnits": "1000000000000000",
+          "remainingEntitlementBaseUnits": "0",
+          "actualReleasedBaseUnits": null
+        },
+        {
+          "label": "18_MONTH_EQUIVALENT_AFTER_LOCK",
+          "relativeSeconds": "78840000",
+          "vestedBaseUnits": "1000000000000000",
+          "remainingEntitlementBaseUnits": "0",
+          "actualReleasedBaseUnits": null
+        },
+        {
+          "label": "24_MONTH_EQUIVALENT_AFTER_LOCK",
+          "relativeSeconds": "94608000",
+          "vestedBaseUnits": "1000000000000000",
+          "remainingEntitlementBaseUnits": "0",
+          "actualReleasedBaseUnits": null
+        }
+      ]
+    }
+  ]
+}

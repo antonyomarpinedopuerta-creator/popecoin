@@ -269,6 +269,52 @@ export function validateFounderDepositAccounting(vaultValue: unknown, depositVal
   };
 }
 
+/** Relative-time host model of vested_amount for valid founder schedules, not execution. */
+export function founderVestedModel(input: unknown, nowValue: unknown): bigint {
+  const schedule = record(input, 'relative schedule');
+  const allowed = ['totalAmountBaseUnits', 'startOffsetSeconds', 'cliffOffsetSeconds', 'endOffsetSeconds'].sort();
+  const actual = Object.keys(schedule).sort();
+  if (actual.length !== allowed.length || actual.some((key, i) => key !== allowed[i])) throw Error('Unsupported relative schedule fields');
+  const total = unsignedInteger(schedule.totalAmountBaseUnits, 'founder amount');
+  const start = unsignedInteger(schedule.startOffsetSeconds, 'start offset', I64_MAX);
+  const cliff = unsignedInteger(schedule.cliffOffsetSeconds, 'cliff offset', I64_MAX);
+  const end = unsignedInteger(schedule.endOffsetSeconds, 'end offset', I64_MAX);
+  const now = unsignedInteger(nowValue, 'relative time', I64_MAX);
+  if (total !== FOUNDER_AMOUNT_BASE_UNITS || start >= end || start > cliff || cliff > end) throw Error('Invalid founder relative schedule');
+  if (now < cliff) return 0n;
+  if (now >= end) return total;
+  return total * (now - start) / (end - start);
+}
+
+/** Compare proposals only. Six "months" means 730/4 days, never calendar months. */
+export function compareFounderVestingScenarios(manifestInput: unknown) {
+  const preparation = buildVestingPreparation(manifestInput);
+  const lock = FOUNDER_LOCK_DAYS * SECONDS_PER_DAY;
+  const linear = FOUNDER_RELEASE_DAYS * SECONDS_PER_DAY;
+  return {
+    scope: 'OFFLINE_FIXTURE_ONLY', mainnetStatus: 'NOT_AUTHORIZED_FOR_MAINNET', mainnetDisabled: true,
+    operationsAuthorized: false, selectedScenario: null, beneficiary: null, baseUnixSeconds: null,
+    evidenceLevel: 'HOST_MATH_ONLY_NOT_SBF', inputManifestSha256: preparation.inputManifestSha256,
+    intervalConvention: '6_MONTH_LABEL_EQUALS_182_5_DAYS_NOT_CALENDAR_MONTHS',
+    scenarios: [
+      {id: 'LOCK_365_LINEAR_730', startOffsetSeconds: lock.toString(), cliffOffsetSeconds: lock.toString(), endOffsetSeconds: (lock + linear).toString()},
+      {id: 'LOCK_365_SINGLE_UNLOCK', startOffsetSeconds: '0', cliffOffsetSeconds: lock.toString(), endOffsetSeconds: lock.toString()},
+    ].map(scenario => {
+      const {id, ...offsets} = scenario;
+      const schedule = {totalAmountBaseUnits: FOUNDER_AMOUNT_BASE_UNITS.toString(), ...offsets};
+      return {id, approved: false, schedule, points: [
+        {label: 'INITIAL', seconds: 0n}, {label: 'END_LOCK', seconds: lock},
+        ...['6', '12', '18', '24'].map((months, i) => ({label: `${months}_MONTH_EQUIVALENT_AFTER_LOCK`, seconds: lock + linear * BigInt(i + 1) / 4n})),
+      ].map(point => {
+        const vested = founderVestedModel(schedule, point.seconds.toString());
+        return {label: point.label, relativeSeconds: point.seconds.toString(), vestedBaseUnits: vested.toString(),
+          remainingEntitlementBaseUnits: (FOUNDER_AMOUNT_BASE_UNITS - vested).toString(),
+          actualReleasedBaseUnits: null};
+      })};
+    }),
+  };
+}
+
 /** Fixed-input CLI adapter; emits only canonical abstract JSON to stdout. */
 export function renderVestingPreparation(args: readonly string[] = process.argv.slice(2)): string {
   if (args.length !== 0) throw new Error('This vesting preparation adapter accepts no runtime/profile/network arguments');
